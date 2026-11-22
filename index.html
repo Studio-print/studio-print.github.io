@@ -150,6 +150,10 @@ dialog::backdrop{background:rgba(15,17,22,.72)}
 .colors ul{list-style:none;margin:0;padding:0;display:flex;gap:10px;flex-wrap:wrap}
 .colors li{display:flex;align-items:center;gap:6px;font-size:14px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 6px}
 .colors .sw{width:16px;height:16px}
+.avisos{border-top:1px solid var(--line);padding-top:14px;margin-top:4px}
+.avisos:empty{display:none}
+.avisos h4{margin:0 0 6px;font-size:14px;color:var(--muted);font-weight:600}
+.avisos ul{margin:0;padding-left:18px;font-size:14px;color:#353B46;display:grid;gap:4px}
 .note{font-size:14px;color:var(--muted);background:var(--paper);border-radius:12px;padding:10px 12px}
 .actions{display:grid;gap:10px;margin-top:4px}
 .btn{display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;font-weight:700;font-size:16px;border-radius:12px;padding:14px 16px;border:0;cursor:pointer}
@@ -213,11 +217,11 @@ dialog::backdrop{background:rgba(15,17,22,.72)}
 
 <section class="wrap hero">
   <div>
-    <h1>Feito camada por camada.</h1>
-    <p>Bonecos articulados, personagens e enfeites de Natal impressos em 3D. Cada peça é feita sob encomenda, na cor que você escolher. Toque em uma foto para ver mais imagens, o preço e pedir pelo WhatsApp.</p>
-    <button class="season" type="button" data-go="Natal">
+    <h1 id="hTitulo">Feito camada por camada.</h1>
+    <p id="hTexto">Bonecos articulados, personagens e enfeites de Natal impressos em 3D. Cada peça é feita sob encomenda, na cor que você escolher. Toque em uma foto para ver mais imagens, o preço e pedir pelo WhatsApp.</p>
+    <button class="season" type="button" data-go="Natal" id="faixa">
       <span class="dot"><svg><use href="#i-star"/></svg></span>
-      <span><strong>Natal 2026: enfeites com o nome de quem você ama</strong><small>Peça com antecedência para chegar antes do Natal. Veja os modelos</small></span>
+      <span><strong id="fTitulo">Natal 2026: enfeites com o nome de quem você ama</strong><small id="fTexto">Peça com antecedência para chegar antes do Natal. Veja os modelos</small></span>
     </button>
   </div>
   <div class="stack" aria-hidden="true">
@@ -250,7 +254,7 @@ dialog::backdrop{background:rgba(15,17,22,.72)}
     <div class="contacts" id="bottomContacts"></div>
   </div>
 </section>
-<footer class="wrap">Preços em reais, válidos para pagamento à vista. Cores e tamanhos podem variar um pouco de uma impressão para outra.</footer>
+<footer class="wrap" id="rodape">Preços em reais, válidos para pagamento à vista. Cores e tamanhos podem variar um pouco de uma impressão para outra.</footer>
 
 <dialog id="dlg" aria-labelledby="dTitle">
   <div class="detail" tabindex="-1" autofocus>
@@ -271,16 +275,50 @@ dialog::backdrop{background:rgba(15,17,22,.72)}
         <div class="two" id="dWa"></div>
         <a class="btn ghost" id="dShare" href="#" target="_blank" rel="noopener"><svg><use href="#i-send"/></svg>Enviar este produto para alguém</a>
       </div>
+      <div class="avisos" id="dAvisos"></div>
     </div>
   </div>
 </dialog>
 
 <script>
 const SITE_URL = location.origin + location.pathname.replace(/index\.html$/, "");
-const CONTACTS = [
+let CONTACTS = [
   {name:"Karina", artigo:"a", phone:"5511953650406", shown:"(11) 95365-0406"},
   {name:"Arthur", artigo:"o", phone:"5511972006390", shown:"(11) 97200-6390"}
 ];
+let SITE = {filamentos:[], avisos:[]};
+function telefone(t){
+  const d = String(t||"").replace(/\D/g,"").replace(/^55(?=\d{10,11}$)/,"");
+  const shown = d.length===11 ? `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}` : d.length===10 ? `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}` : d;
+  return {phone:"55"+d, shown};
+}
+function aplicarSite(cfg){
+  SITE = Object.assign({filamentos:[], avisos:[]}, cfg||{});
+  const i = SITE.inicio || {};
+  if(i.titulo) $("#hTitulo").textContent = i.titulo;
+  if(i.texto) $("#hTexto").textContent = i.texto;
+  (i.fotos||[]).slice(0,3).forEach((n,k) => { const im = document.querySelector(".stack .s"+(k+1)); if(im && n) im.src = foto(n,true); });
+  const f = SITE.faixa;
+  if(f){
+    $("#faixa").hidden = !f.ativa;
+    if(f.titulo) $("#fTitulo").textContent = f.titulo;
+    $("#fTexto").textContent = f.texto || "";
+    if(f.categoria) $("#faixa").dataset.go = f.categoria;
+  }
+  if(Array.isArray(SITE.contatos) && SITE.contatos.length){
+    CONTACTS = SITE.contatos.filter(c=>c.nome && c.telefone).map(c => ({name:c.nome, artigo:c.artigo||"", ...telefone(c.telefone)}));
+  }
+  if(typeof SITE.rodape === "string") $("#rodape").textContent = SITE.rodape;
+  $("#topContacts").innerHTML = contactsHTML("pill");
+  $("#bottomContacts").innerHTML = contactsHTML("card");
+}
+function coresDisponiveis(p){
+  const falta = new Set((SITE.filamentos||[]).filter(f=>f.disponivel===false).map(f=>f.nome.toLowerCase()));
+  return (p.colors||[]).filter(c => !falta.has(String(c.nome).toLowerCase()));
+}
+function avisosDe(p){
+  return (SITE.avisos||[]).filter(a => a.texto && (a.para||["todos"]).some(x => x==="todos" || x===p.cat || (x==="personalizados" && p.custom)));
+}
 const STATUS = {disponivel:"Pronta entrega", encomenda:"Sob encomenda", esgotado:"Esgotado"};
 const ORDEM_CATS = ["Natal","Personagens","Bonecos de pose","Decoração"];
 let P = [], CATS = ["Todos"];
@@ -299,8 +337,8 @@ function waLink(c, p){
 }
 function contactsHTML(kind){
   return CONTACTS.map(c => kind==="pill"
-    ? `<a class="pill-link" href="${waLink(c)}" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>${c.name}<span>&nbsp;${c.shown}</span></a>`
-    : `<a class="contact" href="${waLink(c)}" target="_blank" rel="noopener"><span class="ico"><svg><use href="#i-wa"/></svg></span><span><b>${c.name}</b><span>${c.shown}</span></span></a>`).join("");
+    ? `<a class="pill-link" href="${waLink(c)}" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>${esc(c.name)}<span>&nbsp;${c.shown}</span></a>`
+    : `<a class="contact" href="${waLink(c)}" target="_blank" rel="noopener"><span class="ico"><svg><use href="#i-wa"/></svg></span><span><b>${esc(c.name)}</b><span>${c.shown}</span></span></a>`).join("");
 }
 $("#topContacts").innerHTML = contactsHTML("pill");
 $("#bottomContacts").innerHTML = contactsHTML("card");
@@ -312,7 +350,8 @@ function renderChips(){
   }).join("");
 }
 function swatches(p){
-  return p.colors && p.colors.length ? `<span class="swatches" aria-label="${p.colors.length} cores">${p.colors.map(k=>`<span class="sw" style="background:${esc(k.hex)}" title="${esc(k.nome)}"></span>`).join("")}</span>` : "";
+  const cs = coresDisponiveis(p);
+  return cs.length ? `<span class="swatches" aria-label="${cs.length} cores">${cs.map(k=>`<span class="sw" style="background:${esc(k.hex)}" title="${esc(k.nome)}"></span>`).join("")}</span>` : "";
 }
 function renderGrid(){
   const nq = norm(q.trim());
@@ -357,13 +396,15 @@ function openProduct(id, setHash){
   const st = $("#dStatus"); st.className = "status " + p.status; st.textContent = STATUS[p.status];
   $("#dLaunch").hidden = !p.launch;
   $("#dDesc").textContent = p.desc;
-  $("#dColors").innerHTML = p.colors && p.colors.length ? `<h4>Cores</h4><ul>${p.colors.map(k=>`<li><span class="sw" style="background:${esc(k.hex)}"></span>${esc(k.nome)}</li>`).join("")}</ul>` : "";
+  const cs = coresDisponiveis(p);
+  $("#dAvisos").innerHTML = avisosDe(p).length ? `<h4>Antes de comprar</h4><ul>${avisosDe(p).map(a=>`<li>${esc(a.texto)}</li>`).join("")}</ul>` : "";
+  $("#dColors").innerHTML = cs.length ? `<h4>Cores</h4><ul>${cs.map(k=>`<li><span class="sw" style="background:${esc(k.hex)}"></span>${esc(k.nome)}</li>`).join("")}</ul>` : "";
   $("#dNote").textContent = p.status==="encomenda"
     ? (p.custom ? "Feito sob encomenda depois que você manda o nome e as cores. Confirme o prazo no WhatsApp."
                 : "Feito sob encomenda: a peça é impressa depois do pedido, na cor que você escolher. Confirme o prazo no WhatsApp.")
     : p.status==="esgotado" ? "Esgotado no momento. Chame no WhatsApp para entrar na lista de espera."
     : "Pronta entrega. Chame no WhatsApp para combinar a retirada ou o envio.";
-  $("#dWa").innerHTML = CONTACTS.map(c => `<a class="btn wa" href="${waLink(c,p)}" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Pedir com ${c.artigo} ${c.name}</a>`).join("");
+  $("#dWa").innerHTML = CONTACTS.map(c => `<a class="btn wa" href="${waLink(c,p)}" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Pedir com ${c.artigo ? c.artigo+" " : ""}${esc(c.name)}</a>`).join("");
   const url = (SITE_URL || "") + "#" + p.id.toLowerCase();
   const shareMsg = `Olha esse produto da StudioPrint: ${p.name}, ${brl(p.price)}${p.unit?" "+p.unit:""}.${SITE_URL?" "+url:""}`;
   $("#dShare").href = "https://wa.me/?text=" + encodeURIComponent(shareMsg);
@@ -403,6 +444,8 @@ function fromHash(){ const h = decodeURIComponent(location.hash.replace("#",""))
 window.addEventListener("hashchange", fromHash);
 async function carregar(){
   try{
+    const rs = await fetch("site.json", {cache:"no-store"}).then(x => x.ok ? x.json() : null).catch(() => null);
+    aplicarSite(rs);
     const r = await fetch("produtos.json", {cache:"no-store"});
     if(!r.ok) throw new Error(r.status);
     const dados = await r.json();

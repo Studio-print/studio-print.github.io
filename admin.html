@@ -112,6 +112,31 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .custom input[type=color]{width:44px;height:40px;border:1px solid var(--line);border-radius:8px;padding:2px;background:#fff}
 
 .link{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;cursor:pointer;font-weight:600}
+.tabs{display:flex;gap:6px;margin:4px 0 14px;border-bottom:1px solid var(--line)}
+.tabs button{border:0;background:none;padding:10px 14px;font-weight:650;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;display:grid;gap:12px}
+.card h3{margin:0;font-size:17px;font-variation-settings:"wdth" 110;font-weight:800}
+.card > p.hint{margin:-6px 0 0}
+.slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.slot{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.slot img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:#E4E7EC}
+.slot button{width:100%;border:0;border-top:1px solid var(--line);background:#fff;padding:8px;font-weight:600;cursor:pointer}
+.fil{display:grid;grid-template-columns:44px minmax(0,1fr) auto auto;gap:8px;align-items:center}
+.fil input[type=color]{width:44px;height:40px;border:1px solid var(--line);border-radius:8px;padding:2px;background:#fff}
+.fil.off .in{color:var(--muted);text-decoration:line-through}
+.toggle{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;white-space:nowrap}
+.toggle input{width:18px;height:18px}
+.av{border:1px solid var(--line);border-radius:10px;padding:10px;display:grid;gap:8px}
+.av .alvo{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px}
+.av .alvo label{display:flex;align-items:center;gap:5px}
+.ct{display:grid;grid-template-columns:minmax(0,1fr) 90px minmax(0,1fr) auto;gap:8px;align-items:center}
+.picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px}
+.picker button{border:2px solid transparent;border-radius:8px;padding:0;overflow:hidden;cursor:pointer;background:#E4E7EC}
+.picker button:hover{border-color:var(--ink)}
+.picker img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
+.cor.off{opacity:.55;text-decoration:line-through}
+@media (max-width:640px){.slots{grid-template-columns:repeat(3,minmax(0,1fr))}.fil{grid-template-columns:44px minmax(0,1fr) auto}.fil .rm{grid-column:3}.ct{grid-template-columns:1fr 80px}.ct .tel{grid-column:1/2}}
 .toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;z-index:50;max-width:calc(100vw - 32px);box-shadow:0 10px 30px rgba(0,0,0,.25)}
 .toast.bad{background:var(--danger)}
 .conf p{margin:0;padding:20px;color:#353B46}
@@ -190,12 +215,57 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 
 <!-- Painel -->
 <main class="wrap" id="vApp" hidden>
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" aria-selected="true" data-tab="tProdutos">Produtos</button>
+    <button type="button" role="tab" aria-selected="false" data-tab="tSite">Site e avisos</button>
+  </div>
+  <section id="tProdutos">
   <div class="tools">
     <button class="btn primary" type="button" id="bNovo">Novo produto</button>
     <input class="in" type="search" id="busca" placeholder="Buscar por nome ou código" aria-label="Buscar por nome ou código">
     <span class="count" id="contagem"></span>
   </div>
   <div id="lista"></div>
+  </section>
+
+  <section id="tSite" hidden>
+    <div class="card">
+      <h3>Início do site</h3>
+      <div><label class="f" for="sTitulo">Título grande</label><input class="in" id="sTitulo" data-bind="inicio.titulo"></div>
+      <div><label class="f" for="sTexto">Texto de apresentação</label><textarea class="in" id="sTexto" data-bind="inicio.texto"></textarea></div>
+      <div><span class="f">Fotos do início (3)</span><div class="slots" id="sSlots"></div></div>
+    </div>
+    <div class="card">
+      <h3>Faixa de destaque</h3>
+      <p class="hint">O cartão que aparece logo abaixo do texto de apresentação, por exemplo para o Natal ou uma promoção.</p>
+      <label class="check"><input type="checkbox" id="sFaixaAtiva"> Mostrar a faixa no site</label>
+      <div><label class="f" for="sFaixaTit">Título</label><input class="in" id="sFaixaTit" data-bind="faixa.titulo"></div>
+      <div><label class="f" for="sFaixaTxt">Texto</label><input class="in" id="sFaixaTxt" data-bind="faixa.texto"></div>
+      <div><label class="f" for="sFaixaCat">Ao tocar, abre a categoria</label><select class="in" id="sFaixaCat"></select></div>
+    </div>
+    <div class="card">
+      <h3>Cores de filamento</h3>
+      <p class="hint">Desmarque "Disponível" quando um filamento acabar: a cor some do catálogo em todos os produtos até você marcar de novo. Mudar o nome ou o tom aqui muda em todos os produtos.</p>
+      <div id="sFil" style="display:grid;gap:8px"></div>
+      <div><button class="btn" type="button" id="sFilAdd">Adicionar cor</button></div>
+    </div>
+    <div class="card">
+      <h3>Avisos nos produtos</h3>
+      <p class="hint">Aparecem em "Antes de comprar", na página de cada produto. Escolha em quais produtos cada aviso aparece.</p>
+      <div id="sAv" style="display:grid;gap:10px"></div>
+      <div><button class="btn" type="button" id="sAvAdd">Adicionar aviso</button></div>
+    </div>
+    <div class="card">
+      <h3>Contatos do WhatsApp</h3>
+      <p class="hint">Telefone com DDD, só números. Ex.: 11953650406.</p>
+      <div id="sCt" style="display:grid;gap:8px"></div>
+      <div><button class="btn" type="button" id="sCtAdd">Adicionar contato</button></div>
+    </div>
+    <div class="card">
+      <h3>Rodapé</h3>
+      <textarea class="in" id="sRod" data-bind="rodape"></textarea>
+    </div>
+  </section>
 </main>
 
 <div class="pub" id="pubBar" hidden>
@@ -253,6 +323,18 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
   </form>
 </dialog>
 
+<!-- Escolher foto do início -->
+<dialog id="dFoto" aria-labelledby="pTit">
+  <div class="ed">
+    <header><h2 id="pTit">Escolher foto</h2><button class="btn icon" type="button" data-pclose aria-label="Fechar"><svg><use href="#i-x"/></svg></button></header>
+    <div class="body">
+      <label class="btn upload" style="justify-self:start">Enviar foto nova<input type="file" id="pArq" accept="image/*"></label>
+      <div class="hint">Ou toque numa foto dos produtos:</div>
+      <div class="picker" id="pGrid"></div>
+    </div>
+  </div>
+</dialog>
+
 <!-- Senha -->
 <dialog id="dSenha" aria-labelledby="sTit">
   <form class="ed" id="fNovaSenha" novalidate>
@@ -292,6 +374,8 @@ const brl = n => "R$ " + Number(n).toLocaleString("pt-BR",{minimumFractionDigits
 const foto = (n, mini) => (mini ? "miniaturas/" : "fotos/") + (n.includes(".") ? n : n + ".webp");
 
 let token = "", produtos = [], original = "[]", origMap = {}, shaJson = null;
+let site = {}, siteOriginal = "{}", shaSite = null;
+const SITE_PADRAO = {inicio:{titulo:"", texto:"", fotos:[]}, faixa:{ativa:false, titulo:"", texto:"", categoria:""}, contatos:[], rodape:"", filamentos:[], avisos:[]};
 const pendentes = new Map(); // nome -> {grande, mini, url}
 
 /* ---------- utilidades ---------- */
@@ -448,18 +532,25 @@ $("#sair").addEventListener("click", async () => {
 
 /* ---------- dados ---------- */
 async function carregar(){
-  const c = await api(`${REPO}/contents/${CFG.arquivo}?ref=${CFG.branch}`);
+  const [c, cs] = await Promise.all([
+    api(`${REPO}/contents/${CFG.arquivo}?ref=${CFG.branch}`),
+    api(`${REPO}/contents/site.json?ref=${CFG.branch}`).catch(e => { if(e.status === 404) return null; throw e; })
+  ]);
   shaJson = c.sha;
   produtos = JSON.parse(textoDeB64(c.content));
-  marcarOriginal(); render();
+  shaSite = cs ? cs.sha : null;
+  site = Object.assign(JSON.parse(JSON.stringify(SITE_PADRAO)), cs ? JSON.parse(textoDeB64(cs.content)) : {});
+  marcarOriginal(); render(); renderSite();
 }
-function marcarOriginal(){ original = JSON.stringify(produtos); origMap = Object.fromEntries(produtos.map(p => [p.id, JSON.stringify(p)])); }
-function mudou(){ return JSON.stringify(produtos) !== original; }
+function marcarOriginal(){ original = JSON.stringify(produtos); origMap = Object.fromEntries(produtos.map(p => [p.id, JSON.stringify(p)])); siteOriginal = JSON.stringify(site); }
+function siteMudou(){ return JSON.stringify(site) !== siteOriginal; }
+function mudou(){ return JSON.stringify(produtos) !== original || siteMudou(); }
 function contarMudancas(){
   let n = 0; const ids = new Set();
   produtos.forEach(p => { ids.add(p.id); if(origMap[p.id] !== JSON.stringify(p)) n++; });
   Object.keys(origMap).forEach(id => { if(!ids.has(id)) n++; });
-  if(n === 0 && mudou()) n = 1;
+  if(n === 0 && JSON.stringify(produtos) !== original) n = 1;
+  if(siteMudou()) n++;
   return n;
 }
 function categorias(){
@@ -495,6 +586,9 @@ function render(){
     html += "</ul>";
   });
   $("#lista").innerHTML = html || `<p class="count">Nenhum produto encontrado.</p>`;
+  barra();
+}
+function barra(){
   const n = contarMudancas();
   $("#pubBar").hidden = n === 0;
   $("#pubTxt").textContent = n === 1 ? "1 alteração não publicada" : `${n} alterações não publicadas`;
@@ -573,28 +667,33 @@ async function redimensionar(bmp, max, q){
   if(!b || b.type !== "image/webp") b = await tentar("image/jpeg");
   return b;
 }
+async function prepararFoto(arquivo){
+  let bmp; try{ bmp = await createImageBitmap(arquivo, {imageOrientation:"from-image"}); }catch(_){ bmp = await createImageBitmap(arquivo); }
+  const grande = await redimensionar(bmp, 1400, 0.8), mini = await redimensionar(bmp, 640, 0.74);
+  const base = "f" + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  const nome = grande.type === "image/webp" ? base : base + ".jpg";
+  pendentes.set(nome, {grande, mini, url: URL.createObjectURL(mini)});
+  return nome;
+}
 $("#eArq").addEventListener("change", async e => {
   const arqs = [...e.target.files]; e.target.value = "";
   const lbl = $("#addFotoLbl"); const txt = lbl.firstChild;
   for(let k = 0; k < arqs.length; k++){
     txt.textContent = `Preparando foto ${k+1} de ${arqs.length}…`;
     try{
-      let bmp; try{ bmp = await createImageBitmap(arqs[k], {imageOrientation:"from-image"}); }catch(_){ bmp = await createImageBitmap(arqs[k]); }
-      const grande = await redimensionar(bmp, 1400, 0.8), mini = await redimensionar(bmp, 640, 0.74);
-      const base = "f" + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
-      const nome = grande.type === "image/webp" ? base : base + ".jpg";
-      pendentes.set(nome, {grande, mini, url: URL.createObjectURL(mini)});
-      edFotos.push(nome); desenharFotos();
+      edFotos.push(await prepararFoto(arqs[k])); desenharFotos();
     }catch(err){ aviso(`Não consegui ler a foto "${arqs[k].name}". Use fotos JPG, PNG ou WEBP.`, true); }
   }
   txt.textContent = "Adicionar fotos";
 });
 
+function paleta(){ return (site.filamentos && site.filamentos.length) ? site.filamentos.map(f => [f.nome, f.hex, f.disponivel !== false]) : PALETA.map(([n,h]) => [n,h,true]); }
 function desenharCores(){
   const sel = new Set(edCores.map(c => c.nome.toLowerCase()));
-  const extras = edCores.filter(c => !PALETA.some(([n]) => n.toLowerCase() === c.nome.toLowerCase())).map(c => [c.nome, c.hex]);
-  $("#ePal").innerHTML = [...PALETA, ...extras].map(([n,h]) =>
-    `<button type="button" class="cor" aria-pressed="${sel.has(n.toLowerCase())}" data-n="${esc(n)}" data-h="${esc(h)}"><span class="sw" style="background:${esc(h)}"></span>${esc(n)}</button>`).join("");
+  const base = paleta();
+  const extras = edCores.filter(c => !base.some(([n]) => n.toLowerCase() === c.nome.toLowerCase())).map(c => [c.nome, c.hex, true]);
+  $("#ePal").innerHTML = [...base, ...extras].map(([n,h,ok]) =>
+    `<button type="button" class="cor${ok ? "" : " off"}" aria-pressed="${sel.has(n.toLowerCase())}" data-n="${esc(n)}" data-h="${esc(h)}" title="${ok ? "" : "Em falta: não aparece no catálogo"}"><span class="sw" style="background:${esc(h)}"></span>${esc(n)}</button>`).join("");
 }
 $("#ePal").addEventListener("click", e => {
   const b = e.target.closest(".cor"); if(!b) return;
@@ -605,6 +704,7 @@ $("#ePal").addEventListener("click", e => {
 $("#cAdd").addEventListener("click", () => {
   const n = $("#cNome").value.trim(); if(!n){ $("#cNome").focus(); return; }
   if(!edCores.some(c => c.nome.toLowerCase() === n.toLowerCase())) edCores.push({nome:n, hex:$("#cHex").value.toUpperCase()});
+  if(site.filamentos && !site.filamentos.some(f => f.nome.toLowerCase() === n.toLowerCase())){ site.filamentos.push({nome:n, hex:$("#cHex").value.toUpperCase(), disponivel:true}); renderSite(); }
   $("#cNome").value = ""; desenharCores();
 });
 
@@ -630,6 +730,106 @@ $("#fEd").addEventListener("submit", e => {
   aviso("Produto salvo. Toque em Publicar no site para ele aparecer no catálogo.");
 });
 
+/* ---------- aba Site e avisos ---------- */
+document.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("[data-tab]").forEach(x => x.setAttribute("aria-selected", x === b));
+  $("#tProdutos").hidden = b.dataset.tab !== "tProdutos"; $("#tSite").hidden = b.dataset.tab !== "tSite";
+}));
+const pegar = (o, c) => c.split(".").reduce((a,k) => (a||{})[k], o);
+function por(o, c, v){ const ks = c.split("."); const ult = ks.pop(); const alvo = ks.reduce((a,k) => (a[k] = a[k] || {}), o); alvo[ult] = v; }
+document.querySelectorAll("[data-bind]").forEach(el => el.addEventListener("input", () => { por(site, el.dataset.bind, el.value); barra(); }));
+$("#sFaixaAtiva").addEventListener("change", e => { site.faixa = site.faixa || {}; site.faixa.ativa = e.target.checked; barra(); });
+$("#sFaixaCat").addEventListener("change", e => { site.faixa = site.faixa || {}; site.faixa.categoria = e.target.value; barra(); });
+const ALVOS = () => [["todos","Todos os produtos"], ...categorias().map(c => [c,c]), ["personalizados","Só os personalizados"]];
+
+function renderSite(){
+  document.querySelectorAll("[data-bind]").forEach(el => { el.value = pegar(site, el.dataset.bind) || ""; });
+  $("#sFaixaAtiva").checked = !!(site.faixa && site.faixa.ativa);
+  $("#sFaixaCat").innerHTML = categorias().map(c => `<option ${site.faixa && site.faixa.categoria===c ? "selected" : ""}>${esc(c)}</option>`).join("");
+  site.inicio = site.inicio || {}; site.inicio.fotos = site.inicio.fotos || [];
+  $("#sSlots").innerHTML = [0,1,2].map(k => `<div class="slot"><img src="${esc(thumb(site.inicio.fotos[k]))}" alt="Foto ${k+1} do início"><button type="button" data-slot="${k}">Trocar foto ${k+1}</button></div>`).join("");
+  $("#sFil").innerHTML = (site.filamentos||[]).map((f,k) => `<div class="fil${f.disponivel===false?" off":""}">
+      <input type="color" value="${esc(f.hex)}" data-fhex="${k}" aria-label="Tom da cor ${esc(f.nome)}">
+      <input class="in" value="${esc(f.nome)}" data-fnome="${k}" aria-label="Nome da cor">
+      <label class="toggle"><input type="checkbox" data-fdisp="${k}" ${f.disponivel!==false?"checked":""}> Disponível</label>
+      <button class="btn icon rm" type="button" data-frm="${k}" aria-label="Remover ${esc(f.nome)}"><svg><use href="#i-x"/></svg></button></div>`).join("");
+  $("#sAv").innerHTML = (site.avisos||[]).map((a,k) => `<div class="av">
+      <textarea class="in" data-avtxt="${k}" aria-label="Texto do aviso ${k+1}">${esc(a.texto)}</textarea>
+      <div class="alvo"><span class="hint" style="margin:0">Mostrar em:</span>${ALVOS().map(([v,l]) => `<label><input type="checkbox" data-avk="${k}" value="${esc(v)}" ${(a.para||[]).includes(v)?"checked":""}> ${esc(l)}</label>`).join("")}</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn icon" type="button" data-avup="${k}" aria-label="Subir aviso" ${k===0?"disabled":""}><svg><use href="#i-up"/></svg></button>
+        <button class="btn icon" type="button" data-avdown="${k}" aria-label="Descer aviso" ${k===(site.avisos.length-1)?"disabled":""}><svg><use href="#i-down"/></svg></button>
+        <button class="btn danger" type="button" data-avrm="${k}">Remover aviso</button></div></div>`).join("");
+  $("#sCt").innerHTML = (site.contatos||[]).map((c,k) => `<div class="ct">
+      <input class="in" value="${esc(c.nome)}" data-cnome="${k}" placeholder="Nome" aria-label="Nome do contato">
+      <select class="in" data-cart="${k}" aria-label="Artigo antes do nome"><option value="a" ${c.artigo==="a"?"selected":""}>a</option><option value="o" ${c.artigo==="o"?"selected":""}>o</option><option value="" ${!c.artigo?"selected":""}>(nenhum)</option></select>
+      <input class="in tel" value="${esc(c.telefone)}" data-ctel="${k}" inputmode="numeric" placeholder="11999999999" aria-label="Telefone com DDD">
+      <button class="btn icon" type="button" data-crm="${k}" aria-label="Remover contato"><svg><use href="#i-x"/></svg></button></div>`).join("");
+}
+function trocarCorNosProdutos(antigo, novo){
+  produtos.forEach(p => (p.cores||[]).forEach(c => { if(c.nome.toLowerCase() === antigo.toLowerCase()){ c.nome = novo.nome; c.hex = novo.hex; } }));
+}
+$("#tSite").addEventListener("input", e => {
+  const t = e.target, d = t.dataset;
+  if(d.fhex !== undefined){ const f = site.filamentos[+d.fhex]; const ant = f.nome; f.hex = t.value.toUpperCase(); trocarCorNosProdutos(ant, f); }
+  else if(d.avtxt !== undefined) site.avisos[+d.avtxt].texto = t.value;
+  else if(d.cnome !== undefined) site.contatos[+d.cnome].nome = t.value;
+  else if(d.ctel !== undefined) site.contatos[+d.ctel].telefone = t.value.replace(/\D/g,"");
+  else return;
+  barra();
+});
+$("#tSite").addEventListener("change", async e => {
+  const t = e.target, d = t.dataset;
+  if(d.fnome !== undefined){
+    const f = site.filamentos[+d.fnome]; const novo = t.value.trim();
+    if(!novo){ t.value = f.nome; return; }
+    if(site.filamentos.some((x,k) => k !== +d.fnome && x.nome.toLowerCase() === novo.toLowerCase())){ aviso("Já existe uma cor com esse nome.", true); t.value = f.nome; return; }
+    const ant = f.nome; f.nome = novo; trocarCorNosProdutos(ant, f); render();
+  }
+  else if(d.fdisp !== undefined){ site.filamentos[+d.fdisp].disponivel = t.checked; t.closest(".fil").classList.toggle("off", !t.checked); }
+  else if(d.avk !== undefined){
+    const a = site.avisos[+d.avk]; const set = new Set(a.para || []);
+    t.checked ? set.add(t.value) : set.delete(t.value); a.para = [...set];
+  }
+  else if(d.cart !== undefined) site.contatos[+d.cart].artigo = t.value;
+  else return;
+  barra();
+});
+$("#tSite").addEventListener("click", async e => {
+  const b = e.target.closest("button"); if(!b) return; const d = b.dataset;
+  if(d.slot !== undefined) abrirPicker(+d.slot);
+  else if(d.frm !== undefined){
+    const f = site.filamentos[+d.frm];
+    const usam = produtos.filter(p => (p.cores||[]).some(c => c.nome.toLowerCase() === f.nome.toLowerCase())).length;
+    if(!(await confirmar(`Remover a cor ${f.nome}?`, usam ? `Ela também sai dos ${usam} produtos que a usam. Se o filamento só acabou por um tempo, desmarque "Disponível" em vez de remover.` : "A cor sai da lista de filamentos.", "Remover"))) return;
+    produtos.forEach(p => { p.cores = (p.cores||[]).filter(c => c.nome.toLowerCase() !== f.nome.toLowerCase()); });
+    site.filamentos.splice(+d.frm, 1); render(); renderSite();
+  }
+  else if(d.avrm !== undefined){ if(await confirmar("Remover este aviso?", site.avisos[+d.avrm].texto.slice(0,140), "Remover")){ site.avisos.splice(+d.avrm,1); renderSite(); barra(); } }
+  else if(d.avup !== undefined){ const k = +d.avup; [site.avisos[k-1], site.avisos[k]] = [site.avisos[k], site.avisos[k-1]]; renderSite(); barra(); }
+  else if(d.avdown !== undefined){ const k = +d.avdown; [site.avisos[k+1], site.avisos[k]] = [site.avisos[k], site.avisos[k+1]]; renderSite(); barra(); }
+  else if(d.crm !== undefined){ site.contatos.splice(+d.crm,1); renderSite(); barra(); }
+});
+$("#sFilAdd").addEventListener("click", () => { site.filamentos = site.filamentos || []; site.filamentos.push({nome:"Nova cor " + (site.filamentos.length+1), hex:"#888888", disponivel:true}); renderSite(); barra(); const ins = document.querySelectorAll("[data-fnome]"); ins[ins.length-1].select(); });
+$("#sAvAdd").addEventListener("click", () => { site.avisos = site.avisos || []; site.avisos.push({texto:"", para:["todos"]}); renderSite(); barra(); const t = document.querySelectorAll("[data-avtxt]"); t[t.length-1].focus(); });
+$("#sCtAdd").addEventListener("click", () => { site.contatos = site.contatos || []; site.contatos.push({nome:"", artigo:"", telefone:""}); renderSite(); barra(); });
+
+let slotAtual = 0;
+function abrirPicker(k){
+  slotAtual = k;
+  const todas = [...new Set([...produtos.flatMap(p => p.fotos), ...pendentes.keys()])];
+  $("#pGrid").innerHTML = todas.map(n => `<button type="button" data-pick="${esc(n)}" aria-label="Usar esta foto"><img src="${esc(thumb(n))}" alt="" loading="lazy"></button>`).join("");
+  $("#pTit").textContent = `Escolher a foto ${k+1} do início`;
+  $("#dFoto").showModal();
+}
+function usarFoto(n){ site.inicio.fotos[slotAtual] = n; site.inicio.fotos = [0,1,2].map(k => site.inicio.fotos[k] || site.inicio.fotos.find(Boolean) || n); $("#dFoto").close(); renderSite(); barra(); }
+$("#pGrid").addEventListener("click", e => { const b = e.target.closest("[data-pick]"); if(b) usarFoto(b.dataset.pick); });
+document.querySelectorAll("[data-pclose]").forEach(b => b.addEventListener("click", () => $("#dFoto").close()));
+$("#pArq").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = ""; if(!f) return;
+  try{ const n = await prepararFoto(f); usarFoto(n); }catch(err){ aviso(`Não consegui ler a foto "${f.name}". Use fotos JPG, PNG ou WEBP.`, true); }
+});
+
 /* ---------- publicar ---------- */
 $("#bDescartar").addEventListener("click", async () => {
   if(!(await confirmar("Descartar as alterações?", "Tudo o que você mudou desde a última publicação volta a ser como está no site.", "Descartar"))) return;
@@ -643,14 +843,15 @@ async function publicar(){
   try{
     etapa("Conferindo…");
     const atual = await api(`${REPO}/contents/${CFG.arquivo}?ref=${CFG.branch}`);
-    if(atual.sha !== shaJson){
+    const atualSite = await api(`${REPO}/contents/site.json?ref=${CFG.branch}`).catch(e => { if(e.status === 404) return null; throw e; });
+    if(atual.sha !== shaJson || (atualSite ? atualSite.sha : null) !== shaSite){
       const ok = await confirmar("O catálogo foi alterado por outra pessoa", "Alguém publicou mudanças depois que você abriu o painel. Se publicar agora, as suas mudanças substituem as dela. Para manter as duas, toque em Cancelar, depois em Descartar, e refaça as suas mudanças.", "Publicar mesmo assim");
       if(!ok) return;
     }
     const ref = await api(`${REPO}/git/ref/heads/${CFG.branch}`);
     const base = ref.object.sha;
     const commitBase = await api(`${REPO}/git/commits/${base}`);
-    const usados = new Set(produtos.flatMap(p => p.fotos));
+    const usados = new Set([...produtos.flatMap(p => p.fotos), ...((site.inicio && site.inicio.fotos) || [])]);
     const novas = [...pendentes.entries()].filter(([n]) => usados.has(n));
     const arvore = [];
     for(let k = 0; k < novas.length; k++){
@@ -664,11 +865,16 @@ async function publicar(){
     etapa("Publicando…");
     const j = await api(`${REPO}/git/blobs`, {method:"POST", body:JSON.stringify({content: b64Texto(JSON.stringify(produtos, null, 2) + "\n"), encoding:"base64"})});
     arvore.push({path: CFG.arquivo, mode:"100644", type:"blob", sha:j.sha});
+    let js = null;
+    if(siteMudou()){
+      js = await api(`${REPO}/git/blobs`, {method:"POST", body:JSON.stringify({content: b64Texto(JSON.stringify(site, null, 2) + "\n"), encoding:"base64"})});
+      arvore.push({path:"site.json", mode:"100644", type:"blob", sha:js.sha});
+    }
     const tree = await api(`${REPO}/git/trees`, {method:"POST", body:JSON.stringify({base_tree: commitBase.tree.sha, tree: arvore})});
     const commit = await api(`${REPO}/git/commits`, {method:"POST", body:JSON.stringify({message:`Atualiza o catálogo pelo painel (${contarMudancas()} alterações)`, tree: tree.sha, parents:[base]})});
     await api(`${REPO}/git/refs/heads/${CFG.branch}`, {method:"PATCH", body:JSON.stringify({sha: commit.sha})});
     novas.forEach(([n]) => pendentes.delete(n));
-    shaJson = j.sha; marcarOriginal(); render();
+    shaJson = j.sha; if(js) shaSite = js.sha; marcarOriginal(); render(); renderSite();
     aviso("Publicado! O catálogo atualiza em 1 a 2 minutos.");
   }catch(e){ aviso(erroAmigavel(e), true); }
   finally{ b.disabled = false; $("#bDescartar").disabled = false; b.textContent = "Publicar no site"; }
