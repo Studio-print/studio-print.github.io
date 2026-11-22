@@ -169,6 +169,7 @@ html.travado,html.travado body{overflow:hidden}
 .btn.ghost{background:var(--card);border:1px solid var(--line);color:var(--ink)}
 .btn.ghost:hover{border-color:var(--ink)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.two.one{grid-template-columns:1fr}
 
 @media (max-width:860px){
   .hero{grid-template-columns:1fr;gap:24px;padding-bottom:28px}
@@ -255,8 +256,8 @@ html.travado,html.travado body{overflow:hidden}
     <h2>Como encomendar</h2>
     <ol class="steps">
       <li><b>Escolha o produto</b>Anote o código da peça (ex.: N-05) e a cor que você quer. Tudo é feito sob encomenda.</li>
-      <li><b>Chame no WhatsApp</b>Fale com a Karina ou com o Arthur. A mensagem já vai pronta com o código.</li>
-      <li><b>Combine os detalhes</b>Nome para personalizar, prazo de produção, pagamento e entrega.</li>
+      <li><b>Chame no WhatsApp</b><span id="passoWa">Toque em Pedir no produto. A mensagem já vai pronta com o código.</span></li>
+      <li><b>Combine os detalhes</b>Nome para personalizar, cor, pagamento e entrega. O prazo de produção aparece em cada produto.</li>
     </ol>
     <div class="contacts" id="bottomContacts"></div>
   </div>
@@ -341,16 +342,23 @@ const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt
 const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
 let cat = "Todos", q = "";
 
+const UNICO = () => CONTACTS.length === 1;
+const rotulo = c => UNICO() ? "WhatsApp" : c.name;
 function waLink(c, p){
-  const msg = p
-    ? `Olá, ${c.name}! Vi no catálogo da StudioPrint e tenho interesse no produto ${p.id}, ${p.name} (${brl(p.price)}${p.unit?" "+p.unit:""}). ${p.status==="disponivel"?"Ainda tem para pronta entrega?":"Qual o prazo para fazer?"}`
-    : `Olá, ${c.name}! Vi o catálogo da StudioPrint e quero fazer um pedido.`;
+  const oi = UNICO() ? "Olá!" : `Olá, ${c.name}!`;
+  let msg = `${oi} Vi o catálogo da StudioPrint e quero fazer um pedido.`;
+  if(p){
+    const item = `${p.id}, ${p.name} (${brl(p.price)}${p.unit?" "+p.unit:""})`;
+    msg = p.status==="disponivel" ? `${oi} Vi no catálogo da StudioPrint o ${item}. Ainda tem para pronta entrega?`
+        : p.status==="esgotado" ? `${oi} Vi no catálogo da StudioPrint o ${item}. Quero entrar na lista de espera.`
+        : `${oi} Vi no catálogo da StudioPrint e quero encomendar o ${item}.` + (p.custom ? `\nNome para personalizar: \nCor: ` : `\nCor: `);
+  }
   return `https://wa.me/${c.phone}?text=${encodeURIComponent(msg)}`;
 }
 function contactsHTML(kind){
   return CONTACTS.map(c => kind==="pill"
-    ? `<a class="pill-link" href="${waLink(c)}" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>${esc(c.name)}<span>&nbsp;${c.shown}</span></a>`
-    : `<a class="contact" href="${waLink(c)}" target="_blank" rel="noopener"><span class="ico"><svg><use href="#i-wa"/></svg></span><span><b>${esc(c.name)}</b><span>${c.shown}</span></span></a>`).join("");
+    ? `<a class="pill-link" href="${waLink(c)}" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>${esc(rotulo(c))}<span>&nbsp;${c.shown}</span></a>`
+    : `<a class="contact" href="${waLink(c)}" target="_blank" rel="noopener"><span class="ico"><svg><use href="#i-wa"/></svg></span><span><b>${esc(rotulo(c))}</b><span>${c.shown}</span></span></a>`).join("");
 }
 $("#topContacts").innerHTML = contactsHTML("pill");
 $("#bottomContacts").innerHTML = contactsHTML("card");
@@ -414,11 +422,12 @@ function openProduct(id, setHash){
   $("#dAvisos").innerHTML = avisosDe(p).length ? `<h4>Antes de comprar</h4><ul>${avisosDe(p).map(a=>`<li>${esc(a.texto)}</li>`).join("")}</ul>` : "";
   $("#dColors").innerHTML = cs.length ? `<h4>Cores</h4><ul>${cs.map(k=>`<li><span class="sw" style="background:${esc(k.hex)}"></span>${esc(k.nome)}</li>`).join("")}</ul>` : "";
   $("#dNote").textContent = p.status==="encomenda"
-    ? (p.custom ? "Feito sob encomenda depois que você manda o nome e as cores. Confirme o prazo no WhatsApp."
-                : "Feito sob encomenda: a peça é produzida depois do pedido, na cor que você escolher. Confirme o prazo no WhatsApp.")
+    ? (p.custom ? "Feito sob encomenda depois que você manda o nome e as cores. Combine os detalhes e o pagamento pelo WhatsApp."
+                : "Feito sob encomenda: a peça é produzida depois do pedido, na cor que você escolher. Combine a cor e o pagamento pelo WhatsApp.")
     : p.status==="esgotado" ? "Esgotado no momento. Chame no WhatsApp para entrar na lista de espera."
     : "Pronta entrega. Chame no WhatsApp para combinar a retirada ou o envio.";
-  $("#dWa").innerHTML = CONTACTS.map(c => `<a class="btn wa" href="${waLink(c,p)}" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>Pedir com ${c.artigo ? c.artigo+" " : ""}${esc(c.name)}</a>`).join("");
+  $("#dWa").innerHTML = CONTACTS.map(c => `<a class="btn wa" href="${waLink(c,p)}" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>${UNICO() ? "Pedir pelo WhatsApp" : `Pedir com ${c.artigo ? c.artigo+" " : ""}${esc(c.name)}`}</a>`).join("");
+  $("#dWa").classList.toggle("one", UNICO());
   const url = (SITE_URL || "") + "#" + p.id.toLowerCase();
   const shareMsg = `Olha esse produto da StudioPrint: ${p.name}, ${brl(p.price)}${p.unit?" "+p.unit:""}.${SITE_URL?" "+url:""}`;
   $("#dShare").href = "https://wa.me/?text=" + encodeURIComponent(shareMsg);
