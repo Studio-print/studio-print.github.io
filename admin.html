@@ -685,6 +685,12 @@ dialog .body{overscroll-behavior:contain}
         </ul>
       </div>
       <div class="card aj">
+        <h3>Prévias no WhatsApp</h3>
+        <p>Quando alguém compartilha um produto, o WhatsApp mostra a foto, o nome e o preço, em vez de só o texto.</p>
+        <p class="hint" id="prevInfo">Carregando…</p>
+        <div class="aj-acts"><button class="btn" type="button" id="bPrevias">Gerar prévias de todos os produtos</button></div>
+      </div>
+      <div class="card aj">
         <h3>Contador de visitas</h3>
         <p>Mostra quantas pessoas abrem o catálogo, de onde vieram (Instagram, WhatsApp) e se usam celular ou computador. É grátis, pelo Cloudflare.</p>
         <ol class="aj-lista">
@@ -1136,10 +1142,13 @@ $("#sair").addEventListener("click", async () => {
 
 /* ---------- dados ---------- */
 async function carregar(){
-  const [c, cs] = await Promise.all([
+  const [c, cs, cp] = await Promise.all([
     api(`${REPO}/contents/${CFG.arquivo}?ref=${CFG.branch}`),
-    api(`${REPO}/contents/site.json?ref=${CFG.branch}`).catch(e => { if(e.status === 404) return null; throw e; })
+    api(`${REPO}/contents/site.json?ref=${CFG.branch}`).catch(e => { if(e.status === 404) return null; throw e; }),
+    api(`${REPO}/contents/previas.json?ref=${CFG.branch}`).catch(() => null)
   ]);
+  try{ previas = cp ? JSON.parse(textoDeB64(cp.content)) : {}; }catch(e){ previas = {}; }
+  if(!previas || typeof previas !== "object" || Array.isArray(previas)) previas = {};
   shaJson = c.sha;
   produtos = JSON.parse(textoDeB64(c.content));
   shaSite = cs ? cs.sha : null;
@@ -2163,6 +2172,107 @@ function msgCliente(p){
   return `https://wa.me/${foneWa(p.cliente.whatsapp)}?text=${encodeURIComponent(M[p.status] || M.novo)}`;
 }
 
+
+
+/* ---------- prévias para compartilhar (WhatsApp) ---------- */
+let previas = {};   /* {"N-05": "assinatura"} publicado em previas.json */
+const BASE_SITE = () => location.href.split("#")[0].split("?")[0].replace(/admin\.html$/, "");
+const nomePrevia = id => "p/" + id.toLowerCase();
+function assinaturaPrevia(p){
+  const t = [p.nome, p.preco, p.unidade || "", (p.fotos || [])[0] || "", p.status, (p.descricao || "").slice(0, 160)].join("|");
+  let h = 5381; for(let k = 0; k < t.length; k++) h = ((h << 5) + h + t.charCodeAt(k)) >>> 0;
+  return h.toString(36);
+}
+const escH = t => String(t ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+function htmlPrevia(p, v){
+  const base = BASE_SITE(), alvo = "../#" + p.id.toLowerCase();
+  const preco = brl(p.preco) + (p.unidade ? " " + p.unidade : "");
+  const desc = (p.descricao || "").replace(/\s+/g, " ").trim();
+  const txt = `${preco}. ${desc.length > 150 ? desc.slice(0, 147).replace(/\s+\S*$/, "") + "…" : desc}`;
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${escH(p.nome)} | StudioPrint</title>
+<meta name="description" content="${escH(txt)}">
+<meta property="og:type" content="product">
+<meta property="og:site_name" content="StudioPrint">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="${escH(p.nome)}, ${escH(preco)}">
+<meta property="og:description" content="${escH(txt)}">
+<meta property="og:image" content="${base}${nomePrevia(p.id)}.jpg?v=${v}">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="800">
+<meta property="og:image:height" content="800">
+<meta property="og:url" content="${base}${nomePrevia(p.id)}.html">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="${base}#${p.id.toLowerCase()}">
+<meta http-equiv="refresh" content="0; url=${alvo}">
+<script>location.replace("${alvo}");<\/script>
+</head>
+<body><p><a href="${alvo}">Ver ${escH(p.nome)} no catálogo da StudioPrint</a></p></body>
+</html>
+`;
+}
+function carregarImg(src){ return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error("Não consegui abrir a foto " + src)); i.src = src; }); }
+async function jpegPrevia(p){
+  const n = (p.fotos || [])[0]; if(!n) return null;
+  const pend = pendentes.get(n), url = pend ? URL.createObjectURL(pend.grande) : foto(n) + "?v=" + Date.now();
+  try{
+    const img = await carregarImg(url), L = 800, c = document.createElement("canvas"); c.width = c.height = L;
+    const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, L, L);
+    const esc = p.fotoInteira ? Math.min(L / img.naturalWidth, L / img.naturalHeight) : Math.max(L / img.naturalWidth, L / img.naturalHeight);
+    const w = img.naturalWidth * esc, h = img.naturalHeight * esc; g.drawImage(img, (L - w) / 2, (L - h) / 2, w, h);
+    for(const q of [0.86, 0.78, 0.68]){ const b = await new Promise(r => c.toBlob(r, "image/jpeg", q)); if(b && (b.size < 240000 || q === 0.68)) return b; }
+  }finally{ if(pend) URL.revokeObjectURL(url); }
+  return null;
+}
+/* devolve as entradas da árvore (páginas, fotos e previas.json) para os produtos que mudaram */
+async function arvorePrevias(todas, etapa){
+  const visiveis = produtos.filter(p => !p.oculto && (p.fotos || []).length);
+  const quer = Object.fromEntries(visiveis.map(p => [p.id, assinaturaPrevia(p)]));
+  const fazer = visiveis.filter(p => todas || previas[p.id] !== quer[p.id]);
+  const tirar = Object.keys(previas).filter(id => !(id in quer));
+  if(!fazer.length && !tirar.length) return {arvore: [], novo: previas};
+  const arvore = [], novo = {...quer};
+  for(let k = 0; k < fazer.length; k++){
+    const p = fazer[k]; if(etapa) etapa(`Prévia ${k + 1} de ${fazer.length}…`);
+    const v = quer[p.id], jpg = await jpegPrevia(p);
+    if(!jpg){ delete novo[p.id]; continue; }
+    const bi = await api(`${REPO}/git/blobs`, {method:"POST", body:JSON.stringify({content: await blobB64(jpg), encoding:"base64"})});
+    const bh = await api(`${REPO}/git/blobs`, {method:"POST", body:JSON.stringify({content: b64Texto(htmlPrevia(p, v)), encoding:"base64"})});
+    arvore.push({path: nomePrevia(p.id) + ".jpg", mode:"100644", type:"blob", sha:bi.sha}, {path: nomePrevia(p.id) + ".html", mode:"100644", type:"blob", sha:bh.sha});
+  }
+  visiveis.filter(p => !fazer.includes(p) && previas[p.id] === undefined).forEach(p => delete novo[p.id]);
+  for(const id of tirar) arvore.push({path: nomePrevia(id) + ".jpg", mode:"100644", type:"blob", sha:null}, {path: nomePrevia(id) + ".html", mode:"100644", type:"blob", sha:null});
+  const bj = await api(`${REPO}/git/blobs`, {method:"POST", body:JSON.stringify({content: b64Texto(JSON.stringify(novo, null, 2) + "\n"), encoding:"base64"})});
+  arvore.push({path:"previas.json", mode:"100644", type:"blob", sha:bj.sha});
+  return {arvore, novo};
+}
+async function gerarTodasPrevias(){
+  if(mudou()){ aviso("Publique ou descarte as alterações dos produtos antes de gerar as prévias.", true); return; }
+  const n = produtos.filter(p => !p.oculto && (p.fotos || []).length).length;
+  if(!(await confirmar("Gerar as prévias de compartilhamento?", `Cria uma página com foto, nome e preço para cada um dos ${n} produtos do site, para aparecerem bonitos quando alguém compartilhar no WhatsApp.\n\nNão muda nada nos produtos nem nas configurações do site. Depois disso, o painel atualiza as prévias sozinho a cada publicação.`, "Gerar prévias"))) return;
+  const b = $("#bPrevias"), txt = b.textContent; b.disabled = true;
+  try{
+    const ref = await api(`${REPO}/git/ref/heads/${CFG.branch}`), cb = await api(`${REPO}/git/commits/${ref.object.sha}`);
+    const {arvore, novo} = await arvorePrevias(true, t => b.textContent = t);
+    const tree = await api(`${REPO}/git/trees`, {method:"POST", body:JSON.stringify({base_tree: cb.tree.sha, tree: arvore})});
+    const commit = await api(`${REPO}/git/commits`, {method:"POST", body:JSON.stringify({message:"Gera as prévias de compartilhamento dos produtos", tree: tree.sha, parents:[ref.object.sha]})});
+    await api(`${REPO}/git/refs/heads/${CFG.branch}`, {method:"PATCH", body:JSON.stringify({sha: commit.sha})});
+    previas = novo; renderPrevias();
+    aviso(`Prévias criadas para ${Object.keys(novo).length} produtos. Valem em 1 a 2 minutos.`);
+  }catch(e){ aviso(erroAmigavel(e), true); }
+  finally{ b.disabled = false; b.textContent = txt; }
+}
+function renderPrevias(){
+  if(!$("#prevInfo")) return;
+  const n = Object.keys(previas).length, tot = produtos.filter(p => !p.oculto && (p.fotos || []).length).length;
+  $("#prevInfo").textContent = n ? `${n} de ${tot} produtos com prévia. O painel atualiza sozinho quando você publica.` : "Ainda não foram geradas. Toque no botão uma vez; depois o painel cuida disso a cada publicação.";
+}
+$("#bPrevias").addEventListener("click", gerarTodasPrevias);
+document.querySelector('[data-tab="tAjustes"]').addEventListener("click", renderPrevias);
 
 /* ---------- cobrança com link do Mercado Pago ---------- */
 const COB_TXT = {sinal:"Cobrar sinal", total:"Cobrar o total", restante:"Cobrar o restante"};
@@ -3191,6 +3301,8 @@ async function publicar(){
         arvore.push({path: foto(n, mini), mode:"100644", type:"blob", sha:r.sha});
       }
     }
+    let prev = null;
+    if(Object.keys(previas).length){ try{ prev = await arvorePrevias(false, etapa); arvore.push(...prev.arvore); }catch(e){ prev = null; } }
     etapa("Publicando…");
     const j = await api(`${REPO}/git/blobs`, {method:"POST", body:JSON.stringify({content: b64Texto(JSON.stringify(produtos, null, 2) + "\n"), encoding:"base64"})});
     arvore.push({path: CFG.arquivo, mode:"100644", type:"blob", sha:j.sha});
@@ -3203,6 +3315,7 @@ async function publicar(){
     const commit = await api(`${REPO}/git/commits`, {method:"POST", body:JSON.stringify({message:`Atualiza o catálogo pelo painel (${contarMudancas()} alterações)`, tree: tree.sha, parents:[base]})});
     await api(`${REPO}/git/refs/heads/${CFG.branch}`, {method:"PATCH", body:JSON.stringify({sha: commit.sha})});
     novas.forEach(([n]) => pendentes.delete(n));
+    if(prev) previas = prev.novo;
     shaJson = j.sha; if(js) shaSite = js.sha; marcarOriginal(); render(); renderSite();
     aviso("Publicado! O catálogo atualiza em 1 a 2 minutos.");
   }catch(e){ aviso(erroAmigavel(e), true); }

@@ -496,7 +496,16 @@ const $ = s => document.querySelector(s);
 const brl = n => "R$ " + Number(n).toLocaleString("pt-BR",{minimumFractionDigits: Number(n)%1 ? 2 : 0, maximumFractionDigits:2});
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
-let cat = "Todos", q = "";
+let cat = "Todos", q = "", PREVIAS = {};
+/* link do produto para compartilhar: a página de prévia (com foto no WhatsApp) quando existe */
+function linkProduto(p){
+  const v = PREVIAS[p.id];
+  return v ? `${SITE_URL}p/${p.id.toLowerCase()}.html?v=${v}` : `${SITE_URL}#${p.id.toLowerCase()}`;
+}
+function ligarCompartilhar(p){
+  const msg = `Olha esse produto da StudioPrint: ${p.name}, ${brl(p.price)}${p.unit ? " " + p.unit : ""}.\n${linkProduto(p)}`;
+  $("#dShare").href = "https://wa.me/?text=" + encodeURIComponent(msg);
+}
 
 /* ---------- pedido com vários produtos ---------- */
 let LISTA = [];
@@ -639,9 +648,7 @@ function openProduct(id, setHash){
     : p.status==="esgotado" ? "Esgotado no momento. Chame no WhatsApp para entrar na lista de espera."
     : `Pronta entrega${p.estoque ? ` (${p.estoque === 1 ? "1 unidade" : p.estoque + " unidades"})` : ""}: sai logo depois do pagamento. Se quiser mais do que isso, o restante é feito sob encomenda.`;
   botoesWa(p);
-  const url = (SITE_URL || "") + "#" + p.id.toLowerCase();
-  const shareMsg = `Olha esse produto da StudioPrint: ${p.name}, ${brl(p.price)}${p.unit?" "+p.unit:""}.${SITE_URL?" "+url:""}`;
-  $("#dShare").href = "https://wa.me/?text=" + encodeURIComponent(shareMsg);
+  ligarCompartilhar(p);
   slides.innerHTML = p.imgs.map((n,i) => `<figure><img src="${foto(n)}" alt="${esc(p.name)}, foto ${i+1} de ${p.imgs.length}" ${i>0?'loading="lazy"':""}></figure>`).join("");
   thumbs.innerHTML = p.imgs.length>1 ? p.imgs.map((n,i) => `<button type="button" data-i="${i}" aria-label="Ver foto ${i+1}" aria-current="${i===0}"><img src="${foto(n,true)}" alt=""></button>`).join("") : "";
   thumbs.style.display = p.imgs.length>1 ? "" : "none";
@@ -818,6 +825,7 @@ async function carregar(){
   try{
     const rs = await fetch("site.json", {cache:"no-store"}).then(x => x.ok ? x.json() : null).catch(() => null);
     aplicarSite(rs);
+    fetch("previas.json", {cache:"no-store"}).then(x => x.ok ? x.json() : {}).then(j => { PREVIAS = j && typeof j === "object" ? j : {}; if(cur && dlg.open) ligarCompartilhar(cur); }).catch(() => {});
     const r = await fetch("produtos.json", {cache:"no-store"});
     if(!r.ok) throw new Error(r.status);
     const dados = await r.json();
