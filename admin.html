@@ -778,7 +778,7 @@ dialog .body{overscroll-behavior:contain}
           <div id="eMontExtraBox" hidden><label class="f" for="eMontExtra">Adicional para enviar montado (R$)</label><input class="in" id="eMontExtra" inputmode="decimal" placeholder="Vazio: só para montar"></div>
         </div>
         <div><label class="f" for="eKit">Preço de kit (opcional)</label><input class="in" id="eKit" placeholder="Ex.: 2 por 49,90; 3 por 63,90; 6 por 99,90" autocomplete="off">
-          <p class="hint" id="eKitInfo">Quanto mais peças deste produto no pedido, menor o preço de cada uma. Conta todas as peças, mesmo com nomes e cores diferentes.</p></div>
+          <p class="hint" id="eKitInfo">O preço de cada peça cai conforme a quantidade deste produto no pedido. Conta todas as peças, mesmo com nomes e cores diferentes.</p></div>
         <div id="eKitGrupoBox" hidden><label class="f" for="eKitGrupo">Kit junto com (opcional)</label><input class="in" id="eKitGrupo" list="kitGrupos" placeholder="Ex.: Enfeites com nome" autocomplete="off"><datalist id="kitGrupos"></datalist>
           <p class="hint" id="eKitGrupoInfo">Produtos com o mesmo nome aqui somam as peças para o kit: o cliente pode misturar modelos.</p></div>
       </fieldset>
@@ -1926,7 +1926,7 @@ function infoKit(){
   const el = $("#eKitInfo"), base = num($("#ePreco").value), kr = kitDeTexto($("#eKit").value, base);
   el.classList.toggle("bad", !!kr.erro);
   if(kr.erro){ el.textContent = "Atenção: " + kr.erro; return; }
-  if(!kr.kit.length){ el.textContent = "Quanto mais peças deste produto no pedido, menor o preço de cada uma. Conta todas as peças, mesmo com nomes e cores diferentes."; return; }
+  if(!kr.kit.length){ el.textContent = "O preço de cada peça cai conforme a quantidade deste produto no pedido. Conta todas as peças, mesmo com nomes e cores diferentes."; return; }
   el.textContent = `No site: 1 peça ${brl(base)}` + kr.kit.map(([q, u]) => ` | ${q} por ${brl(cent(q * u))} (${brl(u)} cada)`).join("") + `. Acima de ${kr.kit[kr.kit.length - 1][0]}, cada peça continua a ${brl(kr.kit[kr.kit.length - 1][1])}.` + (kr.avisos.length ? " " + kr.avisos.join(" ") : "");
 }
 $("#eKit").addEventListener("input", () => { infoKit(); infoCustoEditor(); });

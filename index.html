@@ -197,7 +197,7 @@ html.travado,html.travado body{overflow:hidden}
 .mont{display:grid;gap:6px;margin-bottom:12px}
 .kit{display:grid;gap:8px;margin-bottom:14px;padding:12px;border-radius:12px;background:var(--ok-bg)}
 .kit-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
-.kit-t b{font-size:15px;color:var(--ok-fg)}.kit-t span{font-size:13px;color:var(--ok-fg)}
+.kit-t b{font-size:14px;font-weight:700;color:var(--ok-fg)}.kit-t span{font-size:13px;color:var(--ok-fg)}
 .kit-op{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .kit-op button{display:grid;gap:1px;text-align:left;padding:7px 9px;border:1.5px solid transparent;border-radius:9px;background:var(--card);cursor:pointer;font:inherit;color:inherit;min-width:0}
 .kit-op button b{font-size:13px;font-weight:600;color:var(--muted)}.kit-op button span{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}.kit-op button small{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -242,6 +242,13 @@ html.travado,html.travado body{overflow:hidden}
 .escolha input.erro{border-color:#B42318;box-shadow:0 0 0 1px #B42318}
 .nomes{display:grid;gap:10px}.nomes > div{display:grid;gap:4px}
 .nomes-dica{margin:-2px 0 0;font-size:13px;color:var(--muted)}
+.cor-p{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px}
+.sw-b{width:30px;height:30px;border-radius:50%;border:1px solid rgba(0,0,0,.2);background:var(--c);cursor:pointer;padding:0;flex:none}
+.sw-b[aria-pressed="true"]{box-shadow:0 0 0 2px var(--card),0 0 0 4px var(--ink)}
+.cor-p-n{font-size:13px;color:var(--muted);margin-left:4px}
+.cor-p.erro .cor-p-n{color:#B42318;font-weight:600}
+.pecas-cor{display:grid;gap:10px;margin-bottom:12px}
+.pc-l{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.pc-l > span{font-size:14px;font-weight:600;min-width:56px}.pc-l .cor-p{margin-top:0}
 .esc-linha{display:flex;gap:10px;align-items:stretch}
 .qtd{display:flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden;flex:none}
 .qtd button{border:0;background:var(--card);width:42px;height:100%;min-height:46px;font-size:20px;cursor:pointer;color:var(--ink)}
@@ -543,8 +550,21 @@ function ligarCompartilhar(p){
 let LISTA = [];
 try{ LISTA = JSON.parse(localStorage.getItem("sp_pedido") || "[]").filter(i => i && i.id && i.qtd > 0); }catch(_){ LISTA = []; }
 const guardar = () => { try{ localStorage.setItem("sp_pedido", JSON.stringify(LISTA)); }catch(_){} };
-let sel = {cor:"", qtd:1, gravar:"", nomes:[""], montado:false};
+let sel = {cor:"", qtd:1, gravar:"", nomes:[""], cores:[""], montado:false};
 /* nomes digitados, agrupados: [["Ana",2],["Bia",1]] (nome vazio = falta escrever) */
+/* cor de cada peça: quando a quantidade passa de 1, cada peça pode ter a sua cor */
+const corPorPeca = p => coresDisponiveis(p).length > 1 && sel.qtd > 1;
+const corDe = k => (sel.cores && sel.cores[k]) || "";
+const ajustarCores = () => { while(sel.cores.length < sel.qtd) sel.cores.push(sel.cor); };
+/* peças agrupadas por nome e cor: [[nome, cor, qtd]] */
+function pecasAgrupadas(p){
+  const m = new Map(), temCor = coresDisponiveis(p).length > 0;
+  for(let k = 0; k < sel.qtd; k++){
+    const n = p.custom ? (sel.nomes[k] || "").trim() : "", c = temCor ? (corPorPeca(p) ? corDe(k) : sel.cor) : "";
+    const ch = n + "\u0000" + c, g = m.get(ch); if(g) g[2]++; else m.set(ch, [n, c, 1]);
+  }
+  return [...m.values()];
+}
 const nomesAgrupados = () => { const m = new Map(); sel.nomes.slice(0, sel.qtd).forEach(n => { const k = (n || "").trim(); m.set(k, (m.get(k) || 0) + 1); }); return [...m.entries()]; };
 const montTxt = i => i.montado === true ? ", montado" : i.montado === false ? ", para montar" : "";
 const linhaPedido = i => `${i.qtd}x ${i.id} ${i.nome}${i.cor ? ` (${i.cor})` : ""}${i.gravar ? `, nome "${i.gravar}"` : ""}${montTxt(i)}: ${brl(i.preco * i.qtd)}`;
@@ -594,10 +614,9 @@ function waLink(c, p){
     msg = p.status==="disponivel" ? `${oi} Vi no catálogo da StudioPrint o ${item}. Ainda tem para pronta entrega?`
         : p.status==="esgotado" ? `${oi} Vi no catálogo da StudioPrint o ${item}. Quero entrar na lista de espera.`
         : `${oi} Vi no catálogo da StudioPrint e quero encomendar:\n` +
-          (p.custom ? nomesAgrupados().map(([n, q]) => linhaPedido({id:p.id, nome:p.name, cor:sel.cor, gravar:n, qtd:q, preco:precoSelKit(p), ...(p.mont ? {montado:sel.montado} : {})})).join("\n")
-                    : linhaPedido({id:p.id, nome:p.name, cor:sel.cor, gravar:"", qtd:sel.qtd, preco:precoSelKit(p), ...(p.mont ? {montado:sel.montado} : {})})) +
+          pecasAgrupadas(p).map(([n, c, q]) => linhaPedido({id:p.id, nome:p.name, cor:c, gravar:n, qtd:q, preco:precoSelKit(p), ...(p.mont ? {montado:sel.montado} : {})})).join("\n") +
           (p.kit && unitKit(p, sel.qtd) < p.price ? `\nPreço de kit: ${pecas(sel.qtd)} a ${brl(unitKit(p, sel.qtd))} cada` : "") +
-          (p.custom && nomesAgrupados().some(([n]) => !n) ? `\nNome para personalizar: ` : "") + (!sel.cor && coresDisponiveis(p).length ? `\nCor: ` : "");
+          (p.custom && nomesAgrupados().some(([n]) => !n) ? `\nNome para personalizar: ` : "") + (coresDisponiveis(p).length && pecasAgrupadas(p).some(g => !g[1]) ? `\nCor: ` : "");
   }
   if(p === "lista"){
     const nome = $("#lNome").value.trim(), cep = $("#lCep").value.trim(), fr = freteLista();
@@ -686,7 +705,7 @@ function openProduct(id, setHash){
     + (fc ? `<div><dt>Pagamento</dt><dd>${esc(fc)}${p.status === "encomenda" && sn ? `<small>${esc(textoSinal()[0].toUpperCase() + textoSinal().slice(1))}</small>` : ""}</dd></div>` : "");
   const cs = coresDisponiveis(p);
   $("#dAvisos").innerHTML = avisosDe(p).length ? `<h4>Antes de comprar</h4><ul>${avisosDe(p).map(a=>`<li>${esc(a.texto)}</li>`).join("")}</ul>` : "";
-  sel = {cor: cs.length === 1 ? cs[0].nome : "", qtd:1, gravar:"", nomes:[""], montado:false};
+  sel = {cor: cs.length === 1 ? cs[0].nome : "", qtd:1, gravar:"", nomes:[""], cores:[cs.length === 1 ? cs[0].nome : ""], montado:false};
   $("#dColors").classList.remove("erro");
   $("#dColors").innerHTML = cs.length ? `<h4>Cores <span class="opc">${cs.length > 1 ? "toque para escolher" : ""}</span></h4><ul>${cs.map(k=>`<li style="border:0;padding:0"><button type="button" data-cor="${esc(k.nome)}" aria-pressed="${sel.cor===k.nome}"><span class="sw" style="background:${esc(k.hex)}"></span>${esc(k.nome)}</button></li>`).join("")}</ul>` : "";
   desenharEscolha(p);
@@ -737,40 +756,64 @@ function kitHTML(p){
   const st = ja
     ? `Somando com ${ja === 1 ? "a peça" : `as ${ja} peças`} do seu pedido, são ${pecas(n)}${u < p.price ? `: cada peça deste modelo sai por <b>${brl(u)}</b>` : ""}.` + proxTxt
     : (u < p.price ? `Com ${pecas(n)}: <b>${brl(cent(u * n))}</b> (${brl(u)} cada). Você economiza <b>${brl(eco)}</b>.` : "") + (u < p.price && prox ? " " : "") + proxTxt.trim();
-  return `<div class="kit" id="dKit"><div class="kit-t"><b>Quanto mais peças, menor o preço</b><span>${outros.length ? "Pode misturar nomes, cores e modelos" : "Pode misturar nomes e cores"}</span></div>
+  return `<div class="kit" id="dKit"><div class="kit-t"><b>Preço em kit</b><span>${outros.length ? "Pode misturar nomes, cores e modelos" : "Pode misturar nomes e cores"}</span></div>
     <div class="kit-op">${faixas.map(([q, v]) => `<button type="button" data-kq="${q}" aria-pressed="${at[0] === q}" aria-label="${pecas(q)} por ${brl(cent(q * v))}, ${brl(v)} cada"><b>${pecas(q)}</b><span>${brl(cent(q * v))}</span>${q > 1 ? `<small>${brl(v)} cada</small>` : `<small>&nbsp;</small>`}</button>`).join("")}</div>
     ${st ? `<p class="kit-st">${st}</p>` : ""}
     ${outros.length ? `<p class="kit-mix">Soma junto com ${outros.map(x => `<a href="#${x.id.toLowerCase()}" data-kitp="${x.id}">${esc(x.name)}</a>`).join(", ").replace(/, ([^,]*)$/, " e $1")}.</p>` : ""}</div>`;
 }
 function atualizarKit(p){ const k = document.getElementById("dKit"); if(k && p && p.kit) k.outerHTML = kitHTML(p); }
+function corPecaHTML(p, k){
+  const cs = coresDisponiveis(p), c = corDe(k);
+  return `<div class="cor-p" role="group" aria-label="Cor da peça ${k + 1}" data-pk="${k}">${cs.map(x => `<button type="button" class="sw-b" data-pc="${k}" data-c="${esc(x.nome)}" aria-pressed="${c === x.nome}" aria-label="${esc(x.nome)}" title="${esc(x.nome)}" style="--c:${esc(x.hex)}"></button>`).join("")}<span class="cor-p-n">${c ? esc(c) : "Escolha a cor"}</span></div>`;
+}
+function topoCores(p){
+  const h = $("#dColors .opc"); if(!h) return;
+  const porPeca = corPorPeca(p), todas = sel.cores.slice(0, sel.qtd), igual = todas.every(c => c === todas[0]) ? todas[0] : "";
+  if(!$("#dColors").classList.contains("erro")) h.textContent = coresDisponiveis(p).length > 1 ? (porPeca ? "toque para usar em todas as peças" : "toque para escolher") : "";
+  $("#dColors").querySelectorAll("[data-cor]").forEach(x => x.setAttribute("aria-pressed", porPeca ? x.dataset.cor === igual : x.dataset.cor === sel.cor));
+}
 function desenharEscolha(p, ok){
   if(p.status === "esgotado"){ $("#dEscolha").innerHTML = ""; return; }
+  ajustarCores();
+  const porPeca = corPorPeca(p);
   $("#dEscolha").innerHTML = kitHTML(p) +
     (p.mont && p.mont.extra ? `<div class="mont"><span class="mont-t">Montagem</span><div class="mont-op" role="radiogroup" aria-label="Montagem">
       <button type="button" role="radio" data-mont="0" aria-checked="${!sel.montado}"><b>Para montar</b><span>${brl(p.price)}</span></button>
       <button type="button" role="radio" data-mont="1" aria-checked="${sel.montado}"><b>Montado</b><span>${brl(p.price + p.mont.extra)}</span></button></div></div>` : "") +
-    (p.custom ? `<div class="nomes">${Array.from({length: sel.qtd}, (_, k) => `<div><label for="${k ? "dGravar" + k : "dGravar"}">${sel.qtd > 1 ? `Nome da peça ${k + 1}` : "Nome para personalizar"}</label><input id="${k ? "dGravar" + k : "dGravar"}" class="nome-g" data-k="${k}" maxlength="20" placeholder="${k ? "Outro nome, ou repita o mesmo" : "Ex.: Ana"}" value="${esc(sel.nomes[k] || "")}"></div>`).join("")}<p class="nomes-dica">${sel.qtd > 1 ? "Uma peça para cada nome. Pode repetir o mesmo nome." : "Quer mais de um nome? Aumente a quantidade: aparece um campo para cada peça."}</p></div>` : "") +
+    (p.custom ? `<div class="nomes">${Array.from({length: sel.qtd}, (_, k) => `<div><label for="${k ? "dGravar" + k : "dGravar"}">${sel.qtd > 1 ? `Nome da peça ${k + 1}` : "Nome para personalizar"}</label><input id="${k ? "dGravar" + k : "dGravar"}" class="nome-g" data-k="${k}" maxlength="20" placeholder="${k ? "Outro nome, ou repita o mesmo" : "Ex.: Ana"}" value="${esc(sel.nomes[k] || "")}">${porPeca ? corPecaHTML(p, k) : ""}</div>`).join("")}<p class="nomes-dica">${sel.qtd > 1 ? `Uma peça para cada nome${porPeca ? ", cada uma na cor que quiser" : ""}. Pode repetir o mesmo nome.` : "Quer mais de um nome? Aumente a quantidade: aparece um campo para cada peça."}</p></div>` : "") +
+    (!p.custom && porPeca ? `<div class="pecas-cor"><span class="mont-t">Cor de cada peça</span>${Array.from({length: sel.qtd}, (_, k) => `<div class="pc-l"><span>Peça ${k + 1}</span>${corPecaHTML(p, k)}</div>`).join("")}</div>` : "") +
     `<div class="esc-linha"><div class="qtd" role="group" aria-label="Quantidade"><button type="button" data-q="-1" aria-label="Menos um">−</button><output id="dQtd">${sel.qtd}</output><button type="button" data-q="1" aria-label="Mais um">+</button></div>
       <button class="btn add" type="button" id="dAdd">Adicionar ao pedido</button></div>` +
     (ok ? `<p class="esc-ok" role="status">${ok} <button type="button" data-ver>Ver pedido (${qtdLista()})</button></p>` : "");
+  topoCores(p);
 }
 $("#dColors").addEventListener("click", e => {
   const b = e.target.closest("[data-cor]"); if(!b || !cur) return;
-  sel.cor = sel.cor === b.dataset.cor ? "" : b.dataset.cor; $("#dColors").classList.remove("erro");
-  $("#dColors").querySelectorAll("[data-cor]").forEach(x => x.setAttribute("aria-pressed", x.dataset.cor === sel.cor));
+  const porPeca = corPorPeca(cur), todas = sel.cores.slice(0, sel.qtd), igual = todas.every(c => c === todas[0]) ? todas[0] : "";
+  sel.cor = (porPeca ? igual : sel.cor) === b.dataset.cor ? "" : b.dataset.cor; $("#dColors").classList.remove("erro");
+  sel.cores = sel.cores.map(() => sel.cor);
+  if(porPeca){ const nomes = [...document.querySelectorAll(".nome-g")].map(i => i.value); desenharEscolha(cur); document.querySelectorAll(".nome-g").forEach((i, k) => { if(nomes[k] !== undefined) i.value = nomes[k]; }); }
+  else topoCores(cur);
   botoesWa(cur);
 });
 $("#dEscolha").addEventListener("input", e => { if(e.target.classList.contains("nome-g")){ if(/"/.test(e.target.value)) e.target.value = e.target.value.replace(/"/g, "'"); sel.nomes[+e.target.dataset.k] = e.target.value.trim(); sel.gravar = sel.nomes[0] || ""; e.target.classList.remove("erro"); botoesWa(cur); } });
 $("#dEscolha").addEventListener("click", e => {
+  const pc = e.target.closest("[data-pc]");
+  if(pc && cur){ const k = +pc.dataset.pc; sel.cores[k] = sel.cores[k] === pc.dataset.c ? "" : pc.dataset.c;
+    const lin = pc.closest(".cor-p"); lin.classList.remove("erro"); lin.querySelectorAll("[data-pc]").forEach(x => x.setAttribute("aria-pressed", x.dataset.c === sel.cores[k]));
+    lin.querySelector(".cor-p-n").textContent = sel.cores[k] || "Escolha a cor";
+    const todas = sel.cores.slice(0, sel.qtd); sel.cor = todas.every(c => c === todas[0]) ? todas[0] : "";
+    $("#dColors").classList.remove("erro"); topoCores(cur); botoesWa(cur); return; }
   const kq = e.target.closest("[data-kq]");
   const kp = e.target.closest("[data-kitp]");
   if(kp){ e.preventDefault(); openProduct(kp.dataset.kitp, true); return; }
   if(kq && cur){ sel.qtd = Math.min(99, Math.max(1, +kq.dataset.kq - qtdKit(cur))); $("#dQtd").textContent = sel.qtd;
-    if(cur.custom){ while(sel.nomes.length < sel.qtd) sel.nomes.push(""); desenharEscolha(cur); } else atualizarKit(cur);
+    if(cur.custom || coresDisponiveis(cur).length > 1){ while(sel.nomes.length < sel.qtd) sel.nomes.push(""); desenharEscolha(cur); } else atualizarKit(cur);
     botoesWa(cur); return; }
   const q = e.target.closest("[data-q]");
   if(q){ sel.qtd = Math.min(99, Math.max(1, sel.qtd + Number(q.dataset.q))); $("#dQtd").textContent = sel.qtd;
     if(cur && cur.custom){ while(sel.nomes.length < sel.qtd) sel.nomes.push(""); desenharEscolha(cur); if(Number(q.dataset.q) > 0){ const ult = document.getElementById("dGravar" + (sel.qtd - 1)); if(ult) ult.focus(); } }
+    else if(cur && coresDisponiveis(cur).length > 1) desenharEscolha(cur);
     else atualizarKit(cur);
     botoesWa(cur); return; }
   if(e.target.closest("[data-ver]")){ abrirLista(); return; }
@@ -780,22 +823,27 @@ $("#dEscolha").addEventListener("click", e => {
   if(e.target.closest("#dAdd")){
     const p = cur;
     const csel = coresDisponiveis(p);
-    if(csel.length > 1 && !sel.cor){ const h = $("#dColors h4"); $("#dColors").classList.add("erro"); if(h){ h.querySelector(".opc").textContent = "escolha uma cor antes de adicionar"; } $("#dColors").scrollIntoView({block:"center", behavior:"smooth"}); return; }
+    if(csel.length > 1 && corPorPeca(p)){
+      const falta = Array.from({length: sel.qtd}, (_, k) => k).find(k => !corDe(k));
+      if(falta !== undefined){ const lin = document.querySelector(`.cor-p[data-pk="${falta}"]`); if(lin){ lin.classList.add("erro"); lin.querySelector(".cor-p-n").textContent = "Escolha a cor desta peça"; lin.scrollIntoView({block:"center", behavior:"smooth"}); } return; }
+    }
+    else if(csel.length > 1 && !sel.cor){ const h = $("#dColors h4"); $("#dColors").classList.add("erro"); if(h){ h.querySelector(".opc").textContent = "escolha uma cor antes de adicionar"; } $("#dColors").scrollIntoView({block:"center", behavior:"smooth"}); return; }
     if(p.custom){
       const vazio = sel.nomes.slice(0, sel.qtd).findIndex(n => !(n || "").trim());
       if(vazio >= 0){ const i = document.getElementById(vazio ? "dGravar" + vazio : "dGravar"); i.classList.add("erro"); i.focus(); i.placeholder = "Digite o nome antes de adicionar"; return; }
     }
     const mont = p.mont ? {montado: !!sel.montado} : {};
-    const grupos = p.custom ? nomesAgrupados() : [["", sel.qtd]];
-    grupos.forEach(([nome, q]) => {
-      const igual = LISTA.find(i => i.id === p.id && i.cor === sel.cor && i.gravar === nome && i.montado === mont.montado);
+    const grupos = pecasAgrupadas(p);
+    grupos.forEach(([nome, cor, q]) => {
+      const igual = LISTA.find(i => i.id === p.id && i.cor === cor && i.gravar === nome && i.montado === mont.montado);
       if(igual) igual.qtd = Math.min(99, igual.qtd + q);
-      else LISTA.push({id:p.id, nome:p.name, preco:precoSel(p), cor:sel.cor, gravar:nome, qtd:q, custom:p.custom, temCores:coresDisponiveis(p).length > 0, img:p.imgs[0], ...mont});
+      else LISTA.push({id:p.id, nome:p.name, preco:precoSel(p), cor, gravar:nome, qtd:q, custom:p.custom, temCores:coresDisponiveis(p).length > 0, img:p.imgs[0], ...mont});
     });
     guardar(); atualizarBarra();
-    const nomesTxt = p.custom ? (grupos.length === 1 ? `, nome "${grupos[0][0]}"` : `, nomes ${grupos.map(([n]) => `"${n}"`).join(", ")}`) : "";
-    const txt = `Adicionado: ${sel.qtd}x ${p.name}${sel.cor ? " (" + sel.cor + ")" : ""}${nomesTxt}${p.mont ? (sel.montado ? ", montado" : ", para montar") : ""}.`;
-    sel.gravar = ""; sel.nomes = [""]; sel.qtd = 1;
+    const nomesU = [...new Set(grupos.map(g => g[0]))], coresU = [...new Set(grupos.map(g => g[1]).filter(Boolean))];
+    const nomesTxt = p.custom ? (nomesU.length === 1 ? `, nome "${nomesU[0]}"` : `, nomes ${nomesU.map(n => `"${n}"`).join(", ")}`) : "";
+    const txt = `Adicionado: ${sel.qtd}x ${p.name}${coresU.length ? " (" + coresU.join(", ") + ")" : ""}${nomesTxt}${p.mont ? (sel.montado ? ", montado" : ", para montar") : ""}.`;
+    sel.gravar = ""; sel.nomes = [""]; sel.qtd = 1; sel.cores = [sel.cor];
     desenharEscolha(p, txt); botoesWa(p);
   }
 });
