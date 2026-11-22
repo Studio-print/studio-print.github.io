@@ -241,6 +241,17 @@ dialog .body{overscroll-behavior:contain}
 @media (max-width:640px){#dPed{width:100%;max-width:100%}#dPed footer .btn{flex:1 1 auto}.ig{grid-template-columns:1fr 1fr}.totais{grid-template-columns:repeat(2,minmax(0,1fr))}.totais .tot{grid-column:1/-1}.pcard{padding:14px 16px}.phd .stmini{margin-left:0;width:100%}.pbase{display:grid;gap:12px}.pacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.pacts .btn{justify-content:center;padding:10px 8px}.ajustes{grid-template-columns:1fr}.tools{display:grid;grid-template-columns:1fr 1fr}.tools .in{grid-column:1/-1}.tools .viewsw{grid-column:1/-1;display:flex}.tools .viewsw button{flex:1}.tools .btn{justify-content:center}.tabs{overflow-x:auto;overflow-y:hidden}.tabs button{white-space:nowrap;flex:none}.ptabs{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;margin-left:-16px;margin-right:-16px;padding:0 16px}#dPed .body{padding:14px}.fr{grid-template-columns:1fr 90px auto}}
 #confTxt{white-space:pre-line;line-height:1.55}
 #dColar,#dVersoes{width:min(620px,calc(100% - 24px))}
+#dPlan{width:min(720px,calc(100% - 24px))}
+.plan-res{display:grid;gap:10px}
+.plan-kpi{display:flex;flex-wrap:wrap;gap:8px}
+.plan-kpi span{border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-weight:650;font-size:14px}
+.plan-kpi span b{font-size:18px;margin-right:4px}
+.plan-erros{border:1px solid #E8A39C;background:#FFF5F4;border-radius:10px;padding:10px 12px}
+.plan-erros p{margin:0 0 6px;color:var(--danger);font-weight:700}
+.plan-erros ul,.plan-lista{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14px}
+.plan-prod{border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.plan-prod b{display:block;margin-bottom:2px}
+.plan-prod ul{margin:0;padding-left:18px;font-size:14px;color:#353B46}
 .versoes{list-style:none;margin:0;padding:0;display:grid;gap:8px}
 .versoes li{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;gap:12px;align-items:center;justify-content:space-between}
 .versoes li div{display:grid;gap:2px;min-width:0}
@@ -420,6 +431,9 @@ dialog .body{overscroll-behavior:contain}
     <button class="btn primary" type="button" id="bNovo">Novo produto</button>
     <input class="in" type="search" id="busca" placeholder="Buscar por nome ou código" aria-label="Buscar por nome ou código">
     <span class="count" id="contagem"></span>
+    <span style="flex:1"></span>
+    <button class="btn" type="button" id="bPlanBaixar">Baixar planilha do catálogo</button>
+    <label class="btn" id="bPlanImport">Importar planilha<input type="file" id="planArq" accept=".xlsx,.csv" hidden></label>
   </div>
   <div id="lista"></div>
   </section>
@@ -608,6 +622,14 @@ dialog .body{overscroll-behavior:contain}
 </dialog>
 
 <!-- Pedido -->
+<dialog id="dPlan" aria-labelledby="planTit">
+  <div class="ed">
+    <header><h2 id="planTit">Importar planilha</h2><button class="btn icon" type="button" data-planfechar aria-label="Fechar"><svg><use href="#i-x"/></svg></button></header>
+    <div class="body" id="planCorpo"></div>
+    <footer><span style="flex:1"></span><button class="btn" type="button" data-planfechar>Cancelar</button><button class="btn primary" type="button" id="planAplicar">Aplicar alterações</button></footer>
+  </div>
+</dialog>
+
 <dialog id="dVersoes" aria-labelledby="verTit">
   <div class="ed">
     <header><h2 id="verTit">Versões anteriores do catálogo</h2><button class="btn icon" type="button" data-verfechar aria-label="Fechar"><svg><use href="#i-x"/></svg></button></header>
@@ -1518,6 +1540,248 @@ function novoPedidoBase(){
     cliente:{nome:"", whatsapp:"", cidade:"", endereco:""}, itens:[], entrega:{tipo:"retirada", valor:0, rastreio:""},
     pagamento:{forma:"Pix", pago:0}, prazo: somarUteis(hojeISO(), 3), prazoAuto:true, obs:"", historico:[]};
 }
+
+/* ---------- catálogo em planilha (Excel) ---------- */
+const COLS = [
+  ["id","Código",10],["nome","Nome",34],["categoria","Categoria",16],["preco","Preço (R$)",11],["unidade","Texto depois do preço",14],
+  ["status","Situação",16],["estoque","Estoque pronta entrega",12],["destaque","Destaque",14],["lancamento","Preço de lançamento",12],
+  ["personalizado","Personalizado com nome",13],["pzMin","Produção mín. (dias úteis)",12],["pzMax","Produção máx. (dias úteis)",12],
+  ["medidas","Medidas",30],["descricao","Descrição",60],["cores","Cores",40],["fotos","Fotos (não muda pela planilha)",18]
+];
+const SIT_TXT = {encomenda:"Sob encomenda", disponivel:"Pronta entrega", esgotado:"Esgotado"};
+const DEST_TXT = {"":"Nenhum", "mais-vendido":"Mais vendido", "novo":"Novo"};
+const semAcento = t => String(t ?? "").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim();
+let excelPronto = null;
+function carregarExcel(){
+  if(window.ExcelJS) return Promise.resolve();
+  return excelPronto = excelPronto || new Promise((ok, falha) => {
+    const sc = document.createElement("script"); sc.src = "exceljs.min.js?v=4.4.0"; sc.onload = ok;
+    sc.onerror = () => { excelPronto = null; falha(new Error("Não consegui carregar o leitor de planilhas. Confira a internet e tente de novo.")); };
+    document.head.appendChild(sc);
+  });
+}
+const coresTexto = cs => (cs||[]).map(c => `${c.nome} (${String(c.hex||"").toUpperCase()})`).join("; ");
+async function baixarPlanilha(){
+  const b = $("#bPlanBaixar"); b.disabled = true; const txt = b.textContent; b.textContent = "Preparando…";
+  try{
+    await carregarExcel();
+    const wb = new ExcelJS.Workbook(); wb.creator = "Painel StudioPrint";
+    const ws = wb.addWorksheet("Catálogo", {views:[{state:"frozen", xSplit:2, ySplit:1}]});
+    ws.columns = COLS.map(([k, t, w]) => ({header:t, key:k, width:w}));
+    produtos.forEach(p => { const pz = prazoProduto(p); ws.addRow({
+      id:p.id, nome:p.nome, categoria:p.categoria, preco:Number(p.preco)||0, unidade:p.unidade||"",
+      status:SIT_TXT[p.status] || "Sob encomenda", estoque:p.estoque > 0 ? p.estoque : 0, destaque:DEST_TXT[p.destaque||""] || "Nenhum",
+      lancamento:p.lancamento ? "Sim" : "Não", personalizado:p.personalizado ? "Sim" : "Não", pzMin:pz[0], pzMax:pz[1],
+      medidas:p.medidas||"", descricao:p.descricao||"", cores:coresTexto(p.cores), fotos:(p.fotos||[]).join(", ") }); });
+    const cab = ws.getRow(1); cab.font = {bold:true, color:{argb:"FFFFFFFF"}}; cab.height = 32;
+    cab.alignment = {vertical:"middle", wrapText:true};
+    cab.eachCell(c => { c.fill = {type:"pattern", pattern:"solid", fgColor:{argb:"FF15181E"}}; });
+    const ult = Math.max(produtos.length + 200, 300);
+    const lista = (col, itens, titulo) => { for(let r = 2; r <= ult; r++) ws.getCell(`${col}${r}`).dataValidation = {type:"list", allowBlank:true, formulae:[`"${itens.join(",")}"`], showErrorMessage:true, errorStyle:"stop", errorTitle:titulo, error:"Escolha uma opção da lista."}; };
+    lista("F", Object.values(SIT_TXT), "Situação"); lista("H", Object.values(DEST_TXT), "Destaque"); lista("I", ["Sim","Não"], "Preço de lançamento"); lista("J", ["Sim","Não"], "Personalizado");
+    for(let r = 2; r <= ult; r++){
+      ws.getCell(`D${r}`).dataValidation = {type:"decimal", operator:"between", allowBlank:true, formulae:[0.01, 5000], showErrorMessage:true, errorTitle:"Preço", error:"Digite só o número, maior que zero. Ex.: 39,90"};
+      ws.getCell(`D${r}`).numFmt = '"R$" #,##0.00';
+      ws.getCell(`G${r}`).dataValidation = {type:"whole", operator:"between", allowBlank:true, formulae:[0, 999], showErrorMessage:true, errorTitle:"Estoque", error:"Digite um número inteiro de 0 a 999."};
+      for(const c of ["K","L"]) ws.getCell(`${c}${r}`).dataValidation = {type:"whole", operator:"between", allowBlank:true, formulae:[1, 60], showErrorMessage:true, errorTitle:"Produção", error:"Digite os dias úteis, de 1 a 60."};
+      for(const c of ["M","N","O"]) ws.getCell(`${c}${r}`).alignment = {wrapText:true, vertical:"top"};
+      ws.getCell(`P${r}`).font = {color:{argb:"FF8A919C"}};
+    }
+    const aj = wb.addWorksheet("Como usar");
+    aj.columns = [{width:110}];
+    [
+      "COMO USAR ESTA PLANILHA",
+      "",
+      "1. Mude o que quiser na aba Catálogo: preços, nomes, estoque, situação, destaque, descrições, cores.",
+      "2. Cada linha é um produto. O Código liga a linha ao produto do site: não troque o código de um produto que já existe.",
+      "3. Para criar um produto, preencha uma linha nova com um código que ainda não existe. Depois adicione as fotos pelo painel.",
+      "4. A ordem das linhas é a ordem dos produtos no site, dentro de cada categoria.",
+      "5. Salve como Excel (.xlsx) e, no painel, vá em Produtos > Importar planilha.",
+      "6. O painel mostra o que mudou para você conferir. Nada vai para o site antes de você clicar em Publicar no site.",
+      "",
+      "COMO PREENCHER",
+      "Preço: só o número. Ex.: 39 ou 39,90.",
+      "Situação: Sob encomenda, Pronta entrega ou Esgotado. Com estoque maior que zero, o produto fica como Pronta entrega.",
+      "Destaque: Nenhum, Mais vendido ou Novo.",
+      "Preço de lançamento e Personalizado com nome: Sim ou Não.",
+      "Produção: dias úteis depois do pagamento, mínimo e máximo. Ex.: 2 e 3.",
+      "Cores: separadas por ponto e vírgula, com o nome e o código da cor. Ex.: Vermelho (#D32F2F); Azul (#1E88E5). Cores que já existem podem ir só com o nome.",
+      "Fotos: só para consulta. As fotos são trocadas pelo painel.",
+      "Produtos que você apagar da planilha não somem do site sozinhos: o painel pergunta antes."
+    ].forEach((t, i) => { const r = aj.addRow([t]); if(/^[A-ZÇÃÕÉ ]+$/.test(t) && t) r.font = {bold:true, size:12}; r.alignment = {wrapText:true}; });
+    const cs = wb.addWorksheet("Cores e categorias");
+    cs.columns = [{header:"Cores de filamento", width:28},{header:"Código da cor", width:14},{header:"", width:4},{header:"Categorias", width:24}];
+    cs.getRow(1).font = {bold:true};
+    const fil = site.filamentos || [], cats = categorias();
+    for(let i = 0; i < Math.max(fil.length, cats.length); i++) cs.addRow([fil[i] ? fil[i].nome : "", fil[i] ? String(fil[i].hex).toUpperCase() : "", "", cats[i] || ""]);
+    const buf = await wb.xlsx.writeBuffer();
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([buf], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+    a.download = `Catalogo StudioPrint ${hojeISO()}.xlsx`; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+    aviso("Planilha baixada. Edite no Excel e depois use Importar planilha.");
+  }catch(e){ aviso(e.message || String(e), true); }
+  finally{ b.disabled = false; b.textContent = txt; }
+}
+/* lê um valor de célula do ExcelJS como texto */
+function celTexto(v){
+  if(v === null || v === undefined) return "";
+  if(typeof v === "object"){
+    if(v instanceof Date) return v.toISOString().slice(0,10);
+    if(Array.isArray(v.richText)) return v.richText.map(r => r.text).join("");
+    if("result" in v) return celTexto(v.result);
+    if("text" in v) return celTexto(v.text);
+    if("error" in v) return "";
+    return "";
+  }
+  return String(v);
+}
+function lerCsv(texto){
+  const linha1 = texto.split(/\r?\n/)[0] || "";
+  const sep = (linha1.match(/;/g)||[]).length >= (linha1.match(/,/g)||[]).length ? ";" : ",";
+  const rows = []; let row = [], cel = "", aspas = false;
+  for(let i = 0; i < texto.length; i++){
+    const ch = texto[i];
+    if(aspas){ if(ch === '"'){ if(texto[i+1] === '"'){ cel += '"'; i++; } else aspas = false; } else cel += ch; continue; }
+    if(ch === '"') aspas = true;
+    else if(ch === sep){ row.push(cel); cel = ""; }
+    else if(ch === "\n" || ch === "\r"){ if(ch === "\r" && texto[i+1] === "\n") i++; row.push(cel); rows.push(row); row = []; cel = ""; }
+    else cel += ch;
+  }
+  if(cel !== "" || row.length){ row.push(cel); rows.push(row); }
+  return rows;
+}
+async function lerArquivoPlanilha(arq){
+  if(/\.csv$/i.test(arq.name)){
+    const bytes = new Uint8Array(await arq.arrayBuffer());
+    let texto; try{ texto = new TextDecoder("utf-8", {fatal:true}).decode(bytes); }catch(_){ texto = new TextDecoder("windows-1252").decode(bytes); }
+    return lerCsv(texto.replace(/^﻿/, ""));
+  }
+  await carregarExcel();
+  const wb = new ExcelJS.Workbook(); await wb.xlsx.load(await arq.arrayBuffer());
+  const ws = wb.worksheets.find(w => semAcento(w.name) === "catalogo") || wb.worksheets[0];
+  if(!ws) throw new Error("A planilha está vazia.");
+  const rows = [];
+  ws.eachRow({includeEmpty:true}, (r, n) => { const vals = []; for(let c = 1; c <= Math.max(r.cellCount, COLS.length); c++) vals.push(celTexto(r.getCell(c).value)); rows[n-1] = vals; });
+  return Array.from(rows, r => r || []);
+}
+const simNao = t => { const v = semAcento(t); return v === "" ? null : ["sim","s","x","true","1","verdadeiro"].includes(v) ? true : ["nao","n","false","0","falso"].includes(v) ? false : undefined; };
+function lerCores(txt, antigas, erros, ln){
+  const t = String(txt||"").trim(); if(!t) return [];
+  return t.split(/[;\n]+/).map(x => x.trim()).filter(Boolean).map(parte => {
+    const m = parte.match(/^(.*?)[\s(]*(#[0-9a-f]{6})\)?$/i);
+    const nome = (m ? m[1] : parte).replace(/[()]/g,"").trim(), hex = m ? m[2].toUpperCase() : null;
+    if(hex && nome) return {nome, hex};
+    const achada = [...(antigas||[]), ...(site.filamentos||[])].find(c => semAcento(c.nome) === semAcento(nome));
+    if(achada) return {nome: achada.nome, hex: String(achada.hex).toUpperCase()};
+    erros.push(`Linha ${ln}: a cor "${parte}" não existe ainda. Escreva com o código, por exemplo ${nome || "Lilás"} (#9B7FD4).`);
+    return null;
+  }).filter(Boolean);
+}
+let planPlano = null;
+async function importarPlanilha(arq){
+  let rows;
+  try{ rows = await lerArquivoPlanilha(arq); }catch(e){ aviso("Não consegui ler esse arquivo: " + (e.message || e), true); return; }
+  const cab = (rows[0]||[]).map(semAcento);
+  const idx = {}; COLS.forEach(([k, t]) => { const i = cab.indexOf(semAcento(t)); if(i >= 0) idx[k] = i; });
+  const faltam = ["id","nome","categoria","preco"].filter(k => !(k in idx));
+  const erros = [], avisos = [];
+  if(faltam.length){ mostrarPlano({erros:[`Não achei as colunas: ${faltam.map(k => COLS.find(c => c[0] === k)[1]).join(", ")}. Use a planilha baixada pelo painel, sem mudar a primeira linha.`]}); return; }
+  const pega = (r, k) => k in idx ? String(r[idx[k]] ?? "").trim() : null;
+  const novos = [], vistos = new Set();
+  rows.slice(1).forEach((r, i) => {
+    const ln = i + 2;
+    if(!r || r.every(c => !String(c ?? "").trim())) return;
+    const id = pega(r,"id").toUpperCase();
+    if(!id){ erros.push(`Linha ${ln}: falta o código.`); return; }
+    if(vistos.has(id)){ erros.push(`Linha ${ln}: o código ${id} aparece mais de uma vez.`); return; }
+    vistos.add(id);
+    const antes = produtos.find(p => p.id === id);
+    const p = antes ? JSON.parse(JSON.stringify(antes)) : {id, fotos:[], cores:[]};
+    const nome = pega(r,"nome"), cat = pega(r,"categoria"), preco = precoDe(pega(r,"preco"));
+    if(!nome) erros.push(`Linha ${ln} (${id}): falta o nome.`); else p.nome = nome;
+    if(!cat) erros.push(`Linha ${ln} (${id}): falta a categoria.`); else p.categoria = cat;
+    if(!(preco > 0)) erros.push(`Linha ${ln} (${id}): preço inválido ("${pega(r,"preco")}"). Use só o número, ex.: 39,90.`); else p.preco = preco;
+    const un = pega(r,"unidade"); if(un !== null){ if(un) p.unidade = un; else delete p.unidade; }
+    const sit = pega(r,"status");
+    if(sit !== null && sit !== ""){ const k = Object.keys(SIT_TXT).find(k => semAcento(SIT_TXT[k]) === semAcento(sit)); if(!k) erros.push(`Linha ${ln} (${id}): situação "${sit}" não existe. Use Sob encomenda, Pronta entrega ou Esgotado.`); else p.status = k; }
+    else if(!antes) p.status = "encomenda";
+    const est = pega(r,"estoque");
+    if(est !== null){ const n = est === "" ? 0 : Number(String(est).replace(",",".")); if(!Number.isInteger(n) || n < 0 || n > 999) erros.push(`Linha ${ln} (${id}): estoque "${est}" inválido. Use um número inteiro.`); else if(n > 0){ p.estoque = n; p.status = "disponivel"; } else { delete p.estoque; if(p.status === "disponivel") p.status = "encomenda"; } }
+    const dst = pega(r,"destaque");
+    if(dst !== null){ const k = Object.keys(DEST_TXT).find(k => semAcento(DEST_TXT[k]) === semAcento(dst || "Nenhum")); if(k === undefined) erros.push(`Linha ${ln} (${id}): destaque "${dst}" não existe. Use Nenhum, Mais vendido ou Novo.`); else if(k) p.destaque = k; else delete p.destaque; }
+    for(const [k, rot] of [["lancamento","Preço de lançamento"],["personalizado","Personalizado com nome"]]){
+      const v = pega(r,k); if(v === null) continue; const b = simNao(v);
+      if(b === undefined) erros.push(`Linha ${ln} (${id}): em ${rot}, use Sim ou Não.`); else if(b !== null) p[k] = b; else if(!antes) p[k] = false;
+    }
+    const a = pega(r,"pzMin"), z = pega(r,"pzMax");
+    if((a !== null && a !== "") || (z !== null && z !== "")){
+      const na = parseInt(a || z, 10), nz = parseInt(z || a, 10);
+      if(!(na > 0 && nz >= na && nz <= 60)) erros.push(`Linha ${ln} (${id}): produção inválida (${a || "?"} a ${z || "?"}). Use dias úteis, ex.: 2 e 3.`); else p.prazo = [na, nz];
+    } else if(!antes) p.prazo = prazoProduto(p);
+    const med = pega(r,"medidas"); if(med !== null){ if(med) p.medidas = med; else delete p.medidas; }
+    const desc = pega(r,"descricao"); if(desc !== null) p.descricao = desc;
+    const cor = pega(r,"cores"); if(cor !== null) p.cores = lerCores(cor, antes && antes.cores, erros, ln);
+    if(p.estoque > 0) p.status = "disponivel";
+    else if(p.status === "disponivel"){ p.status = "encomenda"; avisos.push(`${id}: Pronta entrega sem estoque fica como Sob encomenda. Para pronta entrega, preencha o estoque.`); }
+    if(!antes && !p.fotos.length) avisos.push(`${id} ${nome || ""}: produto novo sem foto. Adicione as fotos pelo painel antes de publicar.`);
+    novos.push({p, antes});
+  });
+  if(!novos.length && !erros.length) erros.push("Não achei nenhum produto na planilha.");
+  const fora = produtos.filter(p => !vistos.has(p.id));
+  const mudados = novos.filter(x => x.antes && diferencasProduto(x.antes, x.p).length);
+  const criados = novos.filter(x => !x.antes);
+  const ordemNova = novos.map(x => x.p.id), ordemAtual = produtos.filter(p => vistos.has(p.id)).map(p => p.id);
+  const mudaOrdem = JSON.stringify(ordemNova.filter(id => ordemAtual.includes(id))) !== JSON.stringify(ordemAtual);
+  planPlano = {novos, fora, mudados, criados, erros, avisos, mudaOrdem};
+  mostrarPlano(planPlano);
+}
+function mostrarPlano(pl){
+  const e = pl.erros || [];
+  let h = "";
+  if(e.length){
+    h = `<div class="plan-erros"><p>A planilha tem ${e.length === 1 ? "1 problema" : e.length + " problemas"}. Corrija e importe de novo:</p><ul>${e.slice(0,25).map(x => `<li>${esc(x)}</li>`).join("")}${e.length > 25 ? `<li>E mais ${e.length - 25}.</li>` : ""}</ul></div>`;
+    $("#planAplicar").hidden = true;
+  } else {
+    const nada = !pl.mudados.length && !pl.criados.length && !pl.mudaOrdem;
+    h = `<div class="plan-res">
+      <div class="plan-kpi"><span><b>${pl.mudados.length}</b>alterado${pl.mudados.length === 1 ? "" : "s"}</span><span><b>${pl.criados.length}</b>novo${pl.criados.length === 1 ? "" : "s"}</span><span><b>${pl.novos.length - pl.mudados.length - pl.criados.length}</b>sem mudança</span>${pl.fora.length ? `<span><b>${pl.fora.length}</b>fora da planilha</span>` : ""}</div>
+      ${nada && !pl.fora.length ? `<p>Nada mudou em relação ao catálogo atual.</p>` : ""}
+      ${pl.avisos.length ? `<div class="plan-erros" style="border-color:#E8C27A;background:#FFF9EC"><p style="color:#8A4B00">Atenção</p><ul>${pl.avisos.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+      ${pl.mudados.map(x => `<div class="plan-prod"><b>${esc(x.p.id)} ${esc(x.p.nome)}</b><ul>${diferencasProduto(x.antes, x.p).map(d => `<li>${esc(d)}</li>`).join("")}</ul></div>`).join("")}
+      ${pl.criados.map(x => `<div class="plan-prod"><b>Novo: ${esc(x.p.id)} ${esc(x.p.nome)}</b><ul><li>${esc(x.p.categoria)} | ${brl(x.p.preco)} | ${esc(STATUS[x.p.status] || "")}</li></ul></div>`).join("")}
+      ${pl.mudaOrdem ? `<label class="check"><input type="checkbox" id="planOrdem" checked> Usar a ordem das linhas da planilha no site</label>` : ""}
+      ${pl.fora.length ? `<div class="plan-prod"><b>Estão no site, mas não na planilha</b><ul>${pl.fora.map(p => `<li>${esc(p.id)} ${esc(p.nome)}</li>`).join("")}</ul>
+        <label class="check" style="margin-top:6px"><input type="checkbox" id="planApagar"> ${pl.fora.length === 1 ? "Excluir esse produto do catálogo" : `Excluir esses ${pl.fora.length} produtos do catálogo`}</label>
+        <p class="hint" style="margin:4px 0 0">${pl.fora.length === 1 ? "Sem marcar, ele continua no site como está." : "Sem marcar, eles continuam no site como estão."}</p></div>` : ""}
+      <p class="hint" style="margin:0">Ao aplicar, as mudanças ficam no painel como alterações não publicadas. Confira e clique em <b>Publicar no site</b>.</p>
+    </div>`;
+    $("#planAplicar").hidden = nada && !pl.fora.length;
+  }
+  $("#planCorpo").innerHTML = h;
+  if(!$("#dPlan").open) $("#dPlan").showModal();
+}
+async function aplicarPlano(){
+  const pl = planPlano; if(!pl) return;
+  const apagar = !!($("#planApagar") && $("#planApagar").checked), ordem = !$("#planOrdem") || $("#planOrdem").checked;
+  const partes = [];
+  if(pl.mudados.length) partes.push(`${pl.mudados.length} produto${pl.mudados.length > 1 ? "s" : ""} alterado${pl.mudados.length > 1 ? "s" : ""}`);
+  if(pl.criados.length) partes.push(`${pl.criados.length} novo${pl.criados.length > 1 ? "s" : ""}`);
+  if(apagar) partes.push(`${pl.fora.length} excluído${pl.fora.length > 1 ? "s" : ""}`);
+  if(pl.mudaOrdem && ordem) partes.push("nova ordem");
+  if(!(await confirmar("Aplicar a planilha no painel?", (partes.join(", ") || "Nenhuma mudança") + ". Nada vai para o site antes de você clicar em Publicar no site.", "Aplicar"))) return;
+  const porId = Object.fromEntries(pl.novos.map(x => [x.p.id, x.p]));
+  let lista = produtos.map(p => porId[p.id] || p);
+  pl.criados.forEach(x => lista.push(x.p));
+  if(apagar) lista = lista.filter(p => porId[p.id]);
+  if(ordem){ const pos = Object.fromEntries(pl.novos.map((x, i) => [x.p.id, i])); lista = lista.map((p, i) => ({p, k: p.id in pos ? pos[p.id] : 1e6 + i})).sort((a, b) => a.k - b.k).map(x => x.p); }
+  produtos.length = 0; lista.forEach(p => produtos.push(p));
+  $("#dPlan").close(); planPlano = null; render(); barra();
+  aviso("Planilha aplicada. Confira a lista e clique em Publicar no site.");
+}
+$("#bPlanBaixar").addEventListener("click", baixarPlanilha);
+$("#planArq").addEventListener("change", e => { const f = e.target.files[0]; e.target.value = ""; if(f) importarPlanilha(f); });
+$("#planAplicar").addEventListener("click", aplicarPlano);
+document.querySelectorAll("[data-planfechar]").forEach(b => b.addEventListener("click", () => $("#dPlan").close()));
+
 /* ---------- versões anteriores ---------- */
 let versoes = [];
 const quandoBR = iso => { const d = new Date(iso); return d.toLocaleDateString("pt-BR", {day:"2-digit", month:"2-digit"}) + " às " + d.toLocaleTimeString("pt-BR", {hour:"2-digit", minute:"2-digit"}); };
