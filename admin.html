@@ -120,6 +120,7 @@ dialog::backdrop{background:rgba(15,17,22,.6)}
 .ed header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
 .ed header h2{margin:0;font-size:20px;font-variation-settings:"wdth" 112;font-weight:800}
 .ed .body{padding:16px 20px;overflow-y:auto;display:grid;gap:14px}
+.ed > .body{flex:1 1 auto;min-height:0;align-content:start}
 .ed footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--line)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .g3{display:grid;grid-template-columns:120px 1fr 1fr;gap:12px}
@@ -278,8 +279,10 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .row .t .oculto{color:var(--danger);font-weight:700}
 .row.is-oculto img{opacity:.45}
 .pgformas{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:12px}
-.ajustes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
-.aj-grupo{grid-column:1/-1;margin:10px 0 -4px;font-size:15px;font-weight:700;color:var(--ink)}.aj-grupo:first-child{margin-top:0}
+.ajustes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}
+.ajustes > .card{margin:0;display:flex;flex-direction:column;gap:10px}
+.ajustes > .card > .aj-acts:last-child{margin-top:auto;padding-top:4px}
+.aj-grupo{grid-column:1/-1;margin:14px 0 -2px;font-size:15px;font-weight:700;color:var(--ink)}.aj-grupo:first-child{margin-top:0}
 .aj-grupo span{font-weight:500;color:var(--muted);font-size:13px}
 .aj{display:grid;gap:10px;align-content:start}
 .aj h3{margin:0;font-size:17px}
@@ -322,6 +325,7 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .totais .tot{border-color:var(--ink)}
 .totais .falta{color:var(--danger);border-color:#E8A39C}
 #dPed{width:min(960px,calc(100vw - 24px))}
+@media (min-width:641px){#dPed .ed{height:min(880px,calc(100vh - 24px))}}
 #dPed .body{gap:16px;padding:20px 24px}
 dialog .body{overscroll-behavior:contain}
 @media (max-width:640px){#dPed{width:100%;max-width:100%}#dPed footer .btn{flex:1 1 auto}.ig{grid-template-columns:1fr 1fr}.totais{grid-template-columns:repeat(2,minmax(0,1fr))}.totais .tot{grid-column:1/-1}.pcard{padding:14px 16px}.phd .stmini{margin-left:0;width:100%}.pbase{display:grid;gap:12px}.pacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}.pacts .btn{justify-content:center;padding:10px 8px}.ajustes{grid-template-columns:1fr}.tools{display:grid;grid-template-columns:1fr 1fr}.tools .in{grid-column:1/-1}.tools .viewsw{grid-column:1/-1;display:flex}.tools .viewsw button{flex:1}.tools .btn{justify-content:center}.tabs{overflow-x:auto;overflow-y:hidden}.tabs button{white-space:nowrap;flex:none}.ptabs{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;margin-left:-16px;margin-right:-16px;padding:0 16px}#dPed .body{padding:14px}.fr{grid-template-columns:1fr 90px auto}}
@@ -421,6 +425,8 @@ dialog .body{overscroll-behavior:contain}
   #lista.quadros .row .acts{flex-wrap:wrap;justify-content:center}
   #lista.quadros .row .acts .ord{width:100%;justify-content:center;margin:0 0 2px}
   .tools .filtro-p{grid-column:1/2;width:100%}
+  .ajustes .aj-acts .btn{flex:1 1 auto;justify-content:center}
+  .cli-f{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-left:-16px;margin-right:-16px;padding:0 16px}.cli-f::-webkit-scrollbar{display:none}.cli-f .ptab{flex:none;white-space:nowrap}
   #tProdutos .tools .viewsw{grid-column:2/3}
   #tProdutos .tools .viewsw button{padding:10px 6px}
   .tools{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -620,7 +626,7 @@ dialog .body{overscroll-behavior:contain}
       <div class="g2">
         <div><label class="f" for="sPgSinal">Encomendas</label>
           <select class="in" id="sPgSinal"><option value="50">50% de sinal para começar, o restante na entrega</option><option value="100">Pagamento total antes de produzir</option><option value="0">Tudo na entrega ou retirada</option></select></div>
-        <div><label class="f" for="sPgObs">Observação (opcional)</label><input class="in" id="sPgObs" placeholder="Ex.: crédito em até 3x com acréscimo da maquininha"></div>
+        <div style="grid-column:1/-1"><label class="f" for="sPgObs">Observação (opcional)</label><textarea class="in" id="sPgObs" rows="2" placeholder="Ex.: crédito em até 3x com acréscimo da maquininha"></textarea></div>
       </div>
     </div>
     <div class="card" data-painel="contatos" hidden>
@@ -890,8 +896,8 @@ dialog .body{overscroll-behavior:contain}
     <div class="pdbar"><div class="totais" id="pdTotais"></div></div>
     <footer>
       <button class="btn danger" type="button" id="pdExcluir">Excluir</button>
-      <button class="btn" type="button" id="pdRepetir">Repetir<span class="lg"> pedido</span></button>
-      <button class="btn" type="button" id="pdWa"><span class="lg">Mensagem no </span>WhatsApp</button>
+      <button class="btn" type="button" id="pdRepetir" title="Repetir pedido">Repetir</button>
+      <button class="btn" type="button" id="pdWa" title="Mensagem no WhatsApp para o cliente">WhatsApp</button>
       <span style="flex:1"></span>
       <button class="btn" type="button" id="pdVoltar">Voltar</button>
       <button class="btn" type="button" id="pdProx">Próximo</button>
@@ -1764,7 +1770,7 @@ function renderPedidos(){
   const vista = lembrar("sp_vista") || "lista";
   document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === vista));
   $("#pedFiltros").hidden = vista !== "lista"; $("#pedLista").hidden = vista !== "lista"; $("#pedQuadro").hidden = vista !== "quadro"; $("#pedClientes").hidden = vista !== "clientes";
-  $("#pedBusca").placeholder = vista === "clientes" ? "Buscar cliente, telefone, cidade ou produto" : "Buscar cliente, número ou produto";
+  $("#pedBusca").placeholder = vista === "clientes" ? "Buscar cliente ou produto" : "Buscar cliente, número ou produto";
   if(vista === "quadro"){ desenharQuadro(); return; }
   if(vista === "clientes"){ desenharClientes(); return; }
   const q = $("#pedBusca").value.trim().toLowerCase();
