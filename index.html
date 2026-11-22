@@ -113,6 +113,8 @@ main{padding:28px 0 56px}
 .count svg{width:13px;height:13px}
 .info{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
 .info h3{font-size:17px;line-height:1.25;margin:0;font-weight:700}
+.info .resumo{margin:-2px 0 0;font-size:14px;line-height:1.4;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.meta:empty{display:none}
 .row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 8px;margin-top:auto}
 .price{font-family:var(--display);font-variation-settings:"wdth" 110;font-weight:800;font-size:22px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .price small{white-space:nowrap;font-family:var(--body);font-variation-settings:"wdth" 100;font-size:13px;font-weight:500;color:var(--muted);margin-left:2px}
@@ -292,6 +294,7 @@ body.tem-lista{padding-bottom:84px}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   .info{padding:10px 12px 12px;gap:6px}
   .info h3{font-size:15px}
+  .info .resumo{font-size:13px}
   .price{font-size:19px}
   .row{flex-direction:column;align-items:flex-start}
   .status{font-size:12px}
@@ -497,6 +500,13 @@ const brl = n => "R$ " + Number(n).toLocaleString("pt-BR",{minimumFractionDigits
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
 let cat = "Todos", q = "", PREVIAS = {};
+/* linha curta do card: o campo "resumo" ou a primeira frase da descrição */
+function resumoDe(p){
+  if(p.resumo) return p.resumo;
+  const d = (p.desc || "").trim(); if(!d) return "";
+  const f = d.split(/(?<=[.!?])\s+/)[0];
+  return f.length > 120 ? f.slice(0, 117).replace(/\s+\S*$/, "") + "…" : f;
+}
 /* link do produto para compartilhar: a página de prévia (com foto no WhatsApp) quando existe */
 function linkProduto(p){
   const v = PREVIAS[p.id];
@@ -603,8 +613,9 @@ function renderGrid(){
       </div>
       <div class="info">
         <h3>${esc(p.name)}</h3>
+        ${resumoDe(p) ? `<p class="resumo">${esc(resumoDe(p))}</p>` : ""}
         <div class="meta">${p.launch?`<span class="tag launch">Preço de lançamento</span>`:""}${p.custom?`<span class="tag">Personalizado com nome</span>`:""}${p.mont?`<span class="tag">Para montar</span>`:""}${swatches(p)}</div>
-        <div class="row"><span class="price">${brl(p.price)}${p.unit?`<small>${esc(p.unit)}</small>`:""}</span><span class="status ${p.status}">${p.estoque ? (p.estoque <= 2 ? `Últimas ${p.estoque === 1 ? "unidade" : p.estoque + " unidades"}` : STATUS.disponivel) : STATUS[p.status]}</span></div>
+        <div class="row"><span class="price">${brl(p.price)}${p.unit?`<small>${esc(p.unit)}</small>`:""}</span>${p.status !== "encomenda" || p.estoque ? `<span class="status ${p.status}">${p.estoque ? (p.estoque <= 2 ? `Últimas ${p.estoque === 1 ? "unidade" : p.estoque + " unidades"}` : STATUS.disponivel) : STATUS[p.status]}</span>` : ""}</div>
       </div>
     </button>`).join("")
     : `<div class="empty">Nenhum produto encontrado para “${esc(q)}”. Tente outra palavra ou veja todos os produtos.</div>`;
@@ -634,7 +645,8 @@ function openProduct(id, setHash){
   $("#dDesc").textContent = p.desc;
   const pz = prazoTexto(p);
   const fc = formasCurtas(), sn = PAG().sinal;
-  $("#dFicha").innerHTML = (pz ? `<div><dt>Produção</dt><dd>${pz}</dd></div>` : "") + (p.medidas ? `<div><dt>Medidas</dt><dd>${esc(p.medidas)}</dd></div>` : "")
+  $("#dFicha").innerHTML = (p.medidas ? `<div><dt>Medidas</dt><dd>${esc(p.medidas)}</dd></div>` : "")
+    + (pz ? `<div><dt>Produção</dt><dd>${pz}</dd></div>` : "")
     + (p.mont ? `<div><dt>Montagem</dt><dd>Chega em peças para você montar${p.mont.extra ? `<small>Prefere receber montado? Escolha abaixo: + ${brl(p.mont.extra)} por peça.</small>` : ""}</dd></div>` : "")
     + (fc ? `<div><dt>Pagamento</dt><dd>${esc(fc)}${p.status === "encomenda" && sn ? `<small>${esc(textoSinal()[0].toUpperCase() + textoSinal().slice(1))}</small>` : ""}${PAG().obs ? `<small>${esc(PAG().obs)}</small>` : ""}</dd></div>` : "");
   const cs = coresDisponiveis(p);
@@ -832,7 +844,7 @@ async function carregar(){
     P = dados.filter(o => !o.oculto).map(o => ({id:o.id, name:o.nome, cat:o.categoria, price:o.preco, unit:o.unidade||"",
       status: o.estoque > 0 ? "disponivel" : (o.status === "disponivel" ? "encomenda" : (o.status||"encomenda")), estoque: o.estoque > 0 ? o.estoque : 0, destaque:o.destaque||"",
       custom:!!o.personalizado, launch:!!o.lancamento, desc:o.descricao||"", prazo:o.prazo||null, medidas:o.medidas||"", imgs:(o.fotos&&o.fotos.length?o.fotos:["45"]),
-      fit:o.fotoInteira?"contain":"", colors:o.cores||[], mont: o.montagem ? {extra: Number(o.montagem.extra) || 0} : null}));
+      fit:o.fotoInteira?"contain":"", colors:o.cores||[], resumo:(o.resumo||"").trim(), mont: o.montagem ? {extra: Number(o.montagem.extra) || 0} : null}));
     const cats = [...new Set(P.map(p=>p.cat))];
     cats.sort((a,b)=>{const ia=ORDEM_CATS.indexOf(a), ib=ORDEM_CATS.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib);});
     CATS = ["Todos", ...cats];

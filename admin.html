@@ -1407,6 +1407,7 @@ $("#fEd").addEventListener("submit", async e => {
   if($("#eVisivel").checked) delete p.oculto; else p.oculto = true;
   p.descricao = $("#eDesc").value.trim(); p.prazo = [pzA, pzB];
   const med = $("#eMed").value.trim(); if(med) p.medidas = med;
+  if(antesPeso(edIdx)) p.peso = antesPeso(edIdx);
   p.fotos = [...edFotos];
   if($("#eInteira").checked) p.fotoInteira = true;
   p.cores = edCores;
@@ -1716,6 +1717,7 @@ async function importarCustos(arq){
         if(cols.imp && num(cel(cols.imp)) !== null) itens[id].horas = num(cel(cols.imp));
         if(cols.mont && num(cel(cols.mont)) !== null) itens[id].montagem = num(cel(cols.mont));
         if(cols.montado && num(cel(cols.montado)) > 0) itens[id].montadoHoras = num(cel(cols.montado));
+        if(cols.peso && num(cel(cols.peso)) !== null) itens[id].peso = Math.round(num(cel(cols.peso)));
         if(cols.peso && num(cel(cols.peso)) !== null) itens[id].gramas = Math.round(num(cel(cols.peso)) * (1 + (num(cel(cols.troca)) || 0)) * (1 + (par.perda || 0)));
         const temPar = ["kg","kwh","kw","desg","mao","perda"].every(k => par[k] !== undefined) && cols.peso && cols.imp && cols.mont;
         if(temPar){
@@ -2174,6 +2176,8 @@ function msgCliente(p){
 
 
 
+
+const antesPeso = i => i >= 0 && produtos[i] ? produtos[i].peso : undefined;
 /* ---------- prévias para compartilhar (WhatsApp) ---------- */
 let previas = {};   /* {"N-05": "assinatura"} publicado em previas.json */
 const BASE_SITE = () => location.href.split("#")[0].split("?")[0].replace(/admin\.html$/, "");
@@ -2493,7 +2497,9 @@ async function importarPlanilha(arq){
   try{ rows = await lerArquivoPlanilha(arq); }catch(e){ aviso("Não consegui ler esse arquivo: " + (e.message || e), true); return; }
   const cab = (rows[0]||[]).map(semAcento);
   const idx = {}; COLS.forEach(([k, t]) => { const i = cab.indexOf(semAcento(t)); if(i >= 0) idx[k] = i; });
-  const faltam = ["id","nome","categoria","preco"].filter(k => !(k in idx));
+  const faltam = ["id"].filter(k => !(k in idx));
+  /* planilha parcial (ex.: só Código e Medidas): muda só as colunas que vieram */
+  const parcial = !["nome","categoria","preco"].every(k => k in idx);
   const erros = [], avisos = [];
   if(faltam.length){ mostrarPlano({erros:[`Não achei as colunas: ${faltam.map(k => COLS.find(c => c[0] === k)[1]).join(", ")}. Use a planilha baixada pelo painel, sem mudar a primeira linha.`]}); return; }
   const pega = (r, k) => k in idx ? String(r[idx[k]] ?? "").trim() : null;
@@ -2507,10 +2513,11 @@ async function importarPlanilha(arq){
     vistos.add(id);
     const antes = produtos.find(p => p.id === id);
     const p = antes ? JSON.parse(JSON.stringify(antes)) : {id, fotos:[], cores:[]};
+    if(!antes && parcial){ erros.push(`Linha ${ln} (${id}): produto novo precisa das colunas Nome, Categoria e Preço.`); return; }
     const nome = pega(r,"nome"), cat = pega(r,"categoria"), preco = precoDe(pega(r,"preco"));
-    if(!nome) erros.push(`Linha ${ln} (${id}): falta o nome.`); else p.nome = nome;
-    if(!cat) erros.push(`Linha ${ln} (${id}): falta a categoria.`); else p.categoria = cat;
-    if(!(preco > 0)) erros.push(`Linha ${ln} (${id}): preço inválido ("${pega(r,"preco")}"). Use só o número, ex.: 39,90.`); else p.preco = preco;
+    if(nome !== null){ if(!nome) erros.push(`Linha ${ln} (${id}): falta o nome.`); else p.nome = nome; }
+    if(cat !== null){ if(!cat) erros.push(`Linha ${ln} (${id}): falta a categoria.`); else p.categoria = cat; }
+    if(pega(r,"preco") !== null){ if(!(preco > 0)) erros.push(`Linha ${ln} (${id}): preço inválido ("${pega(r,"preco")}"). Use só o número, ex.: 39,90.`); else p.preco = preco; }
     const vis = pega(r,"visivel");
     if(vis !== null && vis !== ""){ const b = simNao(vis); if(b === undefined) erros.push(`Linha ${ln} (${id}): em No site, use Sim ou Não.`); else if(b) delete p.oculto; else p.oculto = true; }
     const un = pega(r,"unidade"); if(un !== null){ if(un) p.unidade = un; else delete p.unidade; }
@@ -2540,6 +2547,7 @@ async function importarPlanilha(arq){
       if(!(na > 0 && nz >= na && nz <= 60)) erros.push(`Linha ${ln} (${id}): produção inválida (${a || "?"} a ${z || "?"}). Use dias úteis, ex.: 2 e 3.`); else p.prazo = [na, nz];
     } else if(!antes) p.prazo = prazoProduto(p);
     const med = pega(r,"medidas"); if(med !== null){ if(med) p.medidas = med; else delete p.medidas; }
+
     const desc = pega(r,"descricao"); if(desc !== null) p.descricao = desc;
     const cor = pega(r,"cores"); if(cor !== null) p.cores = lerCores(cor, antes && antes.cores, erros, ln);
     if(p.estoque > 0) p.status = "disponivel";
@@ -2548,11 +2556,11 @@ async function importarPlanilha(arq){
     novos.push({p, antes});
   });
   if(!novos.length && !erros.length) erros.push("Não achei nenhum produto na planilha.");
-  const fora = produtos.filter(p => !vistos.has(p.id));
+  const fora = parcial ? [] : produtos.filter(p => !vistos.has(p.id));
   const mudados = novos.filter(x => x.antes && diferencasProduto(x.antes, x.p).length);
   const criados = novos.filter(x => !x.antes);
   const ordemNova = novos.map(x => x.p.id), ordemAtual = produtos.filter(p => vistos.has(p.id)).map(p => p.id);
-  const mudaOrdem = JSON.stringify(ordemNova.filter(id => ordemAtual.includes(id))) !== JSON.stringify(ordemAtual);
+  const mudaOrdem = !parcial && JSON.stringify(ordemNova.filter(id => ordemAtual.includes(id))) !== JSON.stringify(ordemAtual);
   planPlano = {novos, fora, mudados, criados, erros, avisos, mudaOrdem};
   mostrarPlano(planPlano);
 }
@@ -2583,7 +2591,7 @@ function mostrarPlano(pl){
 }
 async function aplicarPlano(){
   const pl = planPlano; if(!pl) return;
-  const apagar = !!($("#planApagar") && $("#planApagar").checked), ordem = !$("#planOrdem") || $("#planOrdem").checked;
+  const apagar = !!($("#planApagar") && $("#planApagar").checked), ordem = !!pl.mudaOrdem && (!$("#planOrdem") || $("#planOrdem").checked);
   const partes = [];
   if(pl.mudados.length) partes.push(`${pl.mudados.length} produto${pl.mudados.length > 1 ? "s" : ""} alterado${pl.mudados.length > 1 ? "s" : ""}`);
   if(pl.criados.length) partes.push(`${pl.criados.length} novo${pl.criados.length > 1 ? "s" : ""}`);
