@@ -780,7 +780,7 @@ async function carregar(){
     const r = await fetch("produtos.json", {cache:"no-store"});
     if(!r.ok) throw new Error(r.status);
     const dados = await r.json();
-    P = dados.map(o => ({id:o.id, name:o.nome, cat:o.categoria, price:o.preco, unit:o.unidade||"",
+    P = dados.filter(o => !o.oculto).map(o => ({id:o.id, name:o.nome, cat:o.categoria, price:o.preco, unit:o.unidade||"",
       status: o.estoque > 0 ? "disponivel" : (o.status === "disponivel" ? "encomenda" : (o.status||"encomenda")), estoque: o.estoque > 0 ? o.estoque : 0, destaque:o.destaque||"",
       custom:!!o.personalizado, launch:!!o.lancamento, desc:o.descricao||"", prazo:o.prazo||null, medidas:o.medidas||"", imgs:(o.fotos&&o.fotos.length?o.fotos:["45"]),
       fit:o.fotoInteira?"contain":"", colors:o.cores||[]}));

@@ -193,6 +193,8 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .pacts .btn{padding:9px 14px}
 .phd .stmini{margin-left:auto;width:auto;min-width:170px;padding:7px 34px 7px 12px;font-size:14px;font-weight:600;border-radius:999px;background-position:right 12px center}
 .pcard{gap:10px}
+.row .t .oculto{color:var(--danger);font-weight:700}
+.row.is-oculto img{opacity:.45}
 .pgformas{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:12px}
 .ajustes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .aj{display:grid;gap:10px;align-content:start}
@@ -511,6 +513,17 @@ dialog .body{overscroll-behavior:contain}
         <div class="aj-acts"><button class="btn" type="button" id="bSenha">Trocar senha</button><button class="btn" type="button" id="sair2">Sair deste aparelho</button></div>
       </div>
       <div class="card aj">
+        <h3>Relatório de vendas</h3>
+        <p>Planilha do Excel com os pedidos <b>Entregues</b>: vendas por mês, lucro, produtos mais vendidos e o limite anual do MEI.</p>
+        <div class="aj-acts" style="align-items:center"><label class="f" for="relAno" style="margin:0">Ano</label><select class="in" id="relAno" style="width:auto"></select><button class="btn primary" type="button" id="bRelatorio">Baixar relatório de vendas</button></div>
+      </div>
+      <div class="card aj">
+        <h3>Custos dos produtos</h3>
+        <p>Usados para calcular o lucro no relatório. Vêm da sua planilha de precificação e ficam só no repositório privado, junto com os pedidos: os clientes não veem.</p>
+        <p class="hint" id="cuInfo">Carregando…</p>
+        <div class="aj-acts"><label class="btn">Importar da planilha de precificação<input type="file" id="cuArq" accept=".xlsx" hidden></label></div>
+      </div>
+      <div class="card aj">
         <h3>Contador de visitas</h3>
         <p>Mostra quantas pessoas abrem o catálogo, de onde vieram (Instagram, WhatsApp) e se usam celular ou computador. É grátis, pelo Cloudflare.</p>
         <ol class="aj-lista">
@@ -573,6 +586,9 @@ dialog .body{overscroll-behavior:contain}
       </fieldset>
       <fieldset>
         <legend>Preço e venda</legend>
+        <label class="check" style="font-weight:650"><input type="checkbox" id="eVisivel" checked> Mostrar no site</label>
+        <div class="hint" style="margin-top:-8px">Desmarque para tirar o produto do catálogo sem apagar. Ele continua aqui no painel e nos pedidos.</div>
+        <div class="hint" id="eCustoInfo" hidden></div>
         <div class="g2">
           <div><label class="f" for="ePreco">Preço (R$)</label><input class="in" id="ePreco" inputmode="decimal" placeholder="39,90" required></div>
           <div><label class="f" for="eUn">Texto depois do preço (opcional)</label><input class="in" id="eUn" placeholder="cada, o kit, a dupla"></div>
@@ -994,14 +1010,15 @@ function render(){
     itens.forEach(({p,i}) => {
       const pos = produtos.filter(x => x.categoria === cat); const k = pos.indexOf(p);
       const alterado = origMap[p.id] !== JSON.stringify(p);
-      html += `<li class="row">
+      html += `<li class="row${p.oculto ? " is-oculto" : ""}">
         <img src="${esc(thumb(p.fotos[0]))}" alt="">
         <div class="t" data-edit="${i}" style="cursor:pointer"><b>${esc(p.nome)}</b>
-          <span>${esc(p.id)} | ${brl(p.preco)}${p.unidade ? " " + esc(p.unidade) : ""} | ${STATUS[p.status] || p.status}${p.estoque > 0 ? ` (${p.estoque} un.)` : ""}${p.destaque ? " | <b>" + DESTAQUE[p.destaque] + "</b>" : ""}${p.lancamento ? " | Lançamento" : ""}${alterado ? ' | <span class="changed">' + (origMap[p.id] ? "Editado" : "Novo") + "</span>" : ""}</span></div>
+          <span>${esc(p.id)} | ${brl(p.preco)}${p.unidade ? " " + esc(p.unidade) : ""} | ${p.oculto ? '<b class="oculto">Oculto do site</b> | ' : ""}${STATUS[p.status] || p.status}${p.estoque > 0 ? ` (${p.estoque} un.)` : ""}${p.destaque ? " | <b>" + DESTAQUE[p.destaque] + "</b>" : ""}${p.lancamento ? " | Lançamento" : ""}${alterado ? ' | <span class="changed">' + (origMap[p.id] ? "Editado" : "Novo") + "</span>" : ""}</span></div>
         <div class="acts">
           <button class="btn icon" type="button" data-up="${i}" aria-label="Subir ${esc(p.nome)}" ${k===0||q?"disabled":""}><svg><use href="#i-up"/></svg></button>
           <button class="btn icon" type="button" data-down="${i}" aria-label="Descer ${esc(p.nome)}" ${k===pos.length-1||q?"disabled":""}><svg><use href="#i-down"/></svg></button>
           <button class="btn" type="button" data-edit="${i}">Editar</button>
+          <button class="btn" type="button" data-vis="${i}" title="${p.oculto ? "Voltar a mostrar no site" : "Tirar do site sem apagar"}">${p.oculto ? "Mostrar" : "Ocultar"}</button>
           <button class="btn" type="button" data-dup="${i}">Duplicar</button>
           <button class="btn danger" type="button" data-del="${i}">Excluir</button>
         </div></li>`;
@@ -1027,6 +1044,15 @@ $("#lista").addEventListener("click", async e => {
   if(b.dataset.up) moverNaCategoria(+b.dataset.up, -1);
   else if(b.dataset.down) moverNaCategoria(+b.dataset.down, 1);
   else if(b.dataset.edit) abrirEditor(+b.dataset.edit);
+  else if(b.dataset.vis){
+    const p = produtos[+b.dataset.vis];
+    const ok = await confirmar(p.oculto ? `Mostrar "${p.nome}" no site?` : `Ocultar "${p.nome}" do site?`,
+      p.oculto ? "O produto volta a aparecer no catálogo depois que você publicar." : "Ele some do catálogo depois que você publicar, mas continua aqui no painel, com fotos e textos. Dá para mostrar de novo a qualquer hora.",
+      p.oculto ? "Mostrar" : "Ocultar");
+    if(!ok) return;
+    if(p.oculto) delete p.oculto; else p.oculto = true;
+    render(); barra(); return;
+  }
   else if(b.dataset.dup){ const p = JSON.parse(JSON.stringify(produtos[+b.dataset.dup])); p.id = proximoCodigo(p.categoria); p.nome += " (cópia)"; abrirEditor(-1, p, +b.dataset.dup + 1); }
   else if(b.dataset.del){
     const p = produtos[+b.dataset.del];
@@ -1057,6 +1083,7 @@ function diferencasProduto(a, b){
   campo("Medidas", a.medidas, b.medidas);
   campo("Estoque de pronta entrega", a.estoque || 0, b.estoque || 0, v => `${v} un.`);
   campo("Destaque", a.destaque || "", b.destaque || "", v => DESTAQUE[v] || "nenhum");
+  campo("No site", !a.oculto, !b.oculto, v => v ? "aparece" : "oculto");
   campo("Preço de lançamento", !!a.lancamento, !!b.lancamento, v => v ? "sim" : "não");
   campo("Personalizado", !!a.personalizado, !!b.personalizado, v => v ? "sim" : "não");
   if((a.descricao||"") !== (b.descricao||"")) d.push("Descrição alterada");
@@ -1074,6 +1101,10 @@ function abrirEditor(i, modelo, posInsert){
   $("#ePreco").value = p.preco === "" ? "" : String(p.preco).replace(".", ",");
   $("#eUn").value = p.unidade || ""; $("#eStatus").value = p.status || "encomenda";
   $("#eEst").value = p.estoque > 0 ? p.estoque : ""; $("#eDest").value = p.destaque || "";
+  $("#eVisivel").checked = !p.oculto;
+  const cu = custoDe(p.id);
+  $("#eCustoInfo").hidden = !cu;
+  if(cu) $("#eCustoInfo").textContent = `Pela planilha de precificação: custo ${brl(cu.total)} por peça (com a sua mão de obra). Material e embalagem: ${brl(cu.material)}.`;
   $("#eLanc").checked = !!p.lancamento; $("#ePers").checked = !!p.personalizado; $("#eInteira").checked = !!p.fotoInteira;
   $("#eDesc").value = p.descricao || "";
   const pz = prazoProduto(p); $("#ePzMin").value = pz[0]; $("#ePzMax").value = pz[1]; $("#eMed").value = p.medidas || "";
@@ -1173,6 +1204,7 @@ $("#fEd").addEventListener("submit", async e => {
   if(est > 0){ p.estoque = Math.min(est, 999); p.status = "disponivel"; }
   else { delete p.estoque; if(p.status === "disponivel") p.status = "encomenda"; }
   const dest = $("#eDest").value; if(dest) p.destaque = dest; else delete p.destaque;
+  if($("#eVisivel").checked) delete p.oculto; else p.oculto = true;
   p.descricao = $("#eDesc").value.trim(); p.prazo = [pzA, pzB];
   const med = $("#eMed").value.trim(); if(med) p.medidas = med;
   p.fotos = [...edFotos];
@@ -1381,11 +1413,105 @@ async function carregarPedidos(){
   try{
     const c = await api(`${PED_REPO}/contents/pedidos.json`).catch(e => { if(e.status === 404) return null; throw e; });
     pedidos = c ? JSON.parse(textoDeB64(c.content)) : []; shaPed = c ? c.sha : null;
+    const cc = await api(`${PED_REPO}/contents/custos.json`).catch(e => { if(e.status === 404) return null; throw e; });
+    custos = cc ? JSON.parse(textoDeB64(cc.content)) : {itens:{}, taxaCartao:0.05}; shaCustos = cc ? cc.sha : null;
+    renderCustos();
     pedPronto = true; $("#pedMsg").textContent = ""; $("#pedApp").hidden = false; renderPedidos();
   }catch(e){ $("#pedMsg").textContent = erroAmigavel(e); }
 }
 $("#pedRetry").addEventListener("click", carregarPedidos);
 
+let custos = {itens:{}, taxaCartao:0.05}, shaCustos = null;
+const custoDe = id => (custos.itens || {})[id] || null;
+async function gravarCustos(novo){
+  const corpo = {message:"Atualiza os custos dos produtos", content:b64Texto(JSON.stringify(novo, null, 2) + "\n"), ...(shaCustos ? {sha:shaCustos} : {})};
+  try{
+    const r = await api(`${PED_REPO}/contents/custos.json`, {method:"PUT", body:JSON.stringify(corpo)});
+    custos = novo; shaCustos = r.content.sha; renderCustos(); return true;
+  }catch(e){
+    if(e.status === 409 || e.status === 422){
+      const c = await api(`${PED_REPO}/contents/custos.json`).catch(() => null); shaCustos = c ? c.sha : null;
+      try{ const r = await api(`${PED_REPO}/contents/custos.json`, {method:"PUT", body:JSON.stringify({...corpo, ...(shaCustos ? {sha:shaCustos} : {sha:undefined})})}); custos = novo; shaCustos = r.content.sha; renderCustos(); return true; }
+      catch(e2){ aviso(erroAmigavel(e2), true); return false; }
+    }
+    aviso(erroAmigavel(e), true); return false;
+  }
+}
+function renderCustos(){
+  const n = Object.keys(custos.itens || {}).length, sem = produtos.filter(p => !custoDe(p.id));
+  if(!$("#cuInfo")) return;
+  $("#cuInfo").textContent = n ? `${n} produto${n > 1 ? "s" : ""} com custo${custos.atualizado ? ", atualizado em " + dataBR(custos.atualizado) : ""}. Taxa de cartão: ${Math.round((custos.taxaCartao || 0) * 1000) / 10}%.` + (sem.length ? ` Sem custo: ${sem.map(p => p.id).join(", ")}.` : "") : "Nenhum custo cadastrado ainda. Importe da planilha de precificação.";
+}
+/* leitor simples de .xlsx (só valores), para planilhas feitas em qualquer programa */
+async function lerXlsx(buf){
+  const u8 = new Uint8Array(buf), dv = new DataView(buf);
+  let e = u8.length - 22; while(e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--;
+  if(e < 0) throw new Error("O arquivo não é uma planilha .xlsx válida.");
+  const n = dv.getUint16(e + 10, true); let p = dv.getUint32(e + 16, true); const ent = {};
+  for(let k = 0; k < n; k++){
+    const met = dv.getUint16(p + 10, true), tam = dv.getUint32(p + 20, true), ln = dv.getUint16(p + 28, true), lx = dv.getUint16(p + 30, true), lc = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+    ent[new TextDecoder().decode(u8.subarray(p + 46, p + 46 + ln))] = {met, tam, off}; p += 46 + ln + lx + lc;
+  }
+  const ler = async nome => {
+    const x = ent[nome.replace(/^\//, "")]; if(!x) return null;
+    const ini = x.off + 30 + dv.getUint16(x.off + 26, true) + dv.getUint16(x.off + 28, true), dados = u8.subarray(ini, ini + x.tam);
+    const bytes = x.met === 0 ? dados : new Uint8Array(await new Response(new Blob([dados]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer());
+    return new DOMParser().parseFromString(new TextDecoder().decode(bytes), "application/xml");
+  };
+  const tags = (d, t) => [...d.getElementsByTagNameNS("*", t)];
+  const caminho = (base, alvo) => { if(alvo.startsWith("/")) return alvo.slice(1); const partes = base.split("/").slice(0, -1); alvo.split("/").forEach(s => s === ".." ? partes.pop() : partes.push(s)); return partes.join("/"); };
+  const wb = await ler("xl/workbook.xml"), rels = await ler("xl/_rels/workbook.xml.rels"); if(!wb || !rels) throw new Error("O arquivo não é uma planilha .xlsx válida.");
+  const alvo = {}; tags(rels, "Relationship").forEach(r => alvo[r.getAttribute("Id")] = caminho("xl/workbook.xml", r.getAttribute("Target")));
+  const ssDoc = await ler(Object.values(alvo).find(a => /sharedStrings/i.test(a)) || "xl/sharedStrings.xml");
+  const ss = ssDoc ? tags(ssDoc, "si").map(si => tags(si, "t").map(t => t.textContent).join("")) : [];
+  const col = ref => [...ref.replace(/\d+/g, "")].reduce((s, c) => s * 26 + c.charCodeAt(0) - 64, 0);
+  const abas = [];
+  for(const sh of tags(wb, "sheet")){
+    const id = sh.getAttribute("r:id") || sh.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id");
+    const d = await ler(alvo[id]); if(!d) continue;
+    const linhas = new Map();
+    tags(d, "c").forEach(c => {
+      const ref = c.getAttribute("r"), t = c.getAttribute("t"), v = tags(c, "v")[0];
+      let val = null;
+      if(t === "inlineStr") val = tags(c, "t").map(x => x.textContent).join("");
+      else if(v){ const tx = v.textContent; val = t === "s" ? ss[+tx] : t === "str" || t === "e" ? tx : t === "b" ? tx === "1" : Number(tx); }
+      if(val === null || val === "") return;
+      const r = +ref.replace(/\D/g, ""); if(!linhas.has(r)) linhas.set(r, new Map()); linhas.get(r).set(col(ref), val);
+    });
+    abas.push({nome: sh.getAttribute("name"), linhas});
+  }
+  return abas;
+}
+async function importarCustos(arq){
+  try{
+    const abas = await lerXlsx(await arq.arrayBuffer());
+    const aba = abas.find(w => semAcento(w.nome).startsWith("precifica")) || abas[0];
+    let cab = null, cols = {}, taxa = null;
+    const num = v => typeof v === "number" ? v : (v != null && v !== "" && isFinite(Number(String(v).replace(",", "."))) ? Number(String(v).replace(",", ".")) : null);
+    const itens = {}, lidos = [];
+    [...aba.linhas.keys()].sort((a, b) => a - b).forEach(n => {
+      const r = aba.linhas.get(n), cel = k => r.get(k), a = semAcento(cel(1));
+      if(a.startsWith("taxas")) taxa = num(cel(3));
+      if(!cab && a === "codigo"){
+        cab = n; r.forEach((v, k) => { const h = semAcento(v); if(h.startsWith("custo total")) cols.total = k; if(h.startsWith("material")) cols.mat = k; if(h.startsWith("embalagem")) cols.emb = k; });
+        return;
+      }
+      if(cab && n > cab){
+        const id = String(cel(1) ?? "").trim().toUpperCase(); if(!id) return;
+        const total = num(cel(cols.total)), mat = num(cel(cols.mat)), emb = num(cel(cols.emb)) || 0;
+        if(total === null || mat === null) return;
+        itens[id] = {total: Math.round(total * 100) / 100, material: Math.round((mat + emb) * 100) / 100}; lidos.push(id);
+      }
+    });
+    if(!cab || !cols.total || !cols.mat) throw new Error('Não achei as colunas "Código", "Custo total" e "Material" na planilha. Use a planilha Precificação StudioPrint.xlsx.');
+    if(!lidos.length) throw new Error("A planilha não tem custos calculados. Abra no Excel, salve e tente de novo.");
+    const noSite = new Set(produtos.map(p => p.id)), fora = lidos.filter(id => !noSite.has(id)), sem = produtos.filter(p => !itens[p.id]).map(p => p.id);
+    const novo = {itens, taxaCartao: taxa !== null ? taxa : (custos.taxaCartao ?? 0.05), atualizado: hojeISO()};
+    const det = `${lidos.length} produtos com custo. Taxa de cartão: ${Math.round(novo.taxaCartao * 1000) / 10}%.` + (sem.length ? `\nNo catálogo sem custo na planilha: ${sem.join(", ")}.` : "") + (fora.length ? `\nNa planilha mas não no catálogo: ${fora.join(", ")}.` : "") + "\nOs custos ficam só no repositório privado: os clientes não veem.";
+    if(!(await confirmar("Atualizar os custos dos produtos?", det, "Atualizar custos"))) return;
+    if(await gravarCustos(novo)) aviso("Custos atualizados.");
+  }catch(e){ aviso(e.message || String(e), true); }
+}
 async function gravarPedidos(mudar, msg){
   const tentar = async (lista, sha) => {
     const nova = mudar(JSON.parse(JSON.stringify(lista)));
@@ -1543,7 +1669,7 @@ function novoPedidoBase(){
 
 /* ---------- catálogo em planilha (Excel) ---------- */
 const COLS = [
-  ["id","Código",10],["nome","Nome",34],["categoria","Categoria",16],["preco","Preço (R$)",11],["unidade","Texto depois do preço",14],
+  ["id","Código",10],["nome","Nome",34],["visivel","No site",9],["categoria","Categoria",16],["preco","Preço (R$)",11],["unidade","Texto depois do preço",14],
   ["status","Situação",16],["estoque","Estoque pronta entrega",12],["destaque","Destaque",14],["lancamento","Preço de lançamento",12],
   ["personalizado","Personalizado com nome",13],["pzMin","Produção mín. (dias úteis)",12],["pzMax","Produção máx. (dias úteis)",12],
   ["medidas","Medidas",30],["descricao","Descrição",60],["cores","Cores",40],["fotos","Fotos (não muda pela planilha)",18]
@@ -1569,7 +1695,7 @@ async function baixarPlanilha(){
     const ws = wb.addWorksheet("Catálogo", {views:[{state:"frozen", xSplit:2, ySplit:1}]});
     ws.columns = COLS.map(([k, t, w]) => ({header:t, key:k, width:w}));
     produtos.forEach(p => { const pz = prazoProduto(p); ws.addRow({
-      id:p.id, nome:p.nome, categoria:p.categoria, preco:Number(p.preco)||0, unidade:p.unidade||"",
+      id:p.id, nome:p.nome, visivel:p.oculto ? "Não" : "Sim", categoria:p.categoria, preco:Number(p.preco)||0, unidade:p.unidade||"",
       status:SIT_TXT[p.status] || "Sob encomenda", estoque:p.estoque > 0 ? p.estoque : 0, destaque:DEST_TXT[p.destaque||""] || "Nenhum",
       lancamento:p.lancamento ? "Sim" : "Não", personalizado:p.personalizado ? "Sim" : "Não", pzMin:pz[0], pzMax:pz[1],
       medidas:p.medidas||"", descricao:p.descricao||"", cores:coresTexto(p.cores), fotos:(p.fotos||[]).join(", ") }); });
@@ -1578,14 +1704,15 @@ async function baixarPlanilha(){
     cab.eachCell(c => { c.fill = {type:"pattern", pattern:"solid", fgColor:{argb:"FF15181E"}}; });
     const ult = Math.max(produtos.length + 200, 300);
     const lista = (col, itens, titulo) => { for(let r = 2; r <= ult; r++) ws.getCell(`${col}${r}`).dataValidation = {type:"list", allowBlank:true, formulae:[`"${itens.join(",")}"`], showErrorMessage:true, errorStyle:"stop", errorTitle:titulo, error:"Escolha uma opção da lista."}; };
-    lista("F", Object.values(SIT_TXT), "Situação"); lista("H", Object.values(DEST_TXT), "Destaque"); lista("I", ["Sim","Não"], "Preço de lançamento"); lista("J", ["Sim","Não"], "Personalizado");
+    const L = k => String.fromCharCode(65 + COLS.findIndex(c => c[0] === k));
+    lista(L("visivel"), ["Sim","Não"], "No site"); lista(L("status"), Object.values(SIT_TXT), "Situação"); lista(L("destaque"), Object.values(DEST_TXT), "Destaque"); lista(L("lancamento"), ["Sim","Não"], "Preço de lançamento"); lista(L("personalizado"), ["Sim","Não"], "Personalizado");
     for(let r = 2; r <= ult; r++){
-      ws.getCell(`D${r}`).dataValidation = {type:"decimal", operator:"between", allowBlank:true, formulae:[0.01, 5000], showErrorMessage:true, errorTitle:"Preço", error:"Digite só o número, maior que zero. Ex.: 39,90"};
-      ws.getCell(`D${r}`).numFmt = '"R$" #,##0.00';
-      ws.getCell(`G${r}`).dataValidation = {type:"whole", operator:"between", allowBlank:true, formulae:[0, 999], showErrorMessage:true, errorTitle:"Estoque", error:"Digite um número inteiro de 0 a 999."};
-      for(const c of ["K","L"]) ws.getCell(`${c}${r}`).dataValidation = {type:"whole", operator:"between", allowBlank:true, formulae:[1, 60], showErrorMessage:true, errorTitle:"Produção", error:"Digite os dias úteis, de 1 a 60."};
-      for(const c of ["M","N","O"]) ws.getCell(`${c}${r}`).alignment = {wrapText:true, vertical:"top"};
-      ws.getCell(`P${r}`).font = {color:{argb:"FF8A919C"}};
+      ws.getCell(`${L("preco")}${r}`).dataValidation = {type:"decimal", operator:"between", allowBlank:true, formulae:[0.01, 5000], showErrorMessage:true, errorTitle:"Preço", error:"Digite só o número, maior que zero. Ex.: 39,90"};
+      ws.getCell(`${L("preco")}${r}`).numFmt = '"R$" #,##0.00';
+      ws.getCell(`${L("estoque")}${r}`).dataValidation = {type:"whole", operator:"between", allowBlank:true, formulae:[0, 999], showErrorMessage:true, errorTitle:"Estoque", error:"Digite um número inteiro de 0 a 999."};
+      for(const c of [L("pzMin"), L("pzMax")]) ws.getCell(`${c}${r}`).dataValidation = {type:"whole", operator:"between", allowBlank:true, formulae:[1, 60], showErrorMessage:true, errorTitle:"Produção", error:"Digite os dias úteis, de 1 a 60."};
+      for(const c of [L("medidas"), L("descricao"), L("cores")]) ws.getCell(`${c}${r}`).alignment = {wrapText:true, vertical:"top"};
+      ws.getCell(`${L("fotos")}${r}`).font = {color:{argb:"FF8A919C"}};
     }
     const aj = wb.addWorksheet("Como usar");
     aj.columns = [{width:110}];
@@ -1602,6 +1729,7 @@ async function baixarPlanilha(){
       "COMO PREENCHER",
       "Preço: só o número. Ex.: 39 ou 39,90.",
       "Situação: Sob encomenda, Pronta entrega ou Esgotado. Com estoque maior que zero, o produto fica como Pronta entrega.",
+      "No site: Sim mostra o produto no catálogo; Não tira do catálogo sem apagar (ele continua no painel).",
       "Destaque: Nenhum, Mais vendido ou Novo.",
       "Preço de lançamento e Personalizado com nome: Sim ou Não.",
       "Produção: dias úteis depois do pagamento, mínimo e máximo. Ex.: 2 e 3.",
@@ -1700,6 +1828,8 @@ async function importarPlanilha(arq){
     if(!nome) erros.push(`Linha ${ln} (${id}): falta o nome.`); else p.nome = nome;
     if(!cat) erros.push(`Linha ${ln} (${id}): falta a categoria.`); else p.categoria = cat;
     if(!(preco > 0)) erros.push(`Linha ${ln} (${id}): preço inválido ("${pega(r,"preco")}"). Use só o número, ex.: 39,90.`); else p.preco = preco;
+    const vis = pega(r,"visivel");
+    if(vis !== null && vis !== ""){ const b = simNao(vis); if(b === undefined) erros.push(`Linha ${ln} (${id}): em No site, use Sim ou Não.`); else if(b) delete p.oculto; else p.oculto = true; }
     const un = pega(r,"unidade"); if(un !== null){ if(un) p.unidade = un; else delete p.unidade; }
     const sit = pega(r,"status");
     if(sit !== null && sit !== ""){ const k = Object.keys(SIT_TXT).find(k => semAcento(SIT_TXT[k]) === semAcento(sit)); if(!k) erros.push(`Linha ${ln} (${id}): situação "${sit}" não existe. Use Sob encomenda, Pronta entrega ou Esgotado.`); else p.status = k; }
@@ -1781,6 +1911,127 @@ $("#bPlanBaixar").addEventListener("click", baixarPlanilha);
 $("#planArq").addEventListener("change", e => { const f = e.target.files[0]; e.target.value = ""; if(f) importarPlanilha(f); });
 $("#planAplicar").addEventListener("click", aplicarPlano);
 document.querySelectorAll("[data-planfechar]").forEach(b => b.addEventListener("click", () => $("#dPlan").close()));
+
+
+/* ---------- relatório de vendas (Excel) ---------- */
+const LIMITE_MEI = ano => ano <= 2026 ? 81000 : ano === 2027 ? 110000 : 140000;
+function dataEntrega(p){
+  const h = [...(p.historico || [])].reverse().find(x => x.status === "entregue");
+  if(h && h.quando){ const d = new Date(h.quando); if(!isNaN(d)){ d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); } }
+  return p.prazo || p.criado || hojeISO();
+}
+const diaExcel = iso => new Date(Date.UTC(+iso.slice(0,4), +iso.slice(5,7) - 1, +iso.slice(8,10)));
+const cent = v => Math.round(v * 100) / 100;
+const MESES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const nomeMes = ym => MESES[+ym.slice(5,7) - 1] + "/" + ym.slice(0,4);
+function anosRelatorio(){
+  const anos = new Set([new Date().getFullYear()]);
+  pedidos.filter(p => p.status === "entregue").forEach(p => anos.add(+dataEntrega(p).slice(0,4)));
+  $("#relAno").innerHTML = [...anos].sort((a,b) => b - a).map(a => `<option value="${a}">${a}</option>`).join("") + `<option value="todos">Todos os anos</option>`;
+}
+async function gerarRelatorio(){
+  if(!pedPronto){ aviso("Os pedidos ainda não foram carregados.", true); return; }
+  const escolha = $("#relAno").value, b = $("#bRelatorio"), txt = b.textContent;
+  const entregues = pedidos.filter(p => p.status === "entregue" && (escolha === "todos" || dataEntrega(p).startsWith(escolha)))
+    .sort((a, c) => dataEntrega(a).localeCompare(dataEntrega(c)));
+  if(!entregues.length){ aviso(`Nenhum pedido entregue ${escolha === "todos" ? "ainda" : "em " + escolha}. O relatório usa os pedidos com a situação Entregue.`, true); return; }
+  b.disabled = true; b.textContent = "Preparando…";
+  try{
+    await carregarExcel();
+    const taxa = Number(custos.taxaCartao) || 0, cartao = f => /cart/i.test(f || "");
+    const wb = new ExcelJS.Workbook(); wb.creator = "Painel StudioPrint"; wb.calcProperties.fullCalcOnLoad = true;
+    ["Resumo por mês","Mais vendidos","Vendas","Pedidos","Limite do MEI"].forEach(n => wb.addWorksheet(n, {views:[{state:"frozen", ySplit:1}]}));
+    const R$ = '"R$" #,##0.00', PCT = '0.0%';
+    const estilo = (ws, n) => { const r = ws.getRow(n); r.font = {bold:true, color:{argb:"FFFFFFFF"}}; r.alignment = {vertical:"middle", wrapText:true}; r.height = 30; r.eachCell(c => c.fill = {type:"pattern", pattern:"solid", fgColor:{argb:"FF15181E"}}); };
+    /* linhas de itens */
+    const itens = [], semCusto = new Set();
+    entregues.forEach(p => {
+      const d = dataEntrega(p), forma = (p.pagamento && p.pagamento.forma) || "";
+      (p.itens || []).forEach(i => {
+        const qtd = Number(i.qtd) || 0, valor = qtd * (Number(i.preco) || 0);
+        const cu = i.custo != null ? {total:i.custo, material:i.custoMaterial ?? i.custo} : custoDe(i.produto);
+        if(!cu) semCusto.add(i.produto === "__outro" ? i.nome : i.produto);
+        const tx = cartao(forma) ? cent(valor * taxa) : 0;
+        itens.push({d, mes:d.slice(0,7), ped:p.id, cli:(p.cliente && p.cliente.nome) || "", cid:(p.cliente && p.cliente.cidade) || "",
+          cod:i.produto === "__outro" ? "" : i.produto, nome:i.nome, cor:i.cor || "", grav:i.nome_gravado || "", qtd, unit:Number(i.preco) || 0, valor,
+          cUnit: cu ? cu.total : null, mUnit: cu ? cu.material : null, tx, forma});
+      });
+    });
+    /* aba Vendas (itens) */
+    const wv = wb.getWorksheet("Vendas");
+    wv.columns = [["Data",12],["Mês",9],["Pedido",11],["Cliente",22],["Cidade",18],["Código",9],["Produto",32],["Cor",14],["Nome personalizado",16],["Qtd",6],["Preço unit.",12],["Valor",12],["Custo unit.",12],["Custo",12],["Taxa do cartão",12],["Lucro",12],["Sobra antes da mão de obra",14],["Forma de pagamento",16]].map(([h,w]) => ({header:h, width:w}));
+    estilo(wv, 1);
+    itens.forEach((x, k) => {
+      const r = k + 2;
+      wv.addRow([diaExcel(x.d), x.mes, x.ped, x.cli, x.cid, x.cod, x.nome, x.cor, x.grav, x.qtd, x.unit,
+        {formula:`J${r}*K${r}`, result:x.valor}, x.cUnit, x.cUnit != null ? {formula:`J${r}*M${r}`, result:x.qtd * x.cUnit} : null, x.tx,
+        x.cUnit != null ? {formula:`L${r}-N${r}-O${r}`, result:x.valor - x.qtd * x.cUnit - x.tx} : null,
+        x.mUnit != null ? cent(x.valor - x.qtd * x.mUnit - x.tx) : null, x.forma]);
+    });
+    wv.getColumn(1).numFmt = "dd/mm/yyyy"; [11,12,13,14,15,16,17].forEach(c => wv.getColumn(c).numFmt = R$);
+    /* aba Pedidos */
+    const wp = wb.getWorksheet("Pedidos");
+    wp.columns = [["Data",12],["Mês",9],["Pedido",11],["Cliente",22],["Cidade",18],["Itens",44],["Produtos",12],["Frete",11],["Total",12],["Forma de pagamento",16],["Entrega",16]].map(([h,w]) => ({header:h, width:w}));
+    estilo(wp, 1);
+    entregues.forEach((p, k) => { const t = totais(p), r = k + 2, d = dataEntrega(p);
+      wp.addRow([diaExcel(d), d.slice(0,7), p.id, (p.cliente && p.cliente.nome) || "", (p.cliente && p.cliente.cidade) || "", resumoItens(p), t.itens, t.frete, {formula:`G${r}+H${r}`, result:t.total}, (p.pagamento && p.pagamento.forma) || "", ENTREGA[p.entrega && p.entrega.tipo] || ""]); });
+    wp.getColumn(1).numFmt = "dd/mm/yyyy"; [7,8,9].forEach(c => wp.getColumn(c).numFmt = R$);
+    /* aba Resumo por mês (fórmulas sobre as abas acima) */
+    const ws = wb.getWorksheet("Resumo por mês");
+    ws.columns = [["Mês",12],["Pedidos",9],["Peças",9],["Vendas em produtos",15],["Frete cobrado",13],["Total recebido",14],["Custo",13],["Taxas de cartão",13],["Lucro",13],["Margem",9],["Sobra antes da mão de obra",15],["Valor médio por pedido",14]].map(([h,w]) => ({header:h, width:w}));
+    estilo(ws, 1);
+    const meses = [...new Set(entregues.map(p => dataEntrega(p).slice(0,7)))].sort();
+    meses.forEach((m, k) => {
+      const r = k + 2, it = itens.filter(x => x.mes === m), ps = entregues.filter(p => dataEntrega(p).startsWith(m));
+      const vend = it.reduce((s,x) => s + x.valor, 0), fr = ps.reduce((s,p) => s + totais(p).frete, 0), cus = it.reduce((s,x) => s + (x.cUnit != null ? x.qtd * x.cUnit : 0), 0), tx = it.reduce((s,x) => s + x.tx, 0);
+      ws.addRow([nomeMes(m), {formula:`COUNTIF(Pedidos!B:B,"${m}")`, result:ps.length}, {formula:`SUMIF(Vendas!B:B,"${m}",Vendas!J:J)`, result:it.reduce((s,x) => s + x.qtd, 0)},
+        {formula:`SUMIF(Vendas!B:B,"${m}",Vendas!L:L)`, result:vend}, {formula:`SUMIF(Pedidos!B:B,"${m}",Pedidos!H:H)`, result:fr}, {formula:`D${r}+E${r}`, result:vend + fr},
+        {formula:`SUMIF(Vendas!B:B,"${m}",Vendas!N:N)`, result:cus}, {formula:`SUMIF(Vendas!B:B,"${m}",Vendas!O:O)`, result:tx},
+        {formula:`D${r}-G${r}-H${r}`, result:vend - cus - tx}, {formula:`IF(D${r}=0,0,I${r}/D${r})`, result:vend ? (vend - cus - tx) / vend : 0},
+        {formula:`SUMIF(Vendas!B:B,"${m}",Vendas!Q:Q)`, result:it.reduce((s,x) => s + (x.mUnit != null ? x.valor - x.qtd * x.mUnit - x.tx : 0), 0)},
+        {formula:`IF(B${r}=0,0,F${r}/B${r})`, result:ps.length ? (vend + fr) / ps.length : 0}]);
+    });
+    const tr = meses.length + 2, ult = tr - 1;
+    const soma = c => ({formula:`SUM(${c}2:${c}${ult})`});
+    ws.addRow(["Total", soma("B"), soma("C"), soma("D"), soma("E"), soma("F"), soma("G"), soma("H"), soma("I"), {formula:`IF(D${tr}=0,0,I${tr}/D${tr})`}, soma("K"), {formula:`IF(B${tr}=0,0,F${tr}/B${tr})`}]);
+    ws.getRow(tr).font = {bold:true}; ws.getRow(tr).eachCell(c => c.border = {top:{style:"thin"}});
+    [4,5,6,7,8,9,11,12].forEach(c => ws.getColumn(c).numFmt = R$); ws.getColumn(10).numFmt = PCT;
+    ws.addRow([]);
+    [ "Lucro = vendas em produtos menos o custo de cada peça (material, energia, máquina, embalagem e a sua mão de obra) e menos a taxa do cartão.",
+      "Sobra antes da mão de obra = o que sobra antes de pagar as horas de montagem e acabamento: é o seu ganho total por hora trabalhada mais o lucro.",
+      "O frete não entra no lucro: ele paga a entrega. Os custos vêm da planilha de precificação, importada em Ajustes > Custos dos produtos.",
+      "Relatório gerado em " + dataBR(hojeISO()) + " com os pedidos de situação Entregue" + (escolha === "todos" ? "." : " em " + escolha + ".") ].forEach(t => { const r = ws.addRow([t]); r.font = {italic:true, color:{argb:"FF5B6270"}}; });
+    if(semCusto.size){ const r = ws.addRow(["Atenção: sem custo cadastrado (lucro não calculado): " + [...semCusto].join(", ") + "."]); r.font = {bold:true, color:{argb:"FFB42318"}}; }
+    /* aba Mais vendidos */
+    const wm = wb.getWorksheet("Mais vendidos");
+    wm.columns = [["Código",9],["Produto",36],["Peças",9],["Vendas",13],["Lucro",13],["Pedidos",9]].map(([h,w]) => ({header:h, width:w}));
+    estilo(wm, 1);
+    const ag = {};
+    itens.forEach(x => { const k = x.cod || x.nome; const a = ag[k] = ag[k] || {cod:x.cod, nome:x.nome, qtd:0, valor:0, lucro:0, semCusto:false, peds:new Set()};
+      a.qtd += x.qtd; a.valor += x.valor; if(x.cUnit != null) a.lucro += x.valor - x.qtd * x.cUnit - x.tx; else a.semCusto = true; a.peds.add(x.ped); });
+    Object.values(ag).sort((a, c) => c.qtd - a.qtd || c.valor - a.valor).forEach(a => wm.addRow([a.cod, (produtos.find(p => p.id === a.cod) || {}).nome || a.nome, a.qtd, a.valor, a.semCusto ? null : a.lucro, a.peds.size]));
+    [4,5].forEach(c => wm.getColumn(c).numFmt = R$);
+    /* aba Limite do MEI */
+    const wl = wb.getWorksheet("Limite do MEI");
+    wl.columns = [["Ano",8],["Faturamento (produtos + frete)",18],["Limite do MEI",14],["Usado",10],["Ainda pode faturar",16]].map(([h,w]) => ({header:h, width:w}));
+    estilo(wl, 1);
+    const anos = [...new Set(pedidos.filter(p => p.status === "entregue").map(p => +dataEntrega(p).slice(0,4)))].sort();
+    anos.forEach((a, k) => { const r = k + 2, fat = pedidos.filter(p => p.status === "entregue" && dataEntrega(p).startsWith(String(a))).reduce((s,p) => s + totais(p).total, 0);
+      wl.addRow([a, fat, LIMITE_MEI(a), {formula:`B${r}/C${r}`, result:fat / LIMITE_MEI(a)}, {formula:`MAX(0,C${r}-B${r})`, result:Math.max(0, LIMITE_MEI(a) - fat)}]); });
+    [2,3,5].forEach(c => wl.getColumn(c).numFmt = R$); wl.getColumn(4).numFmt = PCT;
+    wl.addRow([]);
+    ["Só vale se vocês forem MEI. Se não forem, ignore esta aba.",
+     "Limite anual: R$ 81 mil até 2026, R$ 110 mil em 2027 e R$ 140 mil a partir de 2028 (Lei Complementar 238/2026). Confira no Portal do Empreendedor se mudou.",
+     "Esta aba soma só os pedidos marcados como Entregue no painel. Vendas fora do painel não entram."].forEach(t => { const r = wl.addRow([t]); r.font = {italic:true, color:{argb:"FF5B6270"}}; });
+    const buf = await wb.xlsx.writeBuffer();
+    baixar(`Relatorio de vendas StudioPrint ${escolha === "todos" ? "todos os anos" : escolha} (${hojeISO()}).xlsx`, buf, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    aviso(semCusto.size ? `Relatório baixado. Sem custo cadastrado: ${[...semCusto].join(", ")} (o lucro desses itens fica em branco).` : "Relatório de vendas baixado.");
+  }catch(e){ aviso(e.message || String(e), true); }
+  finally{ b.disabled = false; b.textContent = txt; }
+}
+$("#bRelatorio").addEventListener("click", gerarRelatorio);
+$("#cuArq").addEventListener("change", e => { const f = e.target.files[0]; e.target.value = ""; if(f) importarCustos(f); });
+document.querySelector('[data-tab="tAjustes"]').addEventListener("click", () => { if(pedPronto) anosRelatorio(); renderCustos(); });
 
 /* ---------- versões anteriores ---------- */
 let versoes = [];
@@ -2020,11 +2271,11 @@ $("#pdFone").addEventListener("change", () => {
 /* catálogo de toque */
 function desenharCatalogo(){
   const q = $("#pdBuscaProd").value.trim().toLowerCase();
-  const todos = produtos.filter(p => !q || (p.nome + " " + p.id + " " + p.categoria).toLowerCase().includes(q));
+  const todos = produtos.filter(p => !q || (p.nome + " " + p.id + " " + p.categoria).toLowerCase().includes(q)).sort((a, b) => !!a.oculto - !!b.oculto);
   const LIM = matchMedia("(max-width:640px)").matches ? 6 : 12;
   const lista = todos.slice(0, LIM);
   $("#pdCatalogo").innerHTML = lista.map(p => `<button type="button" class="pick" data-add="${esc(p.id)}">
-      <img src="${esc(thumb(p.fotos[0]))}" alt="" loading="lazy"><span class="pn">${esc(p.nome)}</span><span class="pp">${brl(p.preco)}${p.unidade ? " " + esc(p.unidade) : ""}</span></button>`).join("")
+      <img src="${esc(thumb(p.fotos[0]))}" alt="" loading="lazy"><span class="pn">${esc(p.nome)}</span><span class="pp">${brl(p.preco)}${p.unidade ? " " + esc(p.unidade) : ""}${p.oculto ? " (fora do site)" : ""}</span></button>`).join("")
     + (todos.length > LIM ? `<p class="hint mais">Mostrando ${LIM} de ${todos.length}. Digite o nome ou o código para achar os outros.</p>` : "")
     || `<p class="hint">Nenhum produto encontrado. Use "Item avulso".</p>`;
 }
@@ -2204,6 +2455,7 @@ async function salvarPedido(){
     if(!(await confirmar(`Salvar as alterações no pedido ${edPed.id}?`, difs.join("\n"), "Salvar alterações"))) return;
   }
   if(novo && !edPed.historico.length) edPed.historico = [{quando:new Date().toISOString(), status:edPed.status}];
+  if(novo) edPed.itens.forEach(i => { const cu = custoDe(i.produto); if(cu){ i.custo = cu.total; i.custoMaterial = cu.material; } });
   if(novo && edPed.status !== "cancelado"){
     const res = reservaDoPedido(edPed);
     if(res.length){ edPed.estoqueReservado = res; estoqueAposSalvar.push({mov: res.map(r => ({id:r.id, qtd:-r.qtd})), motivo:`pedido ${edPed.id}`}); }
