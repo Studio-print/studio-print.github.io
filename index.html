@@ -123,7 +123,8 @@ footer{color:var(--muted);font-size:14px;padding:0 0 40px}
 /* Detalhe do produto */
 dialog{border:0;padding:0;max-width:none;border-radius:20px;width:min(1040px,calc(100vw - 32px));max-height:calc(100vh - 32px);background:var(--card);color:var(--ink);box-shadow:0 30px 80px -20px rgba(0,0,0,.5);overflow:hidden}
 dialog::backdrop{background:rgba(15,17,22,.72)}
-.detail{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);max-height:calc(100vh - 32px)}
+.detail{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);height:min(780px,calc(100vh - 32px));max-height:calc(100vh - 32px)}
+html.travado,html.travado body{overflow:hidden}
 .gallery{background:#E4E7EC;position:relative;display:flex;flex-direction:column;min-height:0}
 .slides{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;flex:1;min-height:0}
 .slides::-webkit-scrollbar{display:none}
@@ -137,8 +138,8 @@ dialog::backdrop{background:rgba(15,17,22,.72)}
 .thumbs button{flex:none;width:56px;height:56px;border-radius:8px;overflow:hidden;border:2px solid transparent;padding:0;cursor:pointer;background:#fff}
 .thumbs button[aria-current="true"]{border-color:var(--ink)}
 .thumbs img{width:100%;height:100%;object-fit:cover}
-.panel{padding:28px 28px 24px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
-.panel .top{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.panel{padding:28px 28px 24px;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:14px;min-height:0}
+.panel .top{display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:-28px;margin-top:-28px;padding-top:28px;padding-bottom:8px;background:var(--card);z-index:2}
 .panel .kicker{font-size:14px;color:var(--muted);font-weight:600}
 .close{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);cursor:pointer;display:grid;place-items:center;flex:none}
 .close svg{width:18px;height:18px}
@@ -168,7 +169,8 @@ dialog::backdrop{background:rgba(15,17,22,.72)}
   .hero{grid-template-columns:1fr;gap:24px;padding-bottom:28px}
   .stack{max-width:340px;justify-self:center}
   .steps{grid-template-columns:1fr}
-  .detail{display:block;overflow-y:auto}
+  .detail{display:block;overflow-y:auto;overscroll-behavior:contain;height:100%}
+  .panel .close{position:fixed;top:max(12px,env(safe-area-inset-top));right:12px;z-index:3;background:rgba(255,255,255,.95);box-shadow:0 4px 14px rgba(0,0,0,.18)}
   .slides{flex:none}
   .slides figure{max-height:62vh;width:100%}
   .panel{overflow:visible}
@@ -361,7 +363,7 @@ function renderGrid(){
   $("#grid").innerHTML = list.length ? list.map(p => `
     <button class="card" type="button" data-id="${p.id}" aria-label="${esc(p.name)}, ${brl(p.price)}, ${STATUS[p.status]}">
       <div class="thumb">
-        <img src="${foto(p.imgs[0],true)}" alt="${esc(p.name)}" loading="lazy" class="${p.fit==="contain"?"contain":""}">
+        <img src="${foto(p.imgs[0],true)}" alt="${esc(p.name)}" loading="lazy" class="${p.fit==="contain"?"contain":""}" onerror="this.style.visibility='hidden'">
         <span class="code">${p.id}</span>
         ${p.imgs.length>1?`<span class="count"><svg><use href="#i-photos"/></svg>${p.imgs.length}</span>`:""}
       </div>
@@ -418,7 +420,8 @@ function openProduct(id, setHash){
   try{ det.focus({preventScroll:true}); }catch(err){}
   const top = () => { det.scrollTop = 0; dlg.querySelector(".panel").scrollTop = 0; };
   top(); requestAnimationFrame(top); setTimeout(top, 60);
-  if(setHash){ try{ history.replaceState(null,"","#"+p.id.toLowerCase()); }catch(err){ location.hash = p.id.toLowerCase(); } }
+  document.documentElement.classList.add("travado");
+  if(setHash){ try{ history.pushState({produto:p.id}, "", "#"+p.id.toLowerCase()); }catch(err){} }
 }
 function go(i){
   if(!cur) return;
@@ -434,14 +437,25 @@ slides.addEventListener("scroll", () => {
 thumbs.addEventListener("click", e => { const b=e.target.closest("[data-i]"); if(b) go(+b.dataset.i); });
 $("#prev").addEventListener("click", () => go(idx-1));
 $("#next").addEventListener("click", () => go(idx+1));
-function closeDlg(){ if(dlg.open) dlg.close(); }
+function closeDlg(){
+  if(!dlg.open) return;
+  if(history.state && history.state.produto){ history.back(); } else dlg.close();
+}
+dlg.addEventListener("cancel", e => { e.preventDefault(); closeDlg(); });
 $("#close").addEventListener("click", closeDlg);
 dlg.addEventListener("click", e => { if(e.target===dlg) closeDlg(); });
-dlg.addEventListener("close", () => { cur=null; try{ history.replaceState(null,"",location.pathname+location.search); }catch(err){} });
+dlg.addEventListener("close", () => {
+  cur=null; document.documentElement.classList.remove("travado");
+  if(location.hash && !(history.state && history.state.produto)){ try{ history.replaceState(null,"",location.pathname+location.search); }catch(err){} }
+});
 dlg.addEventListener("keydown", e => { if(e.key==="ArrowLeft") go(idx-1); if(e.key==="ArrowRight") go(idx+1); });
 
 function fromHash(){ const h = decodeURIComponent(location.hash.replace("#","")); if(h && P.some(p=>p.id.toLowerCase()===h.toLowerCase())) openProduct(h,false); }
-window.addEventListener("hashchange", fromHash);
+window.addEventListener("popstate", () => {
+  const h = decodeURIComponent(location.hash.replace("#",""));
+  if(h && P.some(p=>p.id.toLowerCase()===h.toLowerCase())) openProduct(h,false);
+  else if(dlg.open) dlg.close();
+});
 async function carregar(){
   try{
     const rs = await fetch("site.json", {cache:"no-store"}).then(x => x.ok ? x.json() : null).catch(() => null);
