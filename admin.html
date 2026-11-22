@@ -220,6 +220,21 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 dialog .body{overscroll-behavior:contain}
 @media (max-width:640px){#dPed{width:100%;max-width:100%}#dPed footer .btn{flex:1 1 auto}.ig{grid-template-columns:1fr 1fr}.totais{grid-template-columns:repeat(2,minmax(0,1fr))}.totais .tot{grid-column:1/-1}.pcard{padding:14px 16px}.pst{margin-left:0}.stsel{margin-right:0;width:100%}.stsel .in{width:100%}#dPed .body{padding:14px}.fr{grid-template-columns:1fr 90px auto}}
 #confTxt{white-space:pre-line;line-height:1.55}
+#dColar,#dVersoes{width:min(620px,calc(100% - 24px))}
+.versoes{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.versoes li{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+.versoes li div{display:grid;gap:2px;min-width:0}
+.versoes b{font-size:15px}
+.versoes span{color:var(--muted);font-size:13px;overflow:hidden;text-overflow:ellipsis}
+.versoes .atual{font-size:13px;font-weight:700;color:var(--wa);white-space:nowrap}
+#colTexto{min-height:150px;resize:vertical;font-size:15px;line-height:1.45}
+.col-prev{margin-top:14px;display:grid;gap:8px}
+.col-prev:empty{display:none}
+.col-prev ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.col-prev li{border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:flex;justify-content:space-between;gap:10px}
+.col-prev li span{color:var(--muted);white-space:nowrap}
+.col-prev .bad{color:var(--danger);font-weight:600}
+.col-prev .ok{color:var(--wa);font-weight:600}
 .pzin{display:flex;align-items:center;gap:8px}.pzin .in{width:70px;text-align:center}.pzin span{color:var(--muted);font-weight:600}
 .passos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:12px 20px;border-bottom:1px solid var(--line);background:#FAFBFC}
 .passos button{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;cursor:pointer;text-align:left;font-weight:600;font-size:14px;color:var(--muted);min-width:0}
@@ -367,6 +382,7 @@ dialog .body{overscroll-behavior:contain}
       <div class="kpis" id="pedKpis"></div>
       <div class="tools">
         <button class="btn primary" type="button" id="pedNovo">Novo pedido</button>
+        <button class="btn" type="button" id="pedColar">Colar pedido do WhatsApp</button>
         <input class="in" type="search" id="pedBusca" placeholder="Buscar cliente, número ou produto" aria-label="Buscar pedidos">
         <div class="viewsw" role="group" aria-label="Modo de ver"><button type="button" data-view="lista">Lista</button><button type="button" data-view="quadro">Quadro</button></div>
         <button class="btn" type="button" id="pedCsv">Baixar planilha</button>
@@ -384,6 +400,7 @@ dialog .body{overscroll-behavior:contain}
     <button class="btn primary" type="button" id="bNovo">Novo produto</button>
     <input class="in" type="search" id="busca" placeholder="Buscar por nome ou código" aria-label="Buscar por nome ou código">
     <span class="count" id="contagem"></span>
+    <button class="btn" type="button" id="bVersoes" style="margin-left:auto">Versões anteriores</button>
   </div>
   <div id="lista"></div>
   </section>
@@ -470,6 +487,13 @@ dialog .body{overscroll-behavior:contain}
         <div><label class="f" for="ePreco">Preço (R$)</label><input class="in" id="ePreco" inputmode="decimal" placeholder="39,90" required></div>
         <div><label class="f" for="eUn">Texto depois do preço (opcional)</label><input class="in" id="eUn" placeholder="cada, o kit, a dupla"></div>
       </div>
+      <div class="g2">
+        <div><label class="f" for="eEst">Pronta entrega (quantidade em estoque)</label><input class="in" id="eEst" inputmode="numeric" placeholder="0">
+          <div class="hint">Com 1 ou mais, o produto aparece como Pronta entrega. Quando zerar, volta sozinho para Sob encomenda.</div></div>
+        <div><label class="f" for="eDest">Destaque no catálogo</label>
+          <select class="in" id="eDest"><option value="">Nenhum</option><option value="mais-vendido">Mais vendido</option><option value="novo">Novo</option></select>
+          <div class="hint">Produtos com destaque aparecem primeiro, com um selo.</div></div>
+      </div>
       <div>
         <label class="check"><input type="checkbox" id="eLanc"> Mostrar "Preço de lançamento"</label>
         <label class="check"><input type="checkbox" id="ePers"> Personalizado com nome</label>
@@ -503,6 +527,37 @@ dialog .body{overscroll-behavior:contain}
 </dialog>
 
 <!-- Pedido -->
+<dialog id="dVersoes" aria-labelledby="verTit">
+  <div class="ed">
+    <header><h2 id="verTit">Versões anteriores do catálogo</h2><button class="btn icon" type="button" data-verfechar aria-label="Fechar"><svg><use href="#i-x"/></svg></button></header>
+    <div class="body">
+      <p class="hint" style="margin-top:0">Cada publicação fica guardada. Se algo saiu errado, escolha a versão de antes e toque em <b>Voltar para esta</b>. Produtos, preços, fotos, avisos e textos do site voltam como estavam. Os pedidos não mudam.</p>
+      <ul class="versoes" id="verLista"><li>Carregando…</li></ul>
+    </div>
+    <footer><span style="flex:1"></span><button class="btn" type="button" data-verfechar>Fechar</button></footer>
+  </div>
+</dialog>
+
+<dialog id="dColar" aria-labelledby="colTit">
+  <div class="ed">
+    <header><h2 id="colTit">Colar pedido do WhatsApp</h2><button class="btn icon" type="button" data-colfechar aria-label="Fechar"><svg><use href="#i-x"/></svg></button></header>
+    <div class="body">
+      <p class="hint" style="margin-top:0">No WhatsApp, segure a mensagem do cliente, toque em <b>Copiar</b> e cole aqui. O pedido sai preenchido com os itens, cores, nomes e o total.</p>
+      <label class="f" for="colTexto">Mensagem do cliente</label>
+      <textarea class="in" id="colTexto" rows="8" placeholder="Olá! Vi o catálogo da StudioPrint e quero fazer este pedido:&#10;• 2x P-09 Homem-Aranha articulado (Vermelho): R$ 78"></textarea>
+      <label class="f" for="colFone" style="margin-top:12px">WhatsApp do cliente</label>
+      <input class="in" id="colFone" inputmode="tel" placeholder="(11) 98888-7777">
+      <p class="hint">O número não vem dentro da mensagem: copie do topo da conversa. Se o cliente já comprou antes, o painel completa sozinho.</p>
+      <div class="col-prev" id="colPrev" aria-live="polite"></div>
+    </div>
+    <footer>
+      <span style="flex:1"></span>
+      <button class="btn" type="button" data-colfechar>Cancelar</button>
+      <button class="btn primary" type="button" id="colCriar" disabled>Conferir pedido</button>
+    </footer>
+  </div>
+</dialog>
+
 <dialog id="dPed" aria-labelledby="pdTit">
   <form class="ed" id="fPed" novalidate>
     <header><h2 id="pdTit">Pedido</h2><button class="btn icon" type="button" data-pdclose aria-label="Fechar"><svg><use href="#i-x"/></svg></button></header>
@@ -677,7 +732,7 @@ function precoDe(v){
 /* campos de número aceitam só números (e vírgula no preço) */
 document.addEventListener("input", e => {
   const el = e.target; if(!(el instanceof HTMLInputElement)) return;
-  const dec = el.matches("#ePreco, #pdFrete, #pdPago, [data-f='preco']"), int = el.matches("#ePzMin, #ePzMax, [data-f='qtd']");
+  const dec = el.matches("#ePreco, #pdFrete, #pdPago, [data-f='preco']"), int = el.matches("#ePzMin, #ePzMax, #eEst, [data-f='qtd']");
   if(!dec && !int) return;
   const limpo = int ? el.value.replace(/\D/g, "").slice(0, 4) : el.value.replace(/[^\d,.]/g, "").replace(/([,.].*?)[,.]/g, "$1").slice(0, 10);
   if(limpo !== el.value){ const p = el.selectionStart - (el.value.length - limpo.length); el.value = limpo; try{ el.setSelectionRange(p, p); }catch(_){} }
@@ -838,7 +893,7 @@ function render(){
       html += `<li class="row">
         <img src="${esc(thumb(p.fotos[0]))}" alt="">
         <div class="t"><b>${esc(p.nome)}</b>
-          <span>${esc(p.id)} | ${brl(p.preco)}${p.unidade ? " " + esc(p.unidade) : ""} | ${STATUS[p.status] || p.status}${p.lancamento ? " | Lançamento" : ""}${alterado ? ' | <span class="changed">' + (origMap[p.id] ? "Editado" : "Novo") + "</span>" : ""}</span></div>
+          <span>${esc(p.id)} | ${brl(p.preco)}${p.unidade ? " " + esc(p.unidade) : ""} | ${STATUS[p.status] || p.status}${p.estoque > 0 ? ` (${p.estoque} un.)` : ""}${p.destaque ? " | <b>" + DESTAQUE[p.destaque] + "</b>" : ""}${p.lancamento ? " | Lançamento" : ""}${alterado ? ' | <span class="changed">' + (origMap[p.id] ? "Editado" : "Novo") + "</span>" : ""}</span></div>
         <div class="acts">
           <button class="btn icon" type="button" data-up="${i}" aria-label="Subir ${esc(p.nome)}" ${k===0||q?"disabled":""}><svg><use href="#i-up"/></svg></button>
           <button class="btn icon" type="button" data-down="${i}" aria-label="Descer ${esc(p.nome)}" ${k===pos.length-1||q?"disabled":""}><svg><use href="#i-down"/></svg></button>
@@ -887,6 +942,7 @@ function proximoCodigo(cat){
 }
 const PRAZO_CAT = {"Personagens":[3,4], "Bonecos de pose":[3,4]};
 const prazoProduto = p => Array.isArray(p && p.prazo) && p.prazo[0] ? p.prazo : (PRAZO_CAT[p && p.categoria] || [2,3]);
+const DESTAQUE = {"mais-vendido":"Mais vendido", "novo":"Novo"};
 function diferencasProduto(a, b){
   const d = [], txt = v => v === undefined || v === null || v === "" ? "(vazio)" : String(v);
   const campo = (rot, x, y, fmt = txt) => { if(JSON.stringify(x ?? "") !== JSON.stringify(y ?? "")) d.push(`${rot}: ${fmt(x)} → ${fmt(y)}`); };
@@ -895,6 +951,8 @@ function diferencasProduto(a, b){
   campo("Situação", a.status, b.status, v => STATUS[v] || txt(v));
   campo("Produção", prazoProduto(a), prazoProduto(b), v => `${v[0]} a ${v[1]} dias úteis`);
   campo("Medidas", a.medidas, b.medidas);
+  campo("Estoque de pronta entrega", a.estoque || 0, b.estoque || 0, v => `${v} un.`);
+  campo("Destaque", a.destaque || "", b.destaque || "", v => DESTAQUE[v] || "nenhum");
   campo("Preço de lançamento", !!a.lancamento, !!b.lancamento, v => v ? "sim" : "não");
   campo("Personalizado", !!a.personalizado, !!b.personalizado, v => v ? "sim" : "não");
   if((a.descricao||"") !== (b.descricao||"")) d.push("Descrição alterada");
@@ -911,6 +969,7 @@ function abrirEditor(i, modelo, posInsert){
   $("#eId").value = p.id; $("#eNome").value = p.nome; $("#eCat").value = p.categoria;
   $("#ePreco").value = p.preco === "" ? "" : String(p.preco).replace(".", ",");
   $("#eUn").value = p.unidade || ""; $("#eStatus").value = p.status || "encomenda";
+  $("#eEst").value = p.estoque > 0 ? p.estoque : ""; $("#eDest").value = p.destaque || "";
   $("#eLanc").checked = !!p.lancamento; $("#ePers").checked = !!p.personalizado; $("#eInteira").checked = !!p.fotoInteira;
   $("#eDesc").value = p.descricao || "";
   const pz = prazoProduto(p); $("#ePzMin").value = pz[0]; $("#ePzMax").value = pz[1]; $("#eMed").value = p.medidas || "";
@@ -1006,6 +1065,10 @@ $("#fEd").addEventListener("submit", async e => {
   const p = {id, nome, categoria:cat, preco};
   const un = $("#eUn").value.trim(); if(un) p.unidade = un;
   p.status = $("#eStatus").value; p.personalizado = $("#ePers").checked; p.lancamento = $("#eLanc").checked;
+  const est = parseInt($("#eEst").value, 10) || 0;
+  if(est > 0){ p.estoque = Math.min(est, 999); p.status = "disponivel"; }
+  else { delete p.estoque; if(p.status === "disponivel") p.status = "encomenda"; }
+  const dest = $("#eDest").value; if(dest) p.destaque = dest; else delete p.destaque;
   p.descricao = $("#eDesc").value.trim(); p.prazo = [pzA, pzB];
   const med = $("#eMed").value.trim(); if(med) p.medidas = med;
   p.fotos = [...edFotos];
@@ -1217,8 +1280,11 @@ async function gravarPedidos(mudar, msg){
       const c = await api(`${PED_REPO}/contents/pedidos.json`).catch(x => { if(x.status === 404) return null; throw x; });
       await tentar(c ? JSON.parse(textoDeB64(c.content)) : [], c ? c.sha : null);
     }
-    renderPedidos(); return true;
-  }catch(e){ aviso(erroAmigavel(e), true); return false; }
+    renderPedidos();
+    const fila = estoqueAposSalvar.splice(0);
+    for(const f of fila) await ajustarEstoque(f.mov, f.motivo);
+    return true;
+  }catch(e){ estoqueAposSalvar.length = 0; aviso(erroAmigavel(e), true); return false; }
   finally{ $("#pedSalvando").hidden = true; }
 }
 const upsert = ped => lista => { const k = lista.findIndex(x => x.id === ped.id); if(k >= 0) lista[k] = ped; else lista.push(ped); return lista; };
@@ -1354,7 +1420,111 @@ function novoPedidoBase(){
     cliente:{nome:"", whatsapp:"", cidade:"", endereco:""}, itens:[], entrega:{tipo:"retirada", valor:0, rastreio:""},
     pagamento:{forma:"Pix", pago:0}, prazo: somarUteis(hojeISO(), 3), prazoAuto:true, obs:"", historico:[]};
 }
-function abrirPedido(id, repetirDe){
+/* ---------- versões anteriores ---------- */
+let versoes = [];
+const quandoBR = iso => { const d = new Date(iso); return d.toLocaleDateString("pt-BR", {day:"2-digit", month:"2-digit"}) + " às " + d.toLocaleTimeString("pt-BR", {hour:"2-digit", minute:"2-digit"}); };
+async function abrirVersoes(){
+  $("#verLista").innerHTML = "<li>Carregando…</li>"; $("#dVersoes").showModal();
+  try{
+    const [a, b] = await Promise.all([
+      api(`${REPO}/commits?sha=${CFG.branch}&path=${encodeURIComponent(CFG.arquivo)}&per_page=20`),
+      api(`${REPO}/commits?sha=${CFG.branch}&path=site.json&per_page=20`).catch(() => [])
+    ]);
+    const vistos = new Set();
+    versoes = [...a, ...b].filter(c => !vistos.has(c.sha) && vistos.add(c.sha))
+      .sort((x, y) => y.commit.committer.date.localeCompare(x.commit.committer.date)).slice(0, 20);
+    const nomeMsg = m => { m = (m||"").split("\n")[0]; return /^Add files via upload|^Upload/i.test(m) ? "Envio de arquivos pelo GitHub" : /^Volta o catálogo/.test(m) ? m : m.replace(/^Atualiza o catálogo pelo painel/, "Publicação pelo painel"); };
+    $("#verLista").innerHTML = versoes.map((c, k) => `<li><div><b>${quandoBR(c.commit.committer.date)}</b><span>${esc(nomeMsg(c.commit.message))}</span></div>
+      ${k === 0 ? `<span class="atual">No ar agora</span>` : `<button class="btn" type="button" data-voltar="${c.sha}">Voltar para esta</button>`}</li>`).join("") || "<li>Nenhuma versão encontrada.</li>";
+  }catch(e){ $("#verLista").innerHTML = `<li>${esc(erroAmigavel(e))}</li>`; }
+}
+async function voltarVersao(sha){
+  const c = versoes.find(v => v.sha === sha); if(!c) return;
+  if(mudou()){ await confirmar("Você tem alterações não publicadas", "Publique ou descarte as alterações antes de voltar uma versão.", "Entendi"); return; }
+  if(!(await confirmar(`Voltar o catálogo para ${quandoBR(c.commit.committer.date)}?`, "Produtos, preços, fotos, avisos e textos do site voltam como estavam nessa versão. A versão de agora continua guardada na lista, então dá para desfazer.", "Voltar para esta versão"))) return;
+  try{
+    const velho = await api(`${REPO}/git/trees/${c.commit.tree.sha}?recursive=1`);
+    const ref = await api(`${REPO}/git/ref/heads/${CFG.branch}`);
+    const cAtual = await api(`${REPO}/git/commits/${ref.object.sha}`);
+    const atual = await api(`${REPO}/git/trees/${cAtual.tree.sha}?recursive=1`);
+    const temAgora = new Set(atual.tree.map(t => t.path));
+    const quer = p => p === CFG.arquivo || p === "site.json" || ((p.startsWith("fotos/") || p.startsWith("miniaturas/")) && !temAgora.has(p));
+    const arvore = velho.tree.filter(t => t.type === "blob" && quer(t.path)).map(t => ({path:t.path, mode:t.mode, type:"blob", sha:t.sha}));
+    if(!arvore.some(t => t.path === CFG.arquivo)) throw new Error("Essa versão não tem a lista de produtos.");
+    const tree = await api(`${REPO}/git/trees`, {method:"POST", body:JSON.stringify({base_tree: cAtual.tree.sha, tree: arvore})});
+    const commit = await api(`${REPO}/git/commits`, {method:"POST", body:JSON.stringify({message:`Volta o catálogo para a versão de ${quandoBR(c.commit.committer.date)}`, tree: tree.sha, parents:[ref.object.sha]})});
+    await api(`${REPO}/git/refs/heads/${CFG.branch}`, {method:"PATCH", body:JSON.stringify({sha: commit.sha})});
+    $("#dVersoes").close();
+    await carregar();
+    aviso("Pronto! O catálogo voltou para essa versão e atualiza em 1 a 2 minutos.");
+  }catch(e){ aviso(erroAmigavel(e), true); }
+}
+$("#bVersoes").addEventListener("click", abrirVersoes);
+$("#verLista").addEventListener("click", e => { const b = e.target.closest("[data-voltar]"); if(b) voltarVersao(b.dataset.voltar); });
+document.querySelectorAll("[data-verfechar]").forEach(b => b.addEventListener("click", () => $("#dVersoes").close()));
+
+/* ---------- colar pedido do WhatsApp ---------- */
+let colado = null;
+function lerMensagem(txt){
+  const r = {nome:"", fone:"", itens:[], receber:"", cep:"", gravar:"", cor:"", totalMsg:null, frete:null, sobras:[]};
+  const linhas = String(txt||"").replace(/\r/g,"").split("\n").map(l => l.replace(/^\[[^\]]*\]\s*[^:]{1,40}:\s*/, "").trim()).filter(Boolean);
+  const fone = String(txt||"").match(/(?:\+?55\s?)?\(?\d{2}\)?\s?9\s?\d{4}[-\s]?\d{4}/); if(fone) r.fone = fone[0].replace(/\D/g,"").replace(/^55(?=\d{11}$)/,"");
+  const val = v => Number(String(v).replace(/\./g,"").replace(",","."));
+  for(const l of linhas){
+    let m;
+    if((m = l.match(/\bSou ([^.!\n]{2,40})[.!]/i))) r.nome = m[1].trim();
+    if((m = l.match(/^[•\-*·]?\s*(\d{1,3})\s*x\s+([A-Z]{1,2}-\d{2,3})\s+(.+?):\s*R\$\s*([\d.]+(?:,\d{1,2})?)\s*$/i))){
+      const qtd = +m[1], id = m[2].toUpperCase(), total = val(m[4]);
+      let resto = m[3], gravar = "", cor = "";
+      const g = resto.match(/,\s*nome\s+"([^"]*)"\s*$/i); if(g){ gravar = g[1]; resto = resto.slice(0, g.index); }
+      const prod = produtos.find(p => p.id === id);
+      if(prod && resto.toLowerCase().startsWith(prod.nome.toLowerCase())){ const c = resto.slice(prod.nome.length).trim().match(/^\((.+)\)$/); if(c) cor = c[1]; }
+      else { const c = resto.match(/\s*\(([^()]+)\)\s*$/); if(c){ cor = c[1]; resto = resto.slice(0, c.index); } }
+      r.itens.push({produto: prod ? prod.id : "__outro", nome: prod ? prod.nome : `${id} ${resto}`.trim(), cor, nome_gravado:gravar, qtd, preco: qtd ? Math.round(total/qtd*100)/100 : 0, achado: !!prod});
+      continue;
+    }
+    if((m = l.match(/^Total dos produtos:\s*R\$\s*([\d.]+(?:,\d{1,2})?)/i))){ r.totalMsg = val(m[1]); continue; }
+    if((m = l.match(/^Como quero receber:\s*(.+)$/i))){ r.receber = m[1].trim(); continue; }
+    if((m = l.match(/^(?:CEP ou bairro|Bairro ou CEP|CEP):\s*(.+)$/i))){ r.cep = m[1].trim(); continue; }
+    if((m = l.match(/^Entrega:\s*R\$\s*([\d.]+(?:,\d{1,2})?)/i))){ r.frete = val(m[1]); continue; }
+    if(/^Total( com a entrega)?:/i.test(l)) continue;
+    if((m = l.match(/^Nome para personalizar:\s*(.+)$/i))){ r.gravar = m[1].trim(); continue; }
+    if((m = l.match(/^Cor(?:es)?:\s*(.+)$/i))){ r.cor = m[1].trim(); continue; }
+    if(/^(Olá|Oi)\b|catálogo da StudioPrint|^(Nome para personalizar|Cor(es)?):\s*$/i.test(l)) continue;
+    r.sobras.push(l);
+  }
+  if(!r.itens.length){   /* mensagem antiga ou escrita à mão: pega os códigos */
+    const cods = [...new Set((String(txt).match(/\b[A-Z]-\d{2,3}\b/g) || []))];
+    cods.forEach(id => { const p = produtos.find(x => x.id === id); if(p) r.itens.push({produto:p.id, nome:p.nome, cor:"", nome_gravado:"", qtd:1, preco:p.preco, achado:true}); });
+  }
+  /* "Nome para personalizar: Ana" e "Cor: Azul" completados pelo cliente */
+  if(r.gravar){ const alvo = r.itens.filter(i => !i.nome_gravado && (produtos.find(p => p.id === i.produto)||{}).personalizado); if(alvo.length === 1) alvo[0].nome_gravado = r.gravar; else r.sobras.push("Nome para personalizar: " + r.gravar); }
+  if(r.cor){ const alvo = r.itens.filter(i => !i.cor); if(alvo.length === 1) alvo[0].cor = r.cor; else r.sobras.push("Cores: " + r.cor); }
+  return r;
+}
+function previaColar(){
+  const r = lerMensagem($("#colTexto").value);
+  if(!$("#colFone").value.trim() && r.fone){ const d = r.fone.slice(-11); $("#colFone").value = d.length === 11 ? `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}` : d; }
+  colado = r.itens.length ? r : null;
+  $("#colCriar").disabled = !colado;
+  if(!$("#colTexto").value.trim()){ $("#colPrev").innerHTML = ""; return; }
+  if(!r.itens.length){ $("#colPrev").innerHTML = `<p class="bad">Não encontrei produtos nessa mensagem. Confira se colou a mensagem inteira, com as linhas que começam com a quantidade (ex.: 2x P-09).</p>`; return; }
+  const soma = r.itens.reduce((s,i) => s + i.qtd*i.preco, 0);
+  const confere = r.totalMsg === null ? "" : Math.abs(soma - r.totalMsg) < 0.01 ? `<p class="ok">Total confere com a mensagem: ${brl(soma)}</p>` : `<p class="bad">Atenção: a soma dos itens dá ${brl(soma)} e a mensagem diz ${brl(r.totalMsg)}. Confira os preços.</p>`;
+  const faltando = r.itens.filter(i => !i.achado).length ? `<p class="bad">Algum código não existe mais no catálogo: ele entra como item avulso para você conferir.</p>` : "";
+  $("#colPrev").innerHTML = `<b>${r.itens.length} ite${r.itens.length>1?"ns":"m"} encontrado${r.itens.length>1?"s":""}${r.nome ? " | cliente: " + esc(r.nome) : ""}</b>
+    <ul>${r.itens.map(i => `<li>${esc(linhaItem(i))}<span>${brl(i.qtd*i.preco)}</span></li>`).join("")}</ul>${confere}${faltando}
+    ${r.receber ? `<p class="hint" style="margin:0">Receber: ${esc(r.receber)}${r.frete !== null ? " | entrega " + brl(r.frete) : ""}${r.cep ? " | " + esc(r.cep) : ""}</p>` : ""}`;
+}
+$("#pedColar").addEventListener("click", () => { $("#colTexto").value = ""; $("#colFone").value = ""; previaColar(); $("#dColar").showModal(); setTimeout(() => $("#colTexto").focus(), 30); });
+$("#colTexto").addEventListener("input", previaColar);
+document.querySelectorAll("[data-colfechar]").forEach(b => b.addEventListener("click", () => $("#dColar").close()));
+$("#colCriar").addEventListener("click", () => {
+  if(!colado) return;
+  colado.foneDigitado = $("#colFone").value.replace(/\D/g,"");
+  $("#dColar").close(); abrirPedido(null, null, colado); colado = null;
+});
+function abrirPedido(id, repetirDe, deMensagem){
   const base = id ? pedidos.find(p => p.id === id) : null;
   if(base) edPed = JSON.parse(JSON.stringify(base));
   else{
@@ -1362,10 +1532,26 @@ function abrirPedido(id, repetirDe){
     const fonte = repetirDe && pedidos.find(p => p.id === repetirDe);
     if(fonte){ edPed.cliente = JSON.parse(JSON.stringify(fonte.cliente||{})); edPed.itens = JSON.parse(JSON.stringify(fonte.itens||[])); edPed.entrega = Object.assign(JSON.parse(JSON.stringify(fonte.entrega||{})), {rastreio:""}); }
   }
+  if(deMensagem){
+    const m = deMensagem, telefone = m.foneDigitado || m.fone || "";
+    const ant = [...clientesAnteriores().values()].find(c => (telefone && String(c.whatsapp||"").replace(/\D/g,"").endsWith(telefone.slice(-8))) || (m.nome && (c.nome||"").toLowerCase() === m.nome.toLowerCase()));
+    edPed.cliente = {nome: m.nome || (ant && ant.nome) || "", whatsapp: telefone || (ant && ant.whatsapp) || "", cidade: m.cep || (ant && ant.cidade) || "", endereco: (ant && ant.endereco) || ""};
+    edPed.itens = m.itens.map(({achado, ...i}) => i);
+    const rec = (m.receber||"").toLowerCase();
+    if(rec.includes("correio")) edPed.entrega.tipo = "correios";
+    else if(rec.includes("abc") || rec.includes("entrega")){
+      edPed.entrega.tipo = "abc";
+      const onde = ((m.receber||"") + " " + (m.cep||"")).toLowerCase();
+      const f = (site.fretes||[]).filter(f => f.nome).sort((a,b) => b.nome.length - a.nome.length).find(f => onde.includes(f.nome.toLowerCase()) || onde.includes(f.nome.toLowerCase().split(":")[0].trim()));
+      if(f){ edPed.entrega.local = f.nome; edPed.entrega.valor = Number(f.valor)||0; }
+      if(m.frete !== null && m.frete !== undefined) edPed.entrega.valor = m.frete;
+    }
+    edPed.obs = ["Pedido colado do WhatsApp.", ...m.sobras].join("\n");
+  }
   edPed.cliente = Object.assign({nome:"", whatsapp:"", cidade:"", endereco:""}, edPed.cliente);
   edPed.entrega = Object.assign({tipo:"retirada", valor:0, rastreio:""}, edPed.entrega);
   edPed.pagamento = Object.assign({forma:"Pix", pago:0}, edPed.pagamento);
-  $("#pdTit").textContent = base ? `Pedido ${edPed.id}` : (repetirDe ? `Novo pedido ${edPed.id} (cópia do ${repetirDe})` : `Novo pedido ${edPed.id}`);
+  $("#pdTit").textContent = base ? `Pedido ${edPed.id}` : deMensagem ? `Novo pedido ${edPed.id} (do WhatsApp)` : (repetirDe ? `Novo pedido ${edPed.id} (cópia do ${repetirDe})` : `Novo pedido ${edPed.id}`);
   $("#pdExcluir").hidden = !base; $("#pdRepetir").hidden = !base;
   $("#pdResp").innerHTML = `<option value="">(ninguém)</option>` + (site.contatos||[]).map(c => `<option ${edPed.responsavel===c.nome?"selected":""}>${esc(c.nome)}</option>`).join("");
   $("#pdStatus").innerHTML = ST_PED.map(([k,l]) => `<option value="${k}" ${edPed.status===k?"selected":""}>${l}</option>`).join("");
@@ -1377,9 +1563,9 @@ function abrirPedido(id, repetirDe){
   set("#pdPago", valorBR(edPed.pagamento.pago)); set("#pdObs", edPed.obs); $("#pdBuscaProd").value = "";
   $("#pdErr").textContent = ""; $("#pdClienteAviso").textContent = "";
   desenharCatalogo(); desenharItens(); desenharEntrega(); atualizarTotais();
-  ehNovo = !base; maxVisto = ehNovo ? 1 : 5;
+  ehNovo = !base; maxVisto = ehNovo && !deMensagem ? 1 : 5;
   $("#dPed").showModal();
-  mostrarPasso(ehNovo ? 1 : 5);
+  mostrarPasso(ehNovo && !deMensagem ? 1 : 5);
 }
 /* passo a passo */
 let passo = 1, maxVisto = 1, ehNovo = true;
@@ -1434,6 +1620,7 @@ function desenharResumo(){
   const t = totaisForm(), ent = edPed.entrega;
   const avisos = [];
   if(!fone) avisos.push("Sem WhatsApp: não vai dar para mandar as mensagens prontas.");
+  const doEst = ehNovo ? reservaDoPedido({itens: edPed.itens}) : [];
   if(it.some(i => !(Number(i.preco) > 0))) avisos.push("Tem item com preço R$ 0.");
   if(["abc","correios","app"].includes(ent.tipo) && !(num($("#pdFrete").value) > 0)) avisos.push("A entrega está sem valor.");
   if(ent.tipo === "abc" && !$("#pdEnd").value.trim()) avisos.push("Entrega própria sem endereço.");
@@ -1441,7 +1628,8 @@ function desenharResumo(){
   $("#pdResumo").innerHTML =
     (avisos.length ? `<div class="ravisos">${avisos.map(a => `<p>${esc(a)}</p>`).join("")}</div>` : "") +
     bloco(1, "Cliente", `<p>${esc(nome)}${fone ? " | " + esc(fone) : ""}${cid ? " | " + esc(cid) : ""}</p>`) +
-    bloco(2, "Itens", `<ul>${it.map(i => `<li>${esc(linhaItem(i))} <span>${brl((Number(i.qtd)||0) * (Number(i.preco)||0))}</span></li>`).join("")}</ul>`) +
+    bloco(2, "Itens", `<ul>${it.map(i => `<li>${esc(linhaItem(i))} <span>${brl((Number(i.qtd)||0) * (Number(i.preco)||0))}</span></li>`).join("")}</ul>` +
+      (doEst.length ? `<p class="hint" style="margin:6px 0 0">Sai da pronta entrega ao salvar: ${doEst.map(r => `${r.qtd}x ${esc(r.id)}`).join(", ")}.</p>` : "")) +
     bloco(3, "Entrega", `<p>${ENTREGA[ent.tipo] || "A combinar"}${ent.local ? " | " + esc(ent.local) : ""} | ${brl(t.frete)}</p>`) +
     bloco(4, "Pagamento", `<p>${esc($("#pdForma").value)} | pago ${brl(t.pago)} | ${t.saldo > 0 ? "falta " + brl(t.saldo) : "quitado"}</p>`);
 }
@@ -1561,11 +1749,47 @@ function atualizarTotais(){
   const t = totaisForm();
   $("#pdTotais").innerHTML = `<div><i>Itens</i>${brl(t.itens)}</div><div><i>Entrega</i>${brl(t.frete)}</div><div class="tot"><i>Total</i>${brl(t.total)}</div><div><i>Pago</i>${brl(t.pago)}</div><div class="${t.saldo > 0 ? "falta" : ""}"><i>${t.saldo > 0 ? "Falta" : t.saldo < 0 ? "Crédito" : "Situação"}</i>${t.saldo > 0 ? brl(t.saldo) : t.saldo < 0 ? brl(-t.saldo) : t.total > 0 ? "Quitado" : "-"}</div>`;
 }
+/* estoque de pronta entrega: grava direto no catálogo, sem mexer em outras edições */
+const estoqueAposSalvar = [];
+function reservaDoPedido(p){
+  return (p.itens||[]).map(i => {
+    const prod = produtos.find(x => x.id === i.produto);
+    return prod && prod.estoque > 0 ? {id:prod.id, qtd:Math.min(Number(i.qtd)||0, prod.estoque)} : null;
+  }).filter(x => x && x.qtd > 0);
+}
+async function ajustarEstoque(mov, motivo){
+  /* mov: [{id, qtd}] com qtd negativa para baixar e positiva para devolver */
+  mov = (mov||[]).filter(m => m.qtd);
+  if(!mov.length) return true;
+  for(let tentativa = 0; tentativa < 3; tentativa++){
+    try{
+      const c = await api(`${REPO}/contents/${CFG.arquivo}?ref=${CFG.branch}`);
+      const lista = JSON.parse(textoDeB64(c.content));
+      const mudar = arr => mov.forEach(m => { const p = arr.find(x => x.id === m.id); if(!p) return;
+        const novo = Math.max(0, (p.estoque || 0) + m.qtd);
+        if(novo > 0){ p.estoque = novo; p.status = "disponivel"; } else { delete p.estoque; if(p.status === "disponivel") p.status = "encomenda"; } });
+      mudar(lista);
+      const r = await api(`${REPO}/contents/${CFG.arquivo}`, {method:"PUT", body:JSON.stringify({
+        message:`Estoque: ${motivo}`, content:b64Texto(JSON.stringify(lista, null, 2) + "\n"), sha:c.sha, branch:CFG.branch})});
+      /* o painel acompanha sem marcar como edição pendente */
+      const orig = JSON.parse(original); mudar(orig); mudar(produtos);
+      shaJson = r.content.sha; original = JSON.stringify(orig);
+      orig.forEach(p => origMap[p.id] = JSON.stringify(p));
+      render();
+      return true;
+    }catch(e){ if(e.status !== 409 && e.status !== 422) { aviso("O pedido foi salvo, mas o estoque não foi atualizado: " + erroAmigavel(e), true); return false; } }
+  }
+  aviso("O pedido foi salvo, mas o estoque não foi atualizado. Ajuste no produto.", true); return false;
+}
 /* ao sair de "Aguardando sinal" o prazo passa a contar do pagamento */
 function mudarStatus(p, st){
   if(p.status === "novo" && st !== "novo" && st !== "cancelado" && !p.pagoEm){
     p.pagoEm = hojeISO();
     if(p.prazoAuto) p.prazo = somarUteis(p.pagoEm, diasProducao(p.itens));
+  }
+  if(st === "cancelado" && p.estoqueReservado && p.estoqueReservado.length && !p.estoqueDevolvido){
+    p.estoqueDevolvido = true;
+    estoqueAposSalvar.push({mov: p.estoqueReservado.map(r => ({id:r.id, qtd:r.qtd})), motivo:`pedido ${p.id} cancelado, volta para o estoque`});
   }
   p.historico = [...(p.historico||[]), {quando:new Date().toISOString(), status:st}];
   p.status = st;
@@ -1606,6 +1830,10 @@ async function salvarPedido(){
     if(!(await confirmar(`Salvar as alterações no pedido ${edPed.id}?`, difs.join("\n"), "Salvar alterações"))) return;
   }
   if(novo && !edPed.historico.length) edPed.historico = [{quando:new Date().toISOString(), status:edPed.status}];
+  if(novo && edPed.status !== "cancelado"){
+    const res = reservaDoPedido(edPed);
+    if(res.length){ edPed.estoqueReservado = res; estoqueAposSalvar.push({mov: res.map(r => ({id:r.id, qtd:-r.qtd})), motivo:`pedido ${edPed.id}`}); }
+  }
   if(edPed.responsavel) lembrar("sp_resp", edPed.responsavel);
   const b = $("#pdSalvar"); b.disabled = true;
   const ok = await gravarPedidos(upsert(JSON.parse(JSON.stringify(edPed))), `${novo ? "Novo pedido" : "Atualiza pedido"} ${edPed.id}`);

@@ -168,6 +168,52 @@ html.travado,html.travado body{overflow:hidden}
 .btn.wa:hover{background:#127A3E}
 .btn.ghost{background:var(--card);border:1px solid var(--line);color:var(--ink)}
 .btn.ghost:hover{border-color:var(--ink)}
+.colors button{display:flex;align-items:center;gap:6px;font:inherit;font-size:14px;border:1px solid var(--line);border-radius:999px;padding:5px 12px 5px 7px;background:var(--card);cursor:pointer;color:var(--ink)}
+.colors button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink);font-weight:700}
+.colors .opc{font-weight:400;color:var(--muted);font-size:13px}
+.escolha{display:grid;gap:10px}
+.escolha:empty{display:none}
+.escolha label{font-size:14px;color:var(--muted);font-weight:600}
+.escolha input{font:inherit;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%;box-sizing:border-box}
+.escolha input.erro{border-color:#B42318;box-shadow:0 0 0 1px #B42318}
+.esc-linha{display:flex;gap:10px;align-items:stretch}
+.qtd{display:flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden;flex:none}
+.qtd button{border:0;background:var(--card);width:42px;height:100%;min-height:46px;font-size:20px;cursor:pointer;color:var(--ink)}
+.qtd output{min-width:30px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
+.btn.add{flex:1;background:var(--ink);color:#fff}
+.btn.add:hover{background:#2B3038}
+.esc-ok{font-size:14px;color:var(--wa);font-weight:600;margin:0}
+.esc-ok button{font:inherit;color:inherit;background:none;border:0;text-decoration:underline;cursor:pointer;padding:0}
+.lista-bar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:40;display:flex;align-items:center;gap:12px;background:var(--ink);color:#fff;border:0;border-radius:999px;padding:10px 12px 10px 10px;font:inherit;font-weight:700;box-shadow:0 10px 30px rgba(21,24,30,.28);cursor:pointer;max-width:calc(100% - 24px)}
+.lista-bar[hidden]{display:none}
+.lb-n{background:#fff;color:var(--ink);border-radius:999px;min-width:28px;height:28px;display:grid;place-items:center;font-variant-numeric:tabular-nums}
+.lb-t{white-space:nowrap}
+.lb-go{background:var(--wa);border-radius:999px;padding:7px 14px;white-space:nowrap}
+body.tem-lista{padding-bottom:84px}
+#dLista{border:0;padding:0;border-radius:18px;width:min(560px,calc(100% - 24px));max-height:calc(100vh - 32px);background:var(--card);color:var(--ink)}
+#dLista::backdrop{background:rgba(21,24,30,.55)}
+.lista{display:grid;grid-template-rows:auto minmax(0,1fr) auto;max-height:calc(100vh - 32px)}
+.lista header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+.lista header h2{margin:0;font-size:20px}
+.l-body{overflow:auto;padding:14px 20px;display:grid;gap:14px;overscroll-behavior:contain}
+.l-itens{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.l-itens li{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px}
+.l-itens img{width:56px;height:56px;object-fit:cover;border-radius:8px;background:var(--paper)}
+.l-itens b{display:block;font-size:15px}
+.l-itens small{color:var(--muted);font-size:13px;display:block}
+.l-itens .qtd button{min-height:34px;width:34px;font-size:17px}
+.l-itens .l-rm{border:0;background:none;color:var(--muted);font-size:13px;text-decoration:underline;cursor:pointer;padding:4px 0 0}
+.l-total{display:flex;justify-content:space-between;font-size:17px;font-weight:800;padding:2px 4px}
+.l-total span{font-weight:500;color:var(--muted);font-size:14px}
+.l-campos{border:1px solid var(--line);border-radius:12px;padding:12px;margin:0;display:grid;gap:8px}
+.l-campos legend{font-size:14px;color:var(--muted);font-weight:600;padding:0 4px}
+.l-campos label,.l-rot{font-size:14px;font-weight:600}
+.l-campos input{font:inherit;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.l-chips{display:flex;gap:8px;flex-wrap:wrap}
+.l-chips button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--ink)}
+.l-chips button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lista footer{padding:14px 20px 18px;border-top:1px solid var(--line);display:grid;gap:10px}
+.l-limpar{font:inherit;font-size:14px;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;justify-self:center}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .two.one{grid-template-columns:1fr}
 
@@ -256,13 +302,37 @@ html.travado,html.travado body{overflow:hidden}
     <h2>Como encomendar</h2>
     <ol class="steps">
       <li><b>Escolha o produto</b>Anote o código da peça (ex.: N-05) e a cor que você quer. Tudo é feito sob encomenda.</li>
-      <li><b>Chame no WhatsApp</b><span id="passoWa">Toque em Pedir no produto. A mensagem já vai pronta com o código.</span></li>
+      <li><b>Chame no WhatsApp</b><span id="passoWa">Toque em Adicionar ao pedido em cada produto e envie tudo de uma vez pelo WhatsApp. A mensagem já vai pronta com os códigos, as cores e o total.</span></li>
       <li><b>Combine os detalhes</b>Nome para personalizar, cor, pagamento e entrega. O prazo de produção aparece em cada produto.</li>
     </ol>
     <div class="contacts" id="bottomContacts"></div>
   </div>
 </section>
 <footer class="wrap" id="rodape">Preços em reais, válidos para pagamento à vista. Cada peça é feita sob encomenda, então cores e tamanhos podem variar um pouco de uma peça para outra.</footer>
+
+<button class="lista-bar" type="button" id="listaBar" hidden><span class="lb-n" id="lbN">0</span><span class="lb-t" id="lbT">Seu pedido</span><span class="lb-go">Ver e enviar</span></button>
+
+<dialog id="dLista" aria-labelledby="lTit">
+  <div class="lista">
+    <header><h2 id="lTit">Seu pedido</h2><button class="close" type="button" id="lFechar" aria-label="Fechar"><svg><use href="#i-x"/></svg></button></header>
+    <div class="l-body">
+      <ul class="l-itens" id="lItens"></ul>
+      <div class="l-total" id="lTotal"></div>
+      <fieldset class="l-campos">
+        <legend>Para agilizar (opcional)</legend>
+        <label for="lNome">Seu nome</label><input id="lNome" autocomplete="name" placeholder="Como podemos te chamar">
+        <span class="l-rot">Como quer receber?</span>
+        <div class="l-chips" id="lReceber"><button type="button" data-rec="Retirar em São Caetano do Sul">Retirar</button><button type="button" data-rec="Entrega no ABC">Entrega no ABC</button><button type="button" data-rec="Envio pelos Correios">Correios</button></div>
+        <label for="lCep">CEP ou bairro (para calcular a entrega)</label><input id="lCep" inputmode="text" placeholder="Ex.: 09580-560 ou Vila Assunção, Santo André">
+      </fieldset>
+    </div>
+    <footer>
+      <div class="two" id="lEnviar"></div>
+      <button class="btn ghost" type="button" id="lMais">Continuar escolhendo</button>
+      <button class="l-limpar" type="button" id="lLimpar">Esvaziar pedido</button>
+    </footer>
+  </div>
+</dialog>
 
 <dialog id="dlg" aria-labelledby="dTitle">
   <div class="detail" tabindex="-1" autofocus>
@@ -279,6 +349,7 @@ html.travado,html.travado body{overflow:hidden}
       <p id="dDesc"></p>
       <dl class="ficha" id="dFicha"></dl>
       <div class="colors" id="dColors"></div>
+      <div class="escolha" id="dEscolha"></div>
       <div class="note" id="dNote"></div>
       <div class="actions">
         <div class="two" id="dWa"></div>
@@ -342,6 +413,14 @@ const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt
 const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
 let cat = "Todos", q = "";
 
+/* ---------- pedido com vários produtos ---------- */
+let LISTA = [];
+try{ LISTA = JSON.parse(localStorage.getItem("sp_pedido") || "[]").filter(i => i && i.id && i.qtd > 0); }catch(_){ LISTA = []; }
+const guardar = () => { try{ localStorage.setItem("sp_pedido", JSON.stringify(LISTA)); }catch(_){} };
+let sel = {cor:"", qtd:1, gravar:""};
+const linhaPedido = i => `${i.qtd}x ${i.id} ${i.nome}${i.cor ? ` (${i.cor})` : ""}${i.gravar ? `, nome "${i.gravar}"` : ""}: ${brl(i.preco * i.qtd)}`;
+const totalLista = () => LISTA.reduce((s,i) => s + i.preco * i.qtd, 0);
+const qtdLista = () => LISTA.reduce((s,i) => s + i.qtd, 0);
 const UNICO = () => CONTACTS.length === 1;
 const rotulo = c => UNICO() ? "WhatsApp" : c.name;
 function waLink(c, p){
@@ -351,7 +430,16 @@ function waLink(c, p){
     const item = `${p.id}, ${p.name} (${brl(p.price)}${p.unit?" "+p.unit:""})`;
     msg = p.status==="disponivel" ? `${oi} Vi no catálogo da StudioPrint o ${item}. Ainda tem para pronta entrega?`
         : p.status==="esgotado" ? `${oi} Vi no catálogo da StudioPrint o ${item}. Quero entrar na lista de espera.`
-        : `${oi} Vi no catálogo da StudioPrint e quero encomendar o ${item}.` + (p.custom ? `\nNome para personalizar: \nCor: ` : `\nCor: `);
+        : `${oi} Vi no catálogo da StudioPrint e quero encomendar:\n${linhaPedido({id:p.id, nome:p.name, cor:sel.cor, gravar:sel.gravar, qtd:sel.qtd, preco:p.price})}` +
+          (p.custom && !sel.gravar ? `\nNome para personalizar: ` : "") + (!sel.cor ? `\nCor: ` : "");
+  }
+  if(p === "lista"){
+    const nome = $("#lNome").value.trim(), rec = ($("#lReceber [aria-pressed='true']") || {}).dataset, cep = $("#lCep").value.trim();
+    msg = `${oi}${nome ? ` Sou ${nome}.` : ""} Vi o catálogo da StudioPrint e quero fazer este pedido:\n` +
+      LISTA.map(i => "• " + linhaPedido(i)).join("\n") +
+      `\nTotal dos produtos: ${brl(totalLista())} (sem a entrega)` +
+      (rec ? `\nComo quero receber: ${rec.rec}` : "") + (cep ? `\nCEP ou bairro: ${cep}` : "") +
+      (LISTA.some(i => i.custom && !i.gravar) ? `\nNome para personalizar: ` : "") + (LISTA.some(i => !i.cor && i.temCores) ? `\nCores: ` : "");
   }
   return `https://wa.me/${c.phone}?text=${encodeURIComponent(msg)}`;
 }
@@ -420,14 +508,15 @@ function openProduct(id, setHash){
   $("#dFicha").innerHTML = (pz ? `<div><dt>Produção</dt><dd>${pz}</dd></div>` : "") + (p.medidas ? `<div><dt>Medidas</dt><dd>${esc(p.medidas)}</dd></div>` : "");
   const cs = coresDisponiveis(p);
   $("#dAvisos").innerHTML = avisosDe(p).length ? `<h4>Antes de comprar</h4><ul>${avisosDe(p).map(a=>`<li>${esc(a.texto)}</li>`).join("")}</ul>` : "";
-  $("#dColors").innerHTML = cs.length ? `<h4>Cores</h4><ul>${cs.map(k=>`<li><span class="sw" style="background:${esc(k.hex)}"></span>${esc(k.nome)}</li>`).join("")}</ul>` : "";
+  sel = {cor: cs.length === 1 ? cs[0].nome : "", qtd:1, gravar:""};
+  $("#dColors").innerHTML = cs.length ? `<h4>Cores <span class="opc">${cs.length > 1 ? "toque para escolher" : ""}</span></h4><ul>${cs.map(k=>`<li style="border:0;padding:0"><button type="button" data-cor="${esc(k.nome)}" aria-pressed="${sel.cor===k.nome}"><span class="sw" style="background:${esc(k.hex)}"></span>${esc(k.nome)}</button></li>`).join("")}</ul>` : "";
+  desenharEscolha(p);
   $("#dNote").textContent = p.status==="encomenda"
     ? (p.custom ? "Feito sob encomenda depois que você manda o nome e as cores. Combine os detalhes e o pagamento pelo WhatsApp."
                 : "Feito sob encomenda: a peça é produzida depois do pedido, na cor que você escolher. Combine a cor e o pagamento pelo WhatsApp.")
     : p.status==="esgotado" ? "Esgotado no momento. Chame no WhatsApp para entrar na lista de espera."
     : "Pronta entrega. Chame no WhatsApp para combinar a retirada ou o envio.";
-  $("#dWa").innerHTML = CONTACTS.map(c => `<a class="btn wa" href="${waLink(c,p)}" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>${UNICO() ? "Pedir pelo WhatsApp" : `Pedir com ${c.artigo ? c.artigo+" " : ""}${esc(c.name)}`}</a>`).join("");
-  $("#dWa").classList.toggle("one", UNICO());
+  botoesWa(p);
   const url = (SITE_URL || "") + "#" + p.id.toLowerCase();
   const shareMsg = `Olha esse produto da StudioPrint: ${p.name}, ${brl(p.price)}${p.unit?" "+p.unit:""}.${SITE_URL?" "+url:""}`;
   $("#dShare").href = "https://wa.me/?text=" + encodeURIComponent(shareMsg);
@@ -458,6 +547,78 @@ slides.addEventListener("scroll", () => {
 thumbs.addEventListener("click", e => { const b=e.target.closest("[data-i]"); if(b) go(+b.dataset.i); });
 $("#prev").addEventListener("click", () => go(idx-1));
 $("#next").addEventListener("click", () => go(idx+1));
+function botoesWa(p){
+  const varios = LISTA.length > 0;
+  $("#dWa").innerHTML = CONTACTS.map(c => `<a class="btn wa" href="${waLink(c,p)}" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>${UNICO() ? (varios ? "Pedir só este pelo WhatsApp" : "Pedir pelo WhatsApp") : `Pedir com ${c.artigo ? c.artigo+" " : ""}${esc(c.name)}`}</a>`).join("");
+  $("#dWa").classList.toggle("one", UNICO());
+}
+function desenharEscolha(p, ok){
+  if(p.status === "esgotado"){ $("#dEscolha").innerHTML = ""; return; }
+  $("#dEscolha").innerHTML =
+    (p.custom ? `<div><label for="dGravar">Nome para personalizar</label><input id="dGravar" maxlength="20" placeholder="Ex.: Ana" value="${esc(sel.gravar)}"></div>` : "") +
+    `<div class="esc-linha"><div class="qtd" role="group" aria-label="Quantidade"><button type="button" data-q="-1" aria-label="Menos um">−</button><output id="dQtd">${sel.qtd}</output><button type="button" data-q="1" aria-label="Mais um">+</button></div>
+      <button class="btn add" type="button" id="dAdd">Adicionar ao pedido</button></div>` +
+    (ok ? `<p class="esc-ok" role="status">${ok} <button type="button" data-ver>Ver pedido (${qtdLista()})</button></p>` : "");
+}
+$("#dColors").addEventListener("click", e => {
+  const b = e.target.closest("[data-cor]"); if(!b || !cur) return;
+  sel.cor = sel.cor === b.dataset.cor ? "" : b.dataset.cor;
+  $("#dColors").querySelectorAll("[data-cor]").forEach(x => x.setAttribute("aria-pressed", x.dataset.cor === sel.cor));
+  botoesWa(cur);
+});
+$("#dEscolha").addEventListener("input", e => { if(e.target.id === "dGravar"){ sel.gravar = e.target.value.trim(); e.target.classList.remove("erro"); botoesWa(cur); } });
+$("#dEscolha").addEventListener("click", e => {
+  const q = e.target.closest("[data-q]");
+  if(q){ sel.qtd = Math.min(99, Math.max(1, sel.qtd + Number(q.dataset.q))); $("#dQtd").textContent = sel.qtd; botoesWa(cur); return; }
+  if(e.target.closest("[data-ver]")){ abrirLista(); return; }
+  if(e.target.closest("#dAdd")){
+    const p = cur;
+    if(p.custom && !sel.gravar){ const i = $("#dGravar"); i.classList.add("erro"); i.focus(); i.placeholder = "Digite o nome antes de adicionar"; return; }
+    const igual = LISTA.find(i => i.id === p.id && i.cor === sel.cor && i.gravar === sel.gravar);
+    if(igual) igual.qtd = Math.min(99, igual.qtd + sel.qtd);
+    else LISTA.push({id:p.id, nome:p.name, preco:Number(p.price)||0, cor:sel.cor, gravar:sel.gravar, qtd:sel.qtd, custom:p.custom, temCores:coresDisponiveis(p).length > 0, img:p.imgs[0]});
+    guardar(); atualizarBarra();
+    const txt = `Adicionado: ${sel.qtd}x ${p.name}${sel.cor ? " (" + sel.cor + ")" : ""}.`;
+    sel.gravar = ""; sel.qtd = 1;
+    desenharEscolha(p, txt); botoesWa(p);
+  }
+});
+function atualizarBarra(){
+  const n = qtdLista();
+  $("#listaBar").hidden = n === 0; document.body.classList.toggle("tem-lista", n > 0);
+  $("#lbN").textContent = n; $("#lbT").textContent = `Seu pedido: ${brl(totalLista())}`;
+}
+function desenharLista(){
+  if(!LISTA.length){ $("#lItens").innerHTML = `<li style="grid-template-columns:1fr">Seu pedido está vazio. Abra um produto e toque em Adicionar ao pedido.</li>`; $("#lTotal").innerHTML = ""; $("#lEnviar").innerHTML = ""; return; }
+  $("#lItens").innerHTML = LISTA.map((i,k) => `<li><img src="${foto(i.img, true)}" alt="">
+    <div><b>${esc(i.nome)}</b><small>${esc(i.id)}${i.cor ? " | " + esc(i.cor) : ""}${i.gravar ? ` | nome "${esc(i.gravar)}"` : ""} | ${brl(i.preco)} cada</small><button class="l-rm" type="button" data-rm="${k}">Remover</button></div>
+    <div class="qtd" role="group" aria-label="Quantidade de ${esc(i.nome)}"><button type="button" data-lq="${k}" data-d="-1" aria-label="Menos um">−</button><output>${i.qtd}</output><button type="button" data-lq="${k}" data-d="1" aria-label="Mais um">+</button></div></li>`).join("");
+  $("#lTotal").innerHTML = `Total dos produtos <b>${brl(totalLista())}</b>`;
+  $("#lTotal").insertAdjacentHTML("afterend", "");
+  $("#lEnviar").innerHTML = CONTACTS.map(c => `<a class="btn wa" href="${waLink(c, "lista")}" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>${UNICO() ? "Enviar pedido pelo WhatsApp" : `Enviar para ${c.artigo ? c.artigo+" " : ""}${esc(c.name)}`}</a>`).join("");
+  $("#lEnviar").classList.toggle("one", UNICO());
+}
+function abrirLista(){
+  desenharLista();
+  if(dlg.open) closeDlg();
+  setTimeout(() => { try{ $("#dLista").showModal(); }catch(_){ $("#dLista").setAttribute("open",""); } document.documentElement.classList.add("travado"); }, dlg.open ? 60 : 0);
+}
+function fecharLista(){ $("#dLista").close(); }
+$("#dLista").addEventListener("close", () => { if(!dlg.open) document.documentElement.classList.remove("travado"); });
+$("#listaBar").addEventListener("click", abrirLista);
+$("#lFechar").addEventListener("click", fecharLista);
+$("#lMais").addEventListener("click", fecharLista);
+$("#dLista").addEventListener("click", e => { if(e.target === $("#dLista")) fecharLista(); });
+$("#lItens").addEventListener("click", e => {
+  const q = e.target.closest("[data-lq]"), r = e.target.closest("[data-rm]");
+  if(q){ const i = LISTA[+q.dataset.lq]; i.qtd = Math.min(99, i.qtd + Number(q.dataset.d)); if(i.qtd < 1) LISTA.splice(+q.dataset.lq, 1); }
+  else if(r) LISTA.splice(+r.dataset.rm, 1);
+  else return;
+  guardar(); atualizarBarra(); desenharLista();
+});
+$("#lReceber").addEventListener("click", e => { const b = e.target.closest("[data-rec]"); if(!b) return; const on = b.getAttribute("aria-pressed") !== "true"; $("#lReceber").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", "false")); b.setAttribute("aria-pressed", on); desenharLista(); });
+["#lNome","#lCep"].forEach(s => $(s).addEventListener("input", () => { desenharLista(); }));
+$("#lLimpar").addEventListener("click", () => { if(confirm("Esvaziar o pedido? Os produtos escolhidos saem da lista.")){ LISTA = []; guardar(); atualizarBarra(); desenharLista(); } });
 function closeDlg(){
   if(!dlg.open) return;
   if(history.state && history.state.produto){ history.back(); } else dlg.close();
@@ -490,6 +651,9 @@ async function carregar(){
     const cats = [...new Set(P.map(p=>p.cat))];
     cats.sort((a,b)=>{const ia=ORDEM_CATS.indexOf(a), ib=ORDEM_CATS.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib);});
     CATS = ["Todos", ...cats];
+    /* pedido guardado: atualiza nome e preço e tira o que saiu do catálogo ou esgotou */
+    LISTA = LISTA.filter(i => { const p = P.find(x => x.id === i.id); if(!p || p.status === "esgotado") return false; i.nome = p.name; i.preco = Number(p.price)||0; i.img = p.imgs[0]; return true; });
+    guardar(); atualizarBarra();
     renderChips(); renderGrid(); fromHash();
   }catch(err){
     $("#grid").innerHTML = `<div class="empty">Não foi possível carregar os produtos agora. Atualize a página em alguns segundos.</div>`;
