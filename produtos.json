@@ -116,7 +116,7 @@
       2,
       3
     ],
-    "medidas": "7 cm de diâmetro (cerca de 8 cm com a argola). Nomes de até 10 letras."
+    "medidas": "9 cm de diâmetro e 0,5 cm de espessura (cerca de 10 cm de altura com a argola). Nomes de até 10 letras."
   },
   {
     "id": "N-06",
@@ -135,7 +135,7 @@
       2,
       3
     ],
-    "medidas": "7 cm de altura (cerca de 8 cm com a argola). Nomes de até 10 letras."
+    "medidas": "9 cm de altura e 0,5 cm de espessura (cerca de 10 cm com a argola). Nomes de até 10 letras."
   },
   {
     "id": "N-07",
@@ -155,7 +155,7 @@
       2,
       3
     ],
-    "medidas": "7 cm de diâmetro (cerca de 8 cm com a argola). Nomes de até 10 letras."
+    "medidas": "9 cm de diâmetro e 0,5 cm de espessura (cerca de 10 cm de altura com a argola). Nomes de até 10 letras."
   },
   {
     "id": "N-08",
@@ -170,7 +170,7 @@
       2,
       3
     ],
-    "medidas": "7 cm de diâmetro (cerca de 8 cm com a argola). Nomes de até 10 letras.",
+    "medidas": "9 cm de diâmetro e 0,5 cm de espessura (cerca de 10 cm de altura com a argola). Nomes de até 10 letras.",
     "fotos": [
       "37"
     ],
@@ -218,7 +218,7 @@
       2,
       3
     ],
-    "medidas": "7 cm de largura (cerca de 8 cm com a argola). Nomes de até 10 letras."
+    "medidas": "9 cm de largura e 0,5 cm de espessura (cerca de 10 cm de altura com a argola). Nomes de até 10 letras."
   },
   {
     "id": "N-10",
@@ -257,7 +257,7 @@
       2,
       3
     ],
-    "medidas": "Cada bola com 7 cm de diâmetro (cerca de 8 cm com a argola)."
+    "medidas": "Cada bola com 9 cm de diâmetro e 0,5 cm de espessura (cerca de 10 cm de altura com a argola)."
   },
   {
     "id": "N-12",
@@ -297,7 +297,7 @@
       2,
       3
     ],
-    "medidas": "7 cm de diâmetro (cerca de 8 cm com a argola). Nomes de até 10 letras."
+    "medidas": "9 cm de diâmetro (cerca de 10 cm de altura com a argola). Nomes de até 10 letras."
   },
   {
     "id": "N-14",
@@ -318,7 +318,7 @@
       2,
       3
     ],
-    "medidas": "Cada bola com 7 cm de diâmetro (cerca de 8 cm com a argola)."
+    "medidas": "Cada bola com 9 cm de diâmetro e 0,5 cm de espessura (cerca de 10 cm de altura com a argola)."
   },
   {
     "id": "P-01",
@@ -341,7 +341,8 @@
     ],
     "montagem": {
       "extra": 5
-    }
+    },
+    "medidas": "Cerca de 19 cm de altura."
   },
   {
     "id": "P-02",
@@ -363,7 +364,8 @@
     ],
     "montagem": {
       "extra": 5
-    }
+    },
+    "medidas": "Cerca de 19 cm de altura."
   },
   {
     "id": "P-03",
@@ -386,7 +388,8 @@
     ],
     "montagem": {
       "extra": 5
-    }
+    },
+    "medidas": "Cerca de 19 cm de altura."
   },
   {
     "id": "P-04",
@@ -408,7 +411,8 @@
     ],
     "montagem": {
       "extra": 5
-    }
+    },
+    "medidas": "Cerca de 19 cm de altura."
   },
   {
     "id": "P-05",
@@ -431,7 +435,8 @@
     ],
     "montagem": {
       "extra": 5
-    }
+    },
+    "medidas": "Cerca de 19 cm de altura."
   },
   {
     "id": "P-06",
@@ -454,7 +459,8 @@
     ],
     "montagem": {
       "extra": 5
-    }
+    },
+    "medidas": "Cerca de 19 cm de altura."
   },
   {
     "id": "P-07",
@@ -500,7 +506,8 @@
     ],
     "montagem": {
       "extra": 5
-    }
+    },
+    "medidas": "Cerca de 19 cm de altura."
   },
   {
     "id": "P-09",
@@ -533,7 +540,8 @@
     ],
     "montagem": {
       "extra": 5
-    }
+    },
+    "medidas": "Cerca de 19 cm de altura."
   },
   {
     "id": "P-08",
@@ -611,7 +619,8 @@
     ],
     "montagem": {
       "extra": 5
-    }
+    },
+    "medidas": "Cerca de 19 cm de altura."
   },
   {
     "id": "A-02",
@@ -642,7 +651,8 @@
     ],
     "montagem": {
       "extra": 10
-    }
+    },
+    "medidas": "Cada boneco com cerca de 19 cm de altura."
   },
   {
     "id": "D-01",
