@@ -165,15 +165,40 @@
     "personalizado": true,
     "lancamento": false,
     "descricao": "Bola com laço, ramos de azevinho e o nome em letra cursiva, em duas cores.",
-    "fotos": [
-      "37"
-    ],
-    "cores": [],
     "prazo": [
       2,
       3
     ],
-    "medidas": "7 cm de diâmetro (cerca de 8 cm com a argola). Nomes de até 10 letras."
+    "medidas": "7 cm de diâmetro (cerca de 8 cm com a argola). Nomes de até 10 letras.",
+    "fotos": [
+      "37"
+    ],
+    "cores": [
+      {
+        "nome": "Vermelho",
+        "hex": "#D7262E"
+      },
+      {
+        "nome": "Azul",
+        "hex": "#3B6FC4"
+      },
+      {
+        "nome": "Preto",
+        "hex": "#2A2A2A"
+      },
+      {
+        "nome": "Branco",
+        "hex": "#F4F4F4"
+      },
+      {
+        "nome": "Rosa",
+        "hex": "#F08FC0"
+      },
+      {
+        "nome": "Amarelo",
+        "hex": "#F4C51C"
+      }
+    ]
   },
   {
     "id": "N-09",
