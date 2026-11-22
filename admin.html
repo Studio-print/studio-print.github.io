@@ -219,6 +219,51 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 #dPed .body{gap:16px;padding:20px 24px}
 dialog .body{overscroll-behavior:contain}
 @media (max-width:640px){#dPed{width:100%;max-width:100%}#dPed footer .btn{flex:1 1 auto}.ig{grid-template-columns:1fr 1fr}.totais{grid-template-columns:repeat(2,minmax(0,1fr))}.totais .tot{grid-column:1/-1}.pcard{padding:14px 16px}.pst{margin-left:0}.stsel{margin-right:0;width:100%}.stsel .in{width:100%}#dPed .body{padding:14px}.fr{grid-template-columns:1fr 90px auto}}
+.passos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:12px 20px;border-bottom:1px solid var(--line);background:#FAFBFC}
+.passos button{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;cursor:pointer;text-align:left;font-weight:600;font-size:14px;color:var(--muted);min-width:0}
+.passos .n{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;border:1.5px solid currentColor;font-size:13px}
+.passos .l{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.passos button.atual{border-color:var(--ink);color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.passos button.atual .n{background:var(--ink);border-color:var(--ink);color:#fff}
+.passos button.feito{color:var(--ink)}
+.passos button.feito .n{background:var(--wa);border-color:var(--wa);color:#fff;font-size:0}
+.passos button.feito .n::after{content:"✓";font-size:14px}
+.passos button.alerta{color:var(--danger);border-color:#E8A39C}
+.passos button:disabled{opacity:.45;cursor:not-allowed}
+.pdbar{padding:10px 20px;border-top:1px solid var(--line);background:#FAFBFC}
+.pdbar .totais div{background:#fff;padding:6px 10px}
+.resumo{display:grid;gap:10px}
+.resumo .rb{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.resumo .rt{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.resumo p{margin:0;color:#2B3038}
+.resumo ul{margin:0;padding-left:18px;color:#2B3038;display:grid;gap:2px}
+.resumo li span{color:var(--muted);margin-left:6px}
+.ravisos{border:1px solid #E8A39C;background:#FFF5F4;border-radius:10px;padding:10px 12px;display:grid;gap:4px}
+.ravisos p{margin:0;color:var(--danger);font-weight:600;font-size:14px}
+.viewsw{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.viewsw button{border:0;background:none;padding:10px 14px;font-weight:600;cursor:pointer;color:var(--muted)}
+.viewsw button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.ptabs{display:flex;gap:2px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:14px;scrollbar-width:thin}
+.ptab{flex:none;border:0;background:none;padding:10px 14px;font-weight:650;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px;cursor:pointer;display:flex;gap:6px;align-items:center}
+.ptab span{font-weight:600;font-size:12px;background:#E6E8EC;color:var(--muted);border-radius:999px;padding:1px 7px;font-variant-numeric:tabular-nums}
+.ptab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.ptab[aria-selected="true"] span{background:var(--ink);color:#fff}
+.ptab.bad span{background:#FBE3E1;color:var(--danger)}
+.quadro{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(230px,1fr);gap:12px;overflow-x:auto;padding-bottom:8px;align-items:start}
+.quadro .col{background:#E4E7EC;border-radius:14px;padding:10px;display:grid;gap:10px;min-height:120px;align-content:start}
+.quadro .col header{display:flex;justify-content:space-between;align-items:center;padding:2px 4px}
+.quadro .col header span{background:#fff;border-radius:999px;padding:1px 8px;font-size:13px;font-weight:700}
+.qcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px;cursor:pointer}
+.qcard:hover{border-color:var(--ink)}
+.qcard.late{box-shadow:inset 3px 0 0 var(--danger)}
+.qcard .qh{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.qcard .qi{font-size:14px;color:#2B3038}
+.qcard .qm{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);font-weight:600}
+.qcard .qm span:last-child{white-space:nowrap}
+.qcard .qm .bad{color:var(--danger)}
+.qcard .avancar{padding:8px 10px;font-size:14px}
+.vazio{margin:4px;color:var(--muted);font-size:14px}
+@media (max-width:640px){.passos{display:flex;padding:10px 14px;gap:4px}.passos button{flex:none;width:40px;justify-content:center;padding:7px 0}.passos .l{display:none}.passos button.atual{flex:1;width:auto;justify-content:flex-start;padding:7px 10px}.passos button.atual .l{display:inline}.pdbar .totais{display:flex;gap:6px;overflow-x:auto}.pdbar .totais div{flex:1 0 auto;padding:4px 10px}.pdbar .totais div:nth-child(1),.pdbar .totais div:nth-child(2){display:none}.quadro{grid-auto-columns:86%;scroll-snap-type:x mandatory}.quadro .col{scroll-snap-align:start}.pdbar{padding:8px 14px}}
 .toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;z-index:50;max-width:calc(100vw - 32px);box-shadow:0 10px 30px rgba(0,0,0,.25)}
 .toast.bad{background:var(--danger)}
 .conf p{margin:0;padding:20px;color:#353B46}
@@ -321,11 +366,13 @@ dialog .body{overscroll-behavior:contain}
       <div class="tools">
         <button class="btn primary" type="button" id="pedNovo">Novo pedido</button>
         <input class="in" type="search" id="pedBusca" placeholder="Buscar cliente, número ou produto" aria-label="Buscar pedidos">
+        <div class="viewsw" role="group" aria-label="Modo de ver"><button type="button" data-view="lista">Lista</button><button type="button" data-view="quadro">Quadro</button></div>
         <button class="btn" type="button" id="pedCsv">Baixar planilha</button>
         <span class="count" id="pedSalvando" hidden><span class="busy"><span class="spin"></span>Salvando…</span></span>
       </div>
-      <div class="pchips" id="pedFiltros"></div>
+      <div class="ptabs" id="pedFiltros" role="tablist" aria-label="Etapas dos pedidos"></div>
       <div id="pedLista"></div>
+      <div class="quadro" id="pedQuadro" hidden></div>
     </div>
     <p class="count" id="pedMsg"></p>
   </section>
@@ -452,8 +499,15 @@ dialog .body{overscroll-behavior:contain}
 <dialog id="dPed" aria-labelledby="pdTit">
   <form class="ed" id="fPed" novalidate>
     <header><h2 id="pdTit">Pedido</h2><button class="btn icon" type="button" data-pdclose aria-label="Fechar"><svg><use href="#i-x"/></svg></button></header>
+    <nav class="passos" id="pdPassos" aria-label="Passos do pedido">
+      <button type="button" data-ir="1"><span class="n">1</span><span class="l">Cliente</span></button>
+      <button type="button" data-ir="2"><span class="n">2</span><span class="l">Itens</span></button>
+      <button type="button" data-ir="3"><span class="n">3</span><span class="l">Entrega</span></button>
+      <button type="button" data-ir="4"><span class="n">4</span><span class="l">Pagamento</span></button>
+      <button type="button" data-ir="5"><span class="n">5</span><span class="l">Conferir e salvar</span></button>
+    </nav>
     <div class="body">
-      <section class="sec">
+      <section class="sec" data-passo="1">
         <h4>Cliente</h4>
         <div class="g2">
           <div><label class="f" for="pdNome">Nome</label><input class="in" id="pdNome" list="pdClientes" autocomplete="off" placeholder="Nome do cliente"><datalist id="pdClientes"></datalist></div>
@@ -464,13 +518,13 @@ dialog .body{overscroll-behavior:contain}
         <p class="hint" id="pdClienteAviso" aria-live="polite"></p>
         <p class="hint" style="margin:0">Cliente que já comprou: escolha o nome na lista e o resto preenche sozinho.</p>
       </section>
-      <section class="sec">
+      <section class="sec" data-passo="2" hidden>
         <h4>Itens</h4>
         <div class="buscap"><input class="in" type="search" id="pdBuscaProd" placeholder="Buscar produto" aria-label="Buscar produto"><button class="btn" type="button" id="pdAvulso">Item avulso</button></div>
         <div class="catalogo" id="pdCatalogo"></div>
         <div id="pdItens" class="itens"></div>
       </section>
-      <section class="sec">
+      <section class="sec" data-passo="3" hidden>
         <h4>Entrega</h4>
         <div class="chips" id="pdEntregas"></div>
         <div class="g2">
@@ -478,17 +532,18 @@ dialog .body{overscroll-behavior:contain}
           <div id="pdRastreioBox"><label class="f" for="pdRastreio">Código de rastreio</label><input class="in" id="pdRastreio"></div>
         </div>
       </section>
-      <section class="sec">
+      <section class="sec" data-passo="4" hidden>
         <h4>Pagamento</h4>
         <div class="g2">
           <div><label class="f" for="pdForma">Forma</label><select class="in" id="pdForma"><option>Pix</option><option>Dinheiro</option><option>Cartão de crédito</option><option>Cartão de débito</option><option>Transferência</option></select></div>
           <div><label class="f" for="pdPago">Já pago (R$)</label><input class="in" id="pdPago" inputmode="decimal" placeholder="0"></div>
         </div>
         <div class="chips" id="pdPagos"><button type="button" class="chip" data-pg="0">Nada pago</button><button type="button" class="chip" data-pg="50">Pagou o sinal (50%)</button><button type="button" class="chip" data-pg="100">Pagou tudo</button></div>
-        <div class="totais" id="pdTotais"></div>
       </section>
-      <section class="sec">
-        <h4>Andamento</h4>
+      <section class="sec" data-passo="5" hidden>
+        <h4>Confira o pedido</h4>
+        <div class="resumo" id="pdResumo"></div>
+        <h4 style="margin-top:6px">Andamento</h4>
         <div class="g2">
           <div><label class="f" for="pdStatus">Situação</label><select class="in" id="pdStatus"></select></div>
           <div><label class="f" for="pdResp">Quem atende</label><select class="in" id="pdResp"></select></div>
@@ -500,13 +555,15 @@ dialog .body{overscroll-behavior:contain}
       </section>
       <div class="err" id="pdErr" role="alert"></div>
     </div>
+    <div class="pdbar"><div class="totais" id="pdTotais"></div></div>
     <footer>
       <button class="btn danger" type="button" id="pdExcluir">Excluir</button>
       <button class="btn" type="button" id="pdRepetir">Repetir pedido</button>
       <button class="btn" type="button" id="pdWa">Mensagem no WhatsApp</button>
       <span style="flex:1"></span>
-      <button class="btn" type="button" data-pdclose>Cancelar</button>
-      <button class="btn primary" type="submit" id="pdSalvar" title="Atalho: Ctrl + Enter">Salvar pedido</button>
+      <button class="btn" type="button" id="pdVoltar">Voltar</button>
+      <button class="btn" type="button" id="pdProx">Próximo</button>
+      <button class="btn primary" type="button" id="pdSalvar" title="Atalho: Ctrl + Enter">Salvar pedido</button>
     </footer>
   </form>
 </dialog>
@@ -1108,7 +1165,11 @@ function renderPedidos(){
     <div><b>${brl(receber)}</b><span>a receber</span></div>
     <div><b>${brl(doMes.reduce((s,p) => s + totais(p).total, 0))}</b><span>vendido em ${meses[+mes.slice(5,7)-1]} (${doMes.length} pedido${doMes.length===1?"":"s"})</span></div>`;
   const filtros = [["abertos","Em aberto", abertos.length], ["atrasados","Atrasados", atrasados.length], ...ST_PED.map(([k,l]) => [k, l, pedidos.filter(p => p.status === k).length]), ["todos","Todos", pedidos.length]];
-  $("#pedFiltros").innerHTML = filtros.map(([k,l,n]) => `<button type="button" class="chip" aria-pressed="${pedFiltro===k}" data-pf="${k}">${l} <span>${n}</span></button>`).join("");
+  $("#pedFiltros").innerHTML = filtros.map(([k,l,n]) => `<button type="button" role="tab" class="ptab${k==="atrasados" && n ? " bad" : ""}" aria-selected="${pedFiltro===k}" data-pf="${k}">${l}<span>${n}</span></button>`).join("");
+  const vista = lembrar("sp_vista") || "lista";
+  document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === vista));
+  $("#pedFiltros").hidden = vista === "quadro"; $("#pedLista").hidden = vista === "quadro"; $("#pedQuadro").hidden = vista !== "quadro";
+  if(vista === "quadro"){ desenharQuadro(); return; }
   const q = $("#pedBusca").value.trim().toLowerCase();
   let lista = pedidos.filter(p => pedFiltro === "todos" || (pedFiltro === "abertos" ? !FECHADOS.includes(p.status) : pedFiltro === "atrasados" ? atrasado(p) : p.status === pedFiltro));
   if(q) lista = lista.filter(p => [p.id, p.cliente && p.cliente.nome, p.cliente && p.cliente.whatsapp, resumoItens(p)].join(" ").toLowerCase().includes(q));
@@ -1143,6 +1204,36 @@ function renderPedidos(){
       </footer></article>`; }).join("")
     : `<p class="count">${pedidos.length ? "Nenhum pedido neste filtro." : "Nenhum pedido ainda. Toque em Novo pedido para cadastrar o primeiro."}</p>`;
 }
+const COLUNAS = ["novo","fila","imprimindo","pronto","enviado"];
+const PROXIMO = {novo:"fila", fila:"imprimindo", imprimindo:"pronto", pronto:"enviado", enviado:"entregue"};
+function desenharQuadro(){
+  const q = $("#pedBusca").value.trim().toLowerCase();
+  const ok = p => !q || [p.id, p.cliente && p.cliente.nome, p.cliente && p.cliente.whatsapp, resumoItens(p)].join(" ").toLowerCase().includes(q);
+  $("#pedQuadro").innerHTML = COLUNAS.map(st => {
+    const ps = pedidos.filter(p => p.status === st && ok(p)).sort((a,b) => (a.prazo || "9999").localeCompare(b.prazo || "9999"));
+    return `<section class="col"><header><b>${ST_LABEL[st]}</b><span>${ps.length}</span></header>
+      ${ps.map(p => { const t = totais(p), late = atrasado(p);
+        return `<article class="qcard${late ? " late" : ""}" data-qped="${esc(p.id)}" tabindex="0">
+          <div class="qh"><span class="pid">${esc(p.id)}</span><b>${esc(p.cliente && p.cliente.nome || "Sem nome")}</b></div>
+          <div class="qi">${esc(resumoItens(p))}</div>
+          <div class="qm"><span class="${late ? "bad" : ""}">${p.prazo ? "Prazo " + dataCurta(p.prazo) + (late ? " (atrasado)" : "") : "Sem prazo"}</span><span>${t.saldo > 0 ? "Falta " + brl(t.saldo) : "Pago"}</span></div>
+          <button class="btn avancar" type="button" data-avancar="${esc(p.id)}">Mover para ${ST_LABEL[PROXIMO[st]]}</button>
+        </article>`; }).join("") || `<p class="vazio">Nenhum pedido</p>`}
+    </section>`; }).join("");
+}
+$("#pedQuadro").addEventListener("click", async e => {
+  const b = e.target.closest("[data-avancar]");
+  if(b){
+    const p = JSON.parse(JSON.stringify(pedidos.find(x => x.id === b.dataset.avancar)));
+    p.status = PROXIMO[p.status]; p.historico = [...(p.historico||[]), {quando:new Date().toISOString(), status:p.status}];
+    b.disabled = true;
+    if(await gravarPedidos(upsert(p), `Pedido ${p.id}: ${ST_LABEL[p.status]}`)) aviso(`Pedido ${p.id}: ${ST_LABEL[p.status]}.`);
+    return;
+  }
+  const c = e.target.closest("[data-qped]"); if(c) abrirPedido(c.dataset.qped);
+});
+$("#pedQuadro").addEventListener("keydown", e => { if(e.key === "Enter"){ const c = e.target.closest("[data-qped]"); if(c && !e.target.closest("button")) abrirPedido(c.dataset.qped); } });
+document.querySelectorAll("[data-view]").forEach(b => b.addEventListener("click", () => { lembrar("sp_vista", b.dataset.view); renderPedidos(); }));
 $("#pedFiltros").addEventListener("click", e => { const b = e.target.closest("[data-pf]"); if(b){ pedFiltro = b.dataset.pf; renderPedidos(); } });
 $("#pedBusca").addEventListener("input", renderPedidos);
 $("#pedLista").addEventListener("change", async e => {
@@ -1212,9 +1303,75 @@ function abrirPedido(id, repetirDe){
   set("#pdPago", valorBR(edPed.pagamento.pago)); set("#pdObs", edPed.obs); $("#pdBuscaProd").value = "";
   $("#pdErr").textContent = ""; $("#pdClienteAviso").textContent = "";
   desenharCatalogo(); desenharItens(); desenharEntrega(); atualizarTotais();
-  $("#dPed").showModal(); $("#dPed .body").scrollTop = 0;
-  if(!base) setTimeout(() => $("#pdNome").focus(), 50);
+  ehNovo = !base; maxVisto = ehNovo ? 1 : 5;
+  $("#dPed").showModal();
+  mostrarPasso(ehNovo ? 1 : 5);
 }
+/* passo a passo */
+let passo = 1, maxVisto = 1, ehNovo = true;
+const PASSOS = ["Cliente","Itens","Entrega","Pagamento","Conferir e salvar"];
+function checarPasso(n){
+  if(n === 1 && !$("#pdNome").value.trim()) return "Preencha o nome do cliente para continuar.";
+  if(n === 2){
+    const it = edPed.itens.filter(i => (i.nome||"").trim());
+    if(!it.length) return "Adicione pelo menos um item para continuar.";
+    if(it.some(i => !(i.qtd > 0))) return "A quantidade de cada item precisa ser 1 ou mais.";
+  }
+  return "";
+}
+function irPasso(n){
+  if(n === passo) return;
+  if(n > passo){
+    if(ehNovo && n > maxVisto + 1) n = maxVisto + 1;
+    for(let s = passo; s < n; s++){ const e = checarPasso(s); if(e){ mostrarPasso(s); $("#pdErr").textContent = e; return; } }
+  }
+  mostrarPasso(n);
+}
+function mostrarPasso(n){
+  passo = n; maxVisto = Math.max(maxVisto, n);
+  $("#pdErr").textContent = "";
+  document.querySelectorAll("#fPed [data-passo]").forEach(sec => sec.hidden = +sec.dataset.passo !== n);
+  document.querySelectorAll("#pdPassos [data-ir]").forEach(b => {
+    const i = +b.dataset.ir;
+    b.classList.toggle("atual", i === n);
+    b.classList.toggle("feito", i !== n && i <= maxVisto && !checarPasso(i));
+    b.classList.toggle("alerta", i !== n && i <= maxVisto && !!checarPasso(i));
+    b.disabled = ehNovo && i > maxVisto + 1;
+    if(i === n) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+  });
+  $("#pdWa").hidden = ehNovo && n < 5;
+  $("#pdVoltar").hidden = n === 1;
+  $("#pdProx").hidden = n === 5;
+  $("#pdProx").textContent = n < 5 ? `Próximo: ${PASSOS[n]}` : "";
+  $("#pdProx").classList.toggle("primary", ehNovo);
+  $("#pdSalvar").hidden = ehNovo && n < 5;
+  $("#pdSalvar").textContent = ehNovo ? "Salvar pedido" : "Salvar alterações";
+  if(n === 5) desenharResumo();
+  $("#dPed .body").scrollTop = 0;
+  setTimeout(() => { const f = n === 1 ? $("#pdNome") : n === 2 ? $("#pdBuscaProd") : null; if(f && ehNovo) f.focus(); }, 30);
+}
+$("#pdPassos").addEventListener("click", e => { const b = e.target.closest("[data-ir]"); if(b && !b.disabled) irPasso(+b.dataset.ir); });
+$("#pdProx").addEventListener("click", () => irPasso(passo + 1));
+$("#pdVoltar").addEventListener("click", () => mostrarPasso(passo - 1));
+$("#pdSalvar").addEventListener("click", () => salvarPedido());
+function desenharResumo(){
+  const nome = $("#pdNome").value.trim(), fone = $("#pdFone").value.replace(/\D/g,""), cid = $("#pdCidade").value.trim();
+  const it = edPed.itens.filter(i => (i.nome||"").trim());
+  const t = totaisForm(), ent = edPed.entrega;
+  const avisos = [];
+  if(!fone) avisos.push("Sem WhatsApp: não vai dar para mandar as mensagens prontas.");
+  if(it.some(i => !(Number(i.preco) > 0))) avisos.push("Tem item com preço R$ 0.");
+  if(["abc","correios","app"].includes(ent.tipo) && !(num($("#pdFrete").value) > 0)) avisos.push("A entrega está sem valor.");
+  if(ent.tipo === "abc" && !$("#pdEnd").value.trim()) avisos.push("Entrega própria sem endereço.");
+  const bloco = (n, titulo, html) => `<div class="rb"><div class="rt"><b>${titulo}</b><button type="button" class="link" data-ir="${n}">Alterar</button></div>${html}</div>`;
+  $("#pdResumo").innerHTML =
+    (avisos.length ? `<div class="ravisos">${avisos.map(a => `<p>${esc(a)}</p>`).join("")}</div>` : "") +
+    bloco(1, "Cliente", `<p>${esc(nome)}${fone ? " | " + esc(fone) : ""}${cid ? " | " + esc(cid) : ""}</p>`) +
+    bloco(2, "Itens", `<ul>${it.map(i => `<li>${esc(linhaItem(i))} <span>${brl((Number(i.qtd)||0) * (Number(i.preco)||0))}</span></li>`).join("")}</ul>`) +
+    bloco(3, "Entrega", `<p>${ENTREGA[ent.tipo] || "A combinar"}${ent.local ? " | " + esc(ent.local) : ""} | ${brl(t.frete)}</p>`) +
+    bloco(4, "Pagamento", `<p>${esc($("#pdForma").value)} | pago ${brl(t.pago)} | ${t.saldo > 0 ? "falta " + brl(t.saldo) : "quitado"}</p>`);
+}
+$("#pdResumo").addEventListener("click", e => { const b = e.target.closest("[data-ir]"); if(b) mostrarPasso(+b.dataset.ir); });
 /* cliente que já comprou */
 function preencherCliente(c, porQue){
   let mudou = false;
@@ -1311,7 +1468,7 @@ function totaisForm(){ const tmp = JSON.parse(JSON.stringify(edPed)); tmp.entreg
 function atualizarTotais(){
   if(!edPed) return;
   const t = totaisForm();
-  $("#pdTotais").innerHTML = `<div><i>Itens</i>${brl(t.itens)}</div><div><i>Entrega</i>${brl(t.frete)}</div><div class="tot"><i>Total</i>${brl(t.total)}</div><div><i>Pago</i>${brl(t.pago)}</div><div class="${t.saldo > 0 ? "falta" : ""}"><i>${t.saldo > 0 ? "Falta" : t.saldo < 0 ? "Crédito" : "Situação"}</i>${t.saldo > 0 ? brl(t.saldo) : t.saldo < 0 ? brl(-t.saldo) : "Quitado"}</div>`;
+  $("#pdTotais").innerHTML = `<div><i>Itens</i>${brl(t.itens)}</div><div><i>Entrega</i>${brl(t.frete)}</div><div class="tot"><i>Total</i>${brl(t.total)}</div><div><i>Pago</i>${brl(t.pago)}</div><div class="${t.saldo > 0 ? "falta" : ""}"><i>${t.saldo > 0 ? "Falta" : t.saldo < 0 ? "Crédito" : "Situação"}</i>${t.saldo > 0 ? brl(t.saldo) : t.saldo < 0 ? brl(-t.saldo) : t.total > 0 ? "Quitado" : "-"}</div>`;
 }
 function lerFormPedido(){
   edPed.cliente = {nome:$("#pdNome").value.trim(), whatsapp:$("#pdFone").value.replace(/\D/g,""), cidade:$("#pdCidade").value.trim(), endereco:$("#pdEnd").value.trim()};
@@ -1327,7 +1484,7 @@ async function salvarPedido(){
   edPed.itens = edPed.itens.filter(i => (i.nome||"").trim());
   const erro = !edPed.cliente.nome ? "Preencha o nome do cliente." : !edPed.itens.length ? "Adicione pelo menos um item."
     : edPed.itens.some(i => !(i.qtd > 0)) ? "A quantidade de cada item precisa ser 1 ou mais." : "";
-  if(erro){ $("#pdErr").textContent = erro; desenharItens(); return; }
+  if(erro){ desenharItens(); mostrarPasso(!edPed.cliente.nome ? 1 : 2); $("#pdErr").textContent = erro; return; }
   const novo = !pedidos.some(p => p.id === edPed.id);
   if(novo && !edPed.historico.length) edPed.historico = [{quando:new Date().toISOString(), status:edPed.status}];
   if(edPed.responsavel) lembrar("sp_resp", edPed.responsavel);
@@ -1336,8 +1493,14 @@ async function salvarPedido(){
   b.disabled = false;
   if(ok){ $("#dPed").close(); aviso(novo ? `Pedido ${edPed.id} salvo.` : `Pedido ${edPed.id} atualizado.`); }
 }
-$("#fPed").addEventListener("submit", e => { e.preventDefault(); salvarPedido(); });
-$("#dPed").addEventListener("keydown", e => { if(e.key === "Enter" && (e.ctrlKey || e.metaKey)){ e.preventDefault(); salvarPedido(); } });
+$("#fPed").addEventListener("submit", e => { e.preventDefault(); if(ehNovo && passo < 5) irPasso(passo + 1); else salvarPedido(); });
+$("#fPed").addEventListener("keydown", e => {
+  const t = e.target;
+  if(e.key !== "Enter" || e.ctrlKey || e.metaKey || e.shiftKey || e.isComposing) return;
+  if(!t.matches("input.in") || t.type === "search" || t.closest(".itens")) return;
+  e.preventDefault(); if(ehNovo && passo < 5) irPasso(passo + 1); else salvarPedido();
+});
+$("#dPed").addEventListener("keydown", e => { if(e.key === "Enter" && (e.ctrlKey || e.metaKey)){ e.preventDefault(); if(ehNovo && passo < 5) irPasso(passo + 1); else salvarPedido(); } });
 $("#pdExcluir").addEventListener("click", async () => {
   if(!(await confirmar(`Excluir o pedido ${edPed.id}?`, "Ele some da lista para sempre. Se o cliente só desistiu, prefira mudar a situação para Cancelado.", "Excluir"))) return;
   const id = edPed.id;
