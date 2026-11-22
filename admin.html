@@ -147,6 +147,21 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .kpis span{color:var(--muted);font-size:13px}
 .kpis .alerta{border-color:var(--danger)}
 .kpis .alerta b{color:var(--danger)}
+.hoje{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.hoje > h3{margin:0 0 10px;font-size:17px}.hoje > h3 span{color:var(--muted);font-weight:500;font-size:14px;margin-left:6px}
+.hoje .hg{display:grid;gap:16px 32px}
+@media (min-width:860px){.hoje .hg{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"prazos fila" "sinal fila" "receber fila";align-items:start}
+  .hoje .h-prazos{grid-area:prazos}.hoje .h-sinal{grid-area:sinal}.hoje .h-receber{grid-area:receber}.hoje .fila{grid-area:fila;border-left:1px solid var(--line);padding-left:32px;margin-left:-16px}}
+.hoje h4{margin:0 0 6px;font-size:14px}
+.hoje ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.hoje li button{all:unset;cursor:pointer;display:flex;gap:8px;align-items:baseline;width:100%;padding:3px 6px;margin:0 -6px;border-radius:6px;font-size:14px}
+.hoje li button:hover{background:var(--paper)}.hoje li button:focus-visible{outline:3px solid var(--accent)}
+.hoje li .pid{flex:none;color:var(--muted)}.hoje li .nm{flex:1 1 6em;min-width:6em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hoje li .q{margin-left:auto;flex:0 1 auto;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.hoje .fila ul{margin-bottom:8px}
+.hoje li.bad .q{color:var(--danger);font-weight:700}.hoje li.forte .q{color:var(--ink);font-weight:700}
+.hoje .vz{color:var(--muted);font-size:14px;margin:0}
+.hoje .fila p{margin:0 0 6px;font-size:14px;color:#2B3038}.hoje .fila .big{font-size:20px;font-weight:800;font-variation-settings:"wdth" 110;color:var(--ink)}
+.hoje .fila .warn{color:var(--danger);font-weight:600}
 .pchips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px}
 .pchips .chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font-weight:600;font-size:14px;cursor:pointer}
 .pchips .chip span{color:var(--muted);font-weight:500;margin-left:4px}
@@ -421,6 +436,7 @@ dialog .body{overscroll-behavior:contain}
     </div>
     <div id="pedApp" hidden>
       <div class="kpis" id="pedKpis"></div>
+      <section class="hoje" id="pedHoje" aria-labelledby="hojeTit"></section>
       <div class="tools">
         <button class="btn primary" type="button" id="pedNovo">Novo pedido</button>
         <button class="btn" type="button" id="pedColar">Colar pedido do WhatsApp</button>
@@ -529,6 +545,10 @@ dialog .body{overscroll-behavior:contain}
         <h3>Custos dos produtos</h3>
         <p>Usados para calcular o lucro no relatório. Vêm da sua planilha de precificação e ficam só no repositório privado, junto com os pedidos: os clientes não veem.</p>
         <p class="hint" id="cuInfo">Carregando…</p>
+        <h4 style="margin:8px 0 0">Capacidade de produção</h4>
+        <p class="hint" style="margin:0">Usada na fila de impressão da tela de pedidos para prever quando cada pedido fica pronto.</p>
+        <div class="g2" style="max-width:420px"><div><label class="f" for="capImp">Impressoras</label><input class="in" id="capImp" inputmode="numeric"></div><div><label class="f" for="capHoras">Horas de impressão por dia (cada uma)</label><input class="in" id="capHoras" inputmode="decimal"></div></div>
+        <div class="aj-acts"><button class="btn" type="button" id="bCap">Salvar capacidade</button></div>
         <div class="aj-acts"><label class="btn">Importar da planilha de precificação<input type="file" id="cuArq" accept=".xlsx" hidden></label></div>
       </div>
       <div class="card aj">
@@ -1447,6 +1467,8 @@ async function gravarCustos(novo){
   }
 }
 function renderCustos(){
+  if($("#capImp") && document.activeElement !== $("#capImp") && document.activeElement !== $("#capHoras")) mostrarCap();
+  if(pedPronto) renderHoje();
   const n = Object.keys(custos.itens || {}).length, sem = produtos.filter(p => !custoDe(p.id));
   if(!$("#cuInfo")) return;
   $("#cuInfo").textContent = n ? `${n} produto${n > 1 ? "s" : ""} com custo${custos.atualizado ? ", atualizado em " + dataBR(custos.atualizado) : ""}. Taxa de cartão: ${Math.round((custos.taxaCartao || 0) * 1000) / 10}%.` + (sem.length ? ` Sem custo: ${sem.map(p => p.id).join(", ")}.` : "") : "Nenhum custo cadastrado ainda. Importe da planilha de precificação.";
@@ -1512,6 +1534,8 @@ async function importarCustos(arq){
         const total = num(cel(cols.total)), mat = num(cel(cols.mat)), emb = num(cel(cols.emb)) || 0;
         if(total === null || mat === null) return;
         itens[id] = {total: cent(total), material: cent(mat + emb)}; lidos.push(id);
+        if(cols.imp && num(cel(cols.imp)) !== null) itens[id].horas = num(cel(cols.imp));
+        if(cols.mont && num(cel(cols.mont)) !== null) itens[id].montagem = num(cel(cols.mont));
         const temPar = ["kg","kwh","kw","desg","mao","perda"].every(k => par[k] !== undefined) && cols.peso && cols.imp && cols.mont;
         if(temPar){
           const peso = num(cel(cols.peso)) || 0, imp = num(cel(cols.imp)) || 0, mont = num(cel(cols.mont)) || 0, troca = num(cel(cols.troca)) || 0, f = 1 + par.perda;
@@ -1525,7 +1549,7 @@ async function importarCustos(arq){
     if(!cab || !cols.total || !cols.mat) throw new Error('Não achei as colunas "Código", "Custo total" e "Material" na planilha. Use a planilha Precificação StudioPrint.xlsx.');
     if(!lidos.length) throw new Error("A planilha não tem custos calculados. Abra no Excel, salve e tente de novo.");
     const noSite = new Set(produtos.map(p => p.id)), fora = lidos.filter(id => !noSite.has(id)), sem = produtos.filter(p => !itens[p.id]).map(p => p.id);
-    const novo = {itens, taxaCartao: taxa !== null ? taxa : (custos.taxaCartao ?? 0.05), atualizado: hojeISO()};
+    const novo = {...custos, itens, taxaCartao: taxa !== null ? taxa : (custos.taxaCartao ?? 0.05), atualizado: hojeISO()};
     const det = `${lidos.length} produtos com custo${nPartes ? ", separado em filamento, luz, desgaste da impressora, embalagem e mão de obra" : ""}. Taxa de cartão: ${Math.round(novo.taxaCartao * 1000) / 10}%.` + (sem.length ? `\nNo catálogo sem custo na planilha: ${sem.join(", ")}.` : "") + (fora.length ? `\nNa planilha mas não no catálogo: ${fora.join(", ")}.` : "") + "\nOs custos ficam só no repositório privado: os clientes não veem.";
     if(!(await confirmar("Atualizar os custos dos produtos?", det, "Atualizar custos"))) return;
     if(await gravarCustos(novo)) aviso("Custos atualizados.");
@@ -1568,6 +1592,7 @@ function renderPedidos(){
     <div class="${atrasados.length ? "alerta" : ""}"><b>${atrasados.length}</b><span>atrasado${atrasados.length===1?"":"s"}</span></div>
     <div><b>${brl(receber)}</b><span>a receber</span></div>
     <div><b>${brl(doMes.reduce((s,p) => s + totais(p).total, 0))}</b><span>vendido em ${meses[+mes.slice(5,7)-1]} (${doMes.length} pedido${doMes.length===1?"":"s"})</span></div>`;
+  renderHoje();
   const filtros = [["abertos","Em aberto", abertos.length], ["atrasados","Atrasados", atrasados.length], ...ST_PED.map(([k,l]) => [k, l, pedidos.filter(p => p.status === k).length]), ["todos","Todos", pedidos.length]];
   $("#pedFiltros").innerHTML = filtros.map(([k,l,n]) => `<button type="button" role="tab" class="ptab${k==="atrasados" && n ? " bad" : ""}" aria-selected="${pedFiltro===k}" data-pf="${k}">${l}<span>${n}</span></button>`).join("");
   const vista = lembrar("sp_vista") || "lista";
@@ -1607,6 +1632,69 @@ function renderPedidos(){
       </div></div></article>`; }).join("")
     : `<p class="count">${pedidos.length ? "Nenhum pedido neste filtro." : "Nenhum pedido ainda. Toque em Novo pedido para cadastrar o primeiro."}</p>`;
 }
+
+/* ---------- hoje e fila de impressão ---------- */
+const DIAS_SEM = ["domingo","segunda","terça","quarta","quinta","sexta","sábado"];
+const capacidade = () => ({impressoras: 1, horasDia: 12, ...(custos.capacidade || {})});
+function horasPedido(p){
+  let imp = 0, mont = 0; const sem = [];
+  (p.itens || []).forEach(i => { const c = i.produto && i.produto !== "__outro" ? custoDe(i.produto) : null, q = Number(i.qtd) || 0;
+    if(c && c.horas != null){ imp += q * c.horas; mont += q * (c.montagem || 0); } else if(q) sem.push(i.nome || "item"); });
+  return {imp, mont, sem};
+}
+const fmtH = h => { const t = Math.round(h * 10) / 10; return (t >= 10 ? Math.round(t) : String(t).replace(".", ",")) + " h"; };
+function filaImpressao(){
+  const cap = capacidade(), porDia = Math.max(0.5, (Number(cap.impressoras) || 1) * (Number(cap.horasDia) || 12));
+  const fila = pedidos.filter(p => p.status === "fila" || p.status === "imprimindo")
+    .sort((a, b) => (a.prazo || "9999").localeCompare(b.prazo || "9999") || (a.criado || "").localeCompare(b.criado || ""));
+  let acum = 0, mont = 0; const sem = new Set(), fora = [];
+  fila.forEach(p => { const h = horasPedido(p); acum += h.imp; mont += h.mont; h.sem.forEach(x => sem.add(x));
+    const fim = hojeISO(Math.max(1, Math.ceil(acum / porDia)) - 1);
+    if(p.prazo && fim > p.prazo) fora.push({p, fim}); });
+  const espera = pedidos.filter(p => p.status === "novo").reduce((s, p) => s + horasPedido(p).imp, 0);
+  return {fila, horas: acum, mont, porDia, cap, fim: acum ? hojeISO(Math.ceil(acum / porDia) - 1) : null, fora, espera, sem:[...sem]};
+}
+function renderHoje(){
+  const el = $("#pedHoje"); if(!el) return;
+  const hoje = hojeISO(), amanha = hojeISO(1), abertos = pedidos.filter(p => !SEM_ATRASO.includes(p.status));
+  const nome = p => esc((p.cliente && p.cliente.nome) || "Sem nome");
+  const item = (p, q, cls = "") => `<li class="${cls}"><button type="button" data-ped="${esc(p.id)}"><span class="pid">${esc(p.id)}</span><span class="nm">${nome(p)}</span><span class="q">${q}</span></button></li>`;
+  const lista = (itens, vazio) => itens.length ? `<ul>${itens.join("")}</ul>` : `<p class="vz">${vazio}</p>`;
+  const porPrazo = (a, b) => (a.prazo || "").localeCompare(b.prazo || "");
+  const prazos = [
+    ...pedidos.filter(atrasado).sort(porPrazo).map(p => item(p, "atrasado " + dataCurta(p.prazo), "bad")),
+    ...abertos.filter(p => p.prazo === hoje && !atrasado(p)).map(p => item(p, p.status === "pronto" ? "entregar hoje" : "terminar hoje", "forte")),
+    ...abertos.filter(p => p.prazo === amanha).map(p => item(p, p.status === "pronto" ? "entregar amanhã" : "terminar amanhã"))];
+  const dias = iso => Math.max(0, Math.round((new Date(hoje) - new Date(iso)) / 864e5));
+  const sinal = pedidos.filter(p => p.status === "novo").sort((a, b) => (a.criado || "").localeCompare(b.criado || "")).map(p => { const d = p.criado ? dias(p.criado) : 0;
+    return item(p, d === 0 ? "pedido de hoje" : d === 1 ? "há 1 dia" : `há ${d} dias`, d >= 3 ? "bad" : ""); });
+  const receber = pedidos.filter(p => ["pronto","enviado","entregue"].includes(p.status) && totais(p).saldo > 0).map(p => item(p, "falta " + brl(totais(p).saldo), "forte"));
+  const f = filaImpressao(), temHoras = Object.values(custos.itens || {}).some(c => c.horas != null);
+  let fila;
+  if(!temHoras) fila = `<p class="vz">Importe a planilha de precificação em Ajustes > Custos dos produtos para ver as horas de impressão.</p>`;
+  else if(!f.fila.length) fila = `<p class="vz">Nenhum pedido na fila nem em produção.${f.espera ? ` Se os pedidos que esperam o sinal pagarem, entram ${fmtH(f.espera)}.` : ""}</p>`;
+  else fila = `<p><span class="big">${fmtH(f.horas)}</span> de impressora em ${f.fila.length} pedido${f.fila.length > 1 ? "s" : ""}${f.mont ? `, mais ${fmtH(f.mont)} de montagem e acabamento` : ""}.</p>
+    <p>Com ${f.cap.impressoras} impressora${f.cap.impressoras > 1 ? "s" : ""} rodando ${fmtH(f.cap.horasDia)} por dia, a fila termina por volta de <b>${dataCurta(f.fim)}</b>. Livre para pedidos novos a partir de ${dataCurta(hojeISO(Math.ceil(f.horas / f.porDia)))}.</p>
+    ${f.fora.length ? `<p class="warn">Não cabe no prazo:</p><ul>${f.fora.map(x => item(x.p, `${x.p.prazo < hojeISO() ? "atrasado" : "prazo " + dataCurta(x.p.prazo)}, fica ${dataCurta(x.fim)}`, "bad")).join("")}</ul>` : `<p>Todos os prazos cabem.</p>`}
+    ${f.espera ? `<p>Esperando o sinal: mais ${fmtH(f.espera)} se pagarem.</p>` : ""}
+    ${f.sem.length ? `<p class="hint" style="margin:0">Sem tempo cadastrado (fora da conta): ${esc(f.sem.join(", "))}.</p>` : ""}`;
+  const d = new Date(hoje + "T12:00:00");
+  el.innerHTML = `<h3 id="hojeTit">Hoje<span>${DIAS_SEM[d.getDay()]}, ${dataBR(hoje).slice(0,5)}</span></h3><div class="hg">
+    <div class="h-prazos"><h4>Prazos</h4>${lista(prazos, "Nada atrasado nem para hoje ou amanhã.")}</div>
+    <div class="h-sinal"><h4>Esperando o sinal</h4>${lista(sinal, "Nenhum pedido esperando o sinal.")}</div>
+    <div class="h-receber"><h4>A receber de pedidos prontos</h4>${lista(receber, "Nada a receber.")}</div>
+    <div class="fila"><h4>Fila de impressão</h4>${fila}</div></div>`;
+}
+$("#pedHoje").addEventListener("click", e => { const b = e.target.closest("[data-ped]"); if(b) abrirPedido(b.dataset.ped); });
+function mostrarCap(){ const c = capacidade(); $("#capImp").value = c.impressoras; $("#capHoras").value = String(c.horasDia).replace(".", ","); }
+$("#bCap").addEventListener("click", async () => {
+  const imp = parseInt($("#capImp").value, 10), h = Number(String($("#capHoras").value).replace(",", "."));
+  if(!(imp >= 1 && imp <= 50)){ aviso("Impressoras: use um número inteiro, ex.: 1.", true); $("#capImp").focus(); return; }
+  if(!(h > 0 && h <= 24)){ aviso("Horas por dia: use um número de 1 a 24, ex.: 12.", true); $("#capHoras").focus(); return; }
+  const a = capacidade(); if(a.impressoras === imp && a.horasDia === h){ aviso("Nada mudou na capacidade."); return; }
+  if(!(await confirmar("Salvar a capacidade de produção?", `Impressoras: ${a.impressoras} → ${imp}\nHoras de impressão por dia: ${fmtH(a.horasDia)} → ${fmtH(h)}`, "Salvar capacidade"))){ mostrarCap(); return; }
+  if(await gravarCustos({...custos, capacidade:{impressoras:imp, horasDia:h}})){ aviso("Capacidade salva."); renderHoje(); }
+});
 const COLUNAS = ["novo","fila","imprimindo","pronto","enviado"];
 const PROXIMO = {novo:"fila", fila:"imprimindo", imprimindo:"pronto", pronto:"enviado", enviado:"entregue"};
 function desenharQuadro(){
