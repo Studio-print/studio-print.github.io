@@ -219,6 +219,7 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 #dPed .body{gap:16px;padding:20px 24px}
 dialog .body{overscroll-behavior:contain}
 @media (max-width:640px){#dPed{width:100%;max-width:100%}#dPed footer .btn{flex:1 1 auto}.ig{grid-template-columns:1fr 1fr}.totais{grid-template-columns:repeat(2,minmax(0,1fr))}.totais .tot{grid-column:1/-1}.pcard{padding:14px 16px}.pst{margin-left:0}.stsel{margin-right:0;width:100%}.stsel .in{width:100%}#dPed .body{padding:14px}.fr{grid-template-columns:1fr 90px auto}}
+#confTxt{white-space:pre-line;line-height:1.55}
 .pzin{display:flex;align-items:center;gap:8px}.pzin .in{width:70px;text-align:center}.pzin span{color:var(--muted);font-weight:600}
 .passos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:12px 20px;border-bottom:1px solid var(--line);background:#FAFBFC}
 .passos button{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;cursor:pointer;text-align:left;font-weight:600;font-size:14px;color:var(--muted);min-width:0}
@@ -672,6 +673,15 @@ function precoDe(v){
   const n = Number(s); return isFinite(n) && n >= 0 && s !== "" ? Math.round(n*100)/100 : NaN;
 }
 
+/* campos de número aceitam só números (e vírgula no preço) */
+document.addEventListener("input", e => {
+  const el = e.target; if(!(el instanceof HTMLInputElement)) return;
+  const dec = el.matches("#ePreco, #pdFrete, #pdPago, [data-f='preco']"), int = el.matches("#ePzMin, #ePzMax, [data-f='qtd']");
+  if(!dec && !int) return;
+  const limpo = int ? el.value.replace(/\D/g, "").slice(0, 4) : el.value.replace(/[^\d,.]/g, "").replace(/([,.].*?)[,.]/g, "$1").slice(0, 10);
+  if(limpo !== el.value){ const p = el.selectionStart - (el.value.length - limpo.length); el.value = limpo; try{ el.setSelectionRange(p, p); }catch(_){} }
+}, true);
+
 /* ---------- senha (token trancado com a senha do painel) ---------- */
 const ITER = 600000;
 const b64De = u8 => { let s = ""; u8.forEach(b => s += String.fromCharCode(b)); return btoa(s); };
@@ -876,6 +886,22 @@ function proximoCodigo(cat){
 }
 const PRAZO_CAT = {"Personagens":[3,4], "Bonecos de pose":[3,4]};
 const prazoProduto = p => Array.isArray(p && p.prazo) && p.prazo[0] ? p.prazo : (PRAZO_CAT[p && p.categoria] || [2,3]);
+function diferencasProduto(a, b){
+  const d = [], txt = v => v === undefined || v === null || v === "" ? "(vazio)" : String(v);
+  const campo = (rot, x, y, fmt = txt) => { if(JSON.stringify(x ?? "") !== JSON.stringify(y ?? "")) d.push(`${rot}: ${fmt(x)} → ${fmt(y)}`); };
+  campo("Código", a.id, b.id); campo("Nome", a.nome, b.nome); campo("Categoria", a.categoria, b.categoria);
+  campo("Preço", a.preco, b.preco, v => brl(v)); campo("Texto depois do preço", a.unidade, b.unidade);
+  campo("Situação", a.status, b.status, v => STATUS[v] || txt(v));
+  campo("Produção", prazoProduto(a), prazoProduto(b), v => `${v[0]} a ${v[1]} dias úteis`);
+  campo("Medidas", a.medidas, b.medidas);
+  campo("Preço de lançamento", !!a.lancamento, !!b.lancamento, v => v ? "sim" : "não");
+  campo("Personalizado", !!a.personalizado, !!b.personalizado, v => v ? "sim" : "não");
+  if((a.descricao||"") !== (b.descricao||"")) d.push("Descrição alterada");
+  if(JSON.stringify(a.fotos||[]) !== JSON.stringify(b.fotos||[])) d.push("Fotos alteradas");
+  if(JSON.stringify(a.cores||[]) !== JSON.stringify(b.cores||[])) d.push("Cores alteradas");
+  if(!!a.fotoInteira !== !!b.fotoInteira) d.push("Ajuste da foto alterado");
+  return d;
+}
 function abrirEditor(i, modelo, posInsert){
   edIdx = i; edInsert = posInsert ?? null;
   const novo = i < 0;
@@ -964,14 +990,15 @@ $("#cAdd").addEventListener("click", () => {
   $("#cNome").value = ""; desenharCores();
 });
 
-$("#fEd").addEventListener("submit", e => {
+$("#fEd").addEventListener("submit", async e => {
   e.preventDefault();
   const id = $("#eId").value.trim().toUpperCase().replace(/\s+/g,"-");
   const nome = $("#eNome").value.trim(), cat = $("#eCat").value.trim(), preco = precoDe($("#ePreco").value);
   const erro = !id ? "Preencha o código." : !/^[A-Z0-9-]+$/.test(id) ? "O código só pode ter letras, números e hífen (ex.: P-10)."
     : produtos.some((p,k) => p.id === id && k !== edIdx) ? `Já existe um produto com o código ${id}.`
     : !nome ? "Preencha o nome do produto." : !cat ? "Escolha ou digite a categoria."
-    : isNaN(preco) ? "Digite o preço só com números, por exemplo 39 ou 39,90." : !edFotos.length ? "Adicione pelo menos uma foto." : "";
+    : isNaN(preco) ? "Digite o preço só com números, por exemplo 39 ou 39,90." : preco <= 0 ? "O preço precisa ser maior que zero."
+    : preco > 5000 ? "Confira o preço: passou de R$ 5.000." : !edFotos.length ? "Adicione pelo menos uma foto." : "";
   const pzA = parseInt($("#ePzMin").value, 10), pzB = parseInt($("#ePzMax").value || $("#ePzMin").value, 10);
   const erroPz = !(pzA > 0 && pzB >= pzA && pzB <= 60) ? "Preencha a produção em dias úteis, por exemplo 2 a 3." : "";
   if(erro || erroPz){ $("#edErr").textContent = erro || erroPz; return; }
@@ -983,6 +1010,13 @@ $("#fEd").addEventListener("submit", e => {
   p.fotos = [...edFotos];
   if($("#eInteira").checked) p.fotoInteira = true;
   p.cores = edCores;
+  const antes = edIdx >= 0 ? produtos[edIdx] : null;
+  const difs = antes ? diferencasProduto(antes, p) : [];
+  if(antes && !difs.length){ $("#dEd").close(); return; }
+  const okConf = antes
+    ? await confirmar(`Salvar as alterações em "${p.nome}"?`, difs.join("\n"), "Salvar alterações")
+    : await confirmar(`Adicionar "${p.nome}"?`, `${p.id} | ${p.categoria} | ${brl(p.preco)} | produção de ${p.prazo[0]} a ${p.prazo[1]} dias úteis`, "Adicionar produto");
+  if(!okConf) return;
   if(edIdx >= 0) produtos[edIdx] = p;
   else if(edInsert !== null) produtos.splice(edInsert, 0, p);
   else produtos.push(p);
@@ -1103,7 +1137,7 @@ $("#pArq").addEventListener("change", async e => {
 
 /* ---------- pedidos (repositório privado) ---------- */
 const PED_REPO = `/repos/${CFG.owner}/${CFG.pedidosRepo}`;
-const ST_PED = [["novo","Aguardando sinal"],["fila","Na fila"],["imprimindo","Imprimindo"],["pronto","Pronto"],["enviado","Enviado"],["entregue","Entregue"],["cancelado","Cancelado"]];
+const ST_PED = [["novo","Aguardando sinal"],["fila","Na fila"],["imprimindo","Em produção"],["pronto","Pronto"],["enviado","Enviado"],["entregue","Entregue"],["cancelado","Cancelado"]];
 const ST_LABEL = Object.fromEntries(ST_PED);
 const FECHADOS = ["entregue","cancelado"];
 const SEM_ATRASO = ["enviado","entregue","cancelado"];
@@ -1262,6 +1296,7 @@ $("#pedQuadro").addEventListener("click", async e => {
   const b = e.target.closest("[data-avancar]");
   if(b){
     const p = JSON.parse(JSON.stringify(pedidos.find(x => x.id === b.dataset.avancar)));
+    if(!(await confirmar(`Mover o pedido ${p.id}?`, `${(p.cliente && p.cliente.nome) || "Sem nome"}: ${ST_LABEL[p.status]} → ${ST_LABEL[PROXIMO[p.status]]}`, "Mover"))) return;
     mudarStatus(p, PROXIMO[p.status]);
     b.disabled = true;
     if(await gravarPedidos(upsert(p), `Pedido ${p.id}: ${ST_LABEL[p.status]}`)) aviso(`Pedido ${p.id}: ${ST_LABEL[p.status]}.`);
@@ -1276,6 +1311,7 @@ $("#pedBusca").addEventListener("input", renderPedidos);
 $("#pedLista").addEventListener("change", async e => {
   const s = e.target.closest("[data-pst]"); if(!s) return;
   const p = JSON.parse(JSON.stringify(pedidos.find(x => x.id === s.dataset.pst)));
+  if(!(await confirmar(`Mudar o pedido ${p.id}?`, `${(p.cliente && p.cliente.nome) || "Sem nome"}: ${ST_LABEL[p.status]} → ${ST_LABEL[s.value]}`, "Mudar situação"))){ s.value = p.status; return; }
   mudarStatus(p, s.value);
   if(await gravarPedidos(upsert(p), `Pedido ${p.id}: ${ST_LABEL[p.status]}`)) aviso(`Pedido ${p.id}: ${ST_LABEL[p.status]}.`);
 });
@@ -1292,7 +1328,7 @@ function msgCliente(p){
   const M = {
     novo: `Olá, ${nome}! Aqui é da StudioPrint. Anotamos o seu pedido ${p.id}: ${itens}. Total: ${brl(t.total)}. Para começar a produção, o sinal é de ${sinal} (50%). Previsão: ${prazo}.`,
     fila: `Olá, ${nome}! Recebemos o sinal do pedido ${p.id}. Ele já está na fila de produção, com previsão para ${prazo}.`,
-    imprimindo: `Olá, ${nome}! O seu pedido ${p.id} começou a ser impresso. Previsão: ${prazo}.`,
+    imprimindo: `Olá, ${nome}! O seu pedido ${p.id} já está em produção. Previsão: ${prazo}.`,
     pronto: `Olá, ${nome}! O seu pedido ${p.id} está pronto.${t.saldo > 0 ? " Falta pagar " + brl(t.saldo) + "." : ""} Vamos combinar a entrega?`,
     enviado: `Olá, ${nome}! O seu pedido ${p.id} saiu para entrega.${p.entrega && p.entrega.rastreio ? " Código de rastreio: " + p.entrega.rastreio + "." : ""}`,
     entregue: `Olá, ${nome}! Obrigado pela compra na StudioPrint. Se puder, mande uma foto da peça para a gente, vamos adorar ver.`,
@@ -1542,6 +1578,20 @@ function lerFormPedido(){
   const st = $("#pdStatus").value;
   if(st !== edPed.status) mudarStatus(edPed, st);
 }
+function diferencasPedido(a, b){
+  const d = [], ta = totais(a), tb = totais(b);
+  if(a.status !== b.status) d.push(`Situação: ${ST_LABEL[a.status]} → ${ST_LABEL[b.status]}`);
+  if((a.prazo||"") !== (b.prazo||"")) d.push(`Pronto até: ${dataBR(a.prazo) || "(vazio)"} → ${dataBR(b.prazo) || "(vazio)"}`);
+  if(resumoItens(a) !== resumoItens(b)) d.push("Itens alterados");
+  if(ta.total !== tb.total) d.push(`Total: ${brl(ta.total)} → ${brl(tb.total)}`);
+  if(ta.pago !== tb.pago) d.push(`Pago: ${brl(ta.pago)} → ${brl(tb.pago)}`);
+  if(JSON.stringify(a.cliente) !== JSON.stringify(b.cliente)) d.push("Dados do cliente alterados");
+  if((a.entrega||{}).tipo !== (b.entrega||{}).tipo || (a.entrega||{}).rastreio !== (b.entrega||{}).rastreio) d.push("Entrega alterada");
+  if((a.responsavel||"") !== (b.responsavel||"")) d.push(`Quem atende: ${a.responsavel || "(ninguém)"} → ${b.responsavel || "(ninguém)"}`);
+  if((a.obs||"") !== (b.obs||"")) d.push("Observações alteradas");
+  if((a.criado||"") !== (b.criado||"")) d.push(`Data do pedido: ${dataBR(a.criado)} → ${dataBR(b.criado)}`);
+  return d;
+}
 async function salvarPedido(){
   lerFormPedido();
   edPed.itens = edPed.itens.filter(i => (i.nome||"").trim());
@@ -1549,6 +1599,11 @@ async function salvarPedido(){
     : edPed.itens.some(i => !(i.qtd > 0)) ? "A quantidade de cada item precisa ser 1 ou mais." : "";
   if(erro){ desenharItens(); mostrarPasso(!edPed.cliente.nome ? 1 : 2); $("#pdErr").textContent = erro; return; }
   const novo = !pedidos.some(p => p.id === edPed.id);
+  if(!novo){
+    const difs = diferencasPedido(pedidos.find(p => p.id === edPed.id), edPed);
+    if(!difs.length){ $("#dPed").close(); aviso("Nada foi alterado."); return; }
+    if(!(await confirmar(`Salvar as alterações no pedido ${edPed.id}?`, difs.join("\n"), "Salvar alterações"))) return;
+  }
   if(novo && !edPed.historico.length) edPed.historico = [{quando:new Date().toISOString(), status:edPed.status}];
   if(edPed.responsavel) lembrar("sp_resp", edPed.responsavel);
   const b = $("#pdSalvar"); b.disabled = true;
@@ -1591,6 +1646,8 @@ $("#bDescartar").addEventListener("click", async () => {
 });
 $("#bPublicar").addEventListener("click", publicar);
 async function publicar(){
+  const n = contarMudancas();
+  if(!(await confirmar("Publicar no site?", `${n} alteraç${n === 1 ? "ão vai" : "ões vão"} para o catálogo e aparece${n === 1 ? "" : "m"} para os clientes em 1 a 2 minutos.`, "Publicar"))) return;
   const b = $("#bPublicar"); const etapa = t => b.innerHTML = `<span class="busy"><span class="spin"></span>${t}</span>`;
   b.disabled = true; $("#bDescartar").disabled = true;
   try{

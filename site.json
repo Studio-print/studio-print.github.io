@@ -1,7 +1,7 @@
 {
   "inicio": {
-    "titulo": "Feito camada por camada.",
-    "texto": "Bonecos articulados, personagens e enfeites de Natal impressos em 3D. Cada peça é feita sob encomenda, na cor que você escolher. Toque em uma foto para ver mais imagens, o preço e pedir pelo WhatsApp.",
+    "titulo": "Do seu jeito, peça por peça.",
+    "texto": "Bonecos articulados, personagens e enfeites de Natal com cores vivas e acabamento caprichado. Cada peça é feita sob encomenda, na cor que você escolher. Toque em uma foto para ver mais imagens, o preço e pedir pelo WhatsApp.",
     "fotos": [
       "45",
       "29",
@@ -26,7 +26,7 @@
       "telefone": "11972006390"
     }
   ],
-  "rodape": "Preços em reais, válidos para pagamento à vista. Cores e tamanhos podem variar um pouco de uma impressão para outra.",
+  "rodape": "Preços em reais, válidos para pagamento à vista. Cada peça é feita sob encomenda, então cores e tamanhos podem variar um pouco de uma peça para outra.",
   "filamentos": [
     {
       "nome": "Vermelho",
@@ -123,13 +123,13 @@
       ]
     },
     {
-      "texto": "Cada peça é impressa em 3D, camada por camada. Linhas finas de impressão e pequenas diferenças de acabamento são normais e fazem parte do processo.",
+      "texto": "Cada peça é produzida individualmente, sob encomenda. Pequenas diferenças de textura e acabamento entre uma peça e outra são normais e deixam cada uma única.",
       "para": [
         "todos"
       ]
     },
     {
-      "texto": "A cor pode variar um pouco em relação às fotos, por causa da tela do celular e do lote do filamento. Se a cor escolhida estiver em falta, avisamos antes de imprimir para você escolher outra.",
+      "texto": "A cor pode variar um pouco em relação às fotos, por causa da tela do celular e do lote do material. Se a cor escolhida estiver em falta, avisamos antes de produzir para você escolher outra.",
       "para": [
         "todos"
       ]
@@ -149,7 +149,7 @@
       ]
     },
     {
-      "texto": "O plástico da peça (PLA) amolece com calor. Não deixe dentro do carro ao sol, perto do fogão ou em lugares muito quentes.",
+      "texto": "A peça é feita em PLA, um plástico de origem vegetal, leve e firme. Como todo PLA, ele amolece com calor: não deixe dentro do carro ao sol, perto do fogão ou em lugares muito quentes.",
       "para": [
         "todos"
       ]
