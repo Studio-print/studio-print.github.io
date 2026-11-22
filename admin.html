@@ -779,6 +779,8 @@ dialog .body{overscroll-behavior:contain}
         </div>
         <div><label class="f" for="eKit">Preço de kit (opcional)</label><input class="in" id="eKit" placeholder="Ex.: 2 por 49,90; 3 por 63,90; 6 por 99,90" autocomplete="off">
           <p class="hint" id="eKitInfo">Quanto mais peças deste produto no pedido, menor o preço de cada uma. Conta todas as peças, mesmo com nomes e cores diferentes.</p></div>
+        <div id="eKitGrupoBox" hidden><label class="f" for="eKitGrupo">Kit junto com (opcional)</label><input class="in" id="eKitGrupo" list="kitGrupos" placeholder="Ex.: Enfeites com nome" autocomplete="off"><datalist id="kitGrupos"></datalist>
+          <p class="hint" id="eKitGrupoInfo">Produtos com o mesmo nome aqui somam as peças para o kit: o cliente pode misturar modelos.</p></div>
       </fieldset>
       <fieldset>
         <legend>Fotos</legend>
@@ -1198,7 +1200,7 @@ function render(){
         <img src="${esc(thumb(p.fotos[0]))}" alt="">
         <div class="t" data-edit="${i}" style="cursor:pointer">
           <b class="tn">${esc(p.nome)}</b>
-          <div class="ts"><span class="cod">${esc(p.id)}</span><span class="pr">${brl(p.preco)}${p.unidade ? ` <small>${esc(p.unidade)}</small>` : ""}${kitLimpo(p.kit).length ? ` <small>| kit: ${(f => `${f[0]} por ${brl(cent(f[0] * f[1]))}`)(kitLimpo(p.kit).slice(-1)[0])}</small>` : ""}</span><span class="st st-${esc(p.status)}">${STATUS[p.status] || p.status}${p.estoque > 0 ? ` (${p.estoque} un.)` : ""}</span>
+          <div class="ts"><span class="cod">${esc(p.id)}</span><span class="pr">${brl(p.preco)}${p.unidade ? ` <small>${esc(p.unidade)}</small>` : ""}${kitLimpo(p.kit).length ? ` <small>| kit: ${(f => `${f[0]} por ${brl(cent(f[0] * f[1]))}`)(kitLimpo(p.kit).slice(-1)[0])}${grupoKit(p) ? `, junto com ${esc(grupoKit(p))}` : ""}</small>` : ""}</span><span class="st st-${esc(p.status)}">${STATUS[p.status] || p.status}${p.estoque > 0 ? ` (${p.estoque} un.)` : ""}</span>
           ${(() => { const tg = [
             alterado ? `<span class="tg-i mud">${origMap[p.id] ? "Editado" : "Novo"}, falta publicar</span>` : "",
             p.oculto ? `<span class="tg-i fora">Fora do site</span>` : "",
@@ -1284,6 +1286,7 @@ function diferencasProduto(a, b){
   campo("Personalizado", !!a.personalizado, !!b.personalizado, v => v ? "sim" : "não");
   campo("Montagem", textoMont(a), textoMont(b), v => v);
   campo("Preço de kit", kitTexto(a), kitTexto(b));
+  campo("Kit junto com", grupoKit(a), grupoKit(b));
   if((a.descricao||"") !== (b.descricao||"")) d.push("Descrição alterada");
   if(JSON.stringify(a.fotos||[]) !== JSON.stringify(b.fotos||[])) d.push("Fotos alteradas");
   if(JSON.stringify(a.cores||[]) !== JSON.stringify(b.cores||[])) d.push("Cores alteradas");
@@ -1305,7 +1308,8 @@ function abrirEditor(i, modelo, posInsert){
   infoCustoEditor();
   $("#eLanc").checked = !!p.lancamento; $("#ePers").checked = !!p.personalizado; $("#eInteira").checked = !!p.fotoInteira;
   $("#eMont").value = p.montagem ? "kit" : ""; $("#eMontExtra").value = p.montagem && p.montagem.extra ? valorBR(p.montagem.extra) : ""; $("#eMontExtraBox").hidden = !p.montagem;
-  $("#eKit").value = kitTexto(p); infoKit(); infoCustoEditor();
+  $("#eKit").value = kitTexto(p); $("#eKitGrupo").value = p.kitGrupo || ""; $("#kitGrupos").innerHTML = gruposKit().map(g => `<option value="${esc(g)}">`).join("");
+  edKitId = p.id; infoKit(); infoCustoEditor();
   $("#eDesc").value = p.descricao || "";
   const pz = prazoProduto(p); $("#ePzMin").value = pz[0]; $("#ePzMax").value = pz[1]; $("#eMed").value = p.medidas || "";
   edFotos = [...(p.fotos || [])]; edCores = (p.cores || []).map(c => ({...c}));
@@ -1407,7 +1411,7 @@ $("#fEd").addEventListener("submit", async e => {
   }
   const kr = kitDeTexto($("#eKit").value, preco);
   if(kr.erro){ $("#edErr").textContent = "Preço de kit: " + kr.erro; $("#eKit").focus(); return; }
-  if(kr.kit.length) p.kit = kr.kit;
+  if(kr.kit.length){ p.kit = kr.kit; const g = $("#eKitGrupo").value.trim().replace(/\s+/g, " "); if(g) p.kitGrupo = (gruposKit().find(x => x.toLowerCase() === g.toLowerCase()) || g).slice(0, 40); }
   const est = parseInt($("#eEst").value, 10) || 0;
   if(est > 0){ p.estoque = Math.min(est, 999); p.status = "disponivel"; }
   else { delete p.estoque; if(p.status === "disponivel") p.status = "encomenda"; }
@@ -1601,6 +1605,10 @@ const kitLimpo = k => (Array.isArray(k) ? k : []).filter(f => Array.isArray(f) &
 const unitKit = (p, n) => { let u = Number(p.preco) || 0; for(const [q, v] of kitLimpo(p.kit)) if(n >= q) u = v; return u; };
 const dec2 = v => cent(v).toFixed(2).replace(".", ",");
 const kitTexto = p => kitLimpo(p && p.kit).map(([q, v]) => `${q} por ${dec2(q * v)}`).join("; ");
+const grupoKit = p => p && kitLimpo(p.kit).length && String(p.kitGrupo || "").trim() ? String(p.kitGrupo).trim() : "";
+/* produtos que somam as peças com este no kit (ele mesmo, ou todos do mesmo grupo) */
+const membrosKit = p => { const g = grupoKit(p); return g ? produtos.filter(x => grupoKit(x).toLowerCase() === g.toLowerCase()).map(x => x.id) : [p.id]; };
+const gruposKit = () => [...new Set(produtos.map(grupoKit).filter(Boolean))];
 function kitDeTexto(t, base){
   t = String(t ?? "").trim(); if(!t) return {kit:[], avisos:[]};
   const kit = [], avisos = [];
@@ -1625,13 +1633,16 @@ function kitDeTexto(t, base){
 /* no pedido: o preço de cada peça segue a tabela do kit pela quantidade total do produto.
    Preço digitado à mão (diferente da tabela) não é mexido. */
 function ajustarKit(ped, prodId){
-  const prod = produtos.find(p => p.id === prodId), tab = prod ? kitLimpo(prod.kit) : [];
-  if(!tab.length) return false;
-  const its = ped.itens.filter(i => i.produto === prodId), n = its.reduce((s,i) => s + (Number(i.qtd) || 0), 0);
-  const ex = (prod.montagem && prod.montagem.extra) || 0, conhecidos = [Number(prod.preco) || 0, ...tab.map(f => f[1])];
+  const base = produtos.find(p => p.id === prodId);
+  if(!base || !kitLimpo(base.kit).length) return false;
+  const ids = membrosKit(base), n = ped.itens.filter(i => ids.includes(i.produto)).reduce((s,i) => s + (Number(i.qtd) || 0), 0);
   let mudou = false;
-  its.forEach(i => { const e = i.montado === true ? ex : 0, atual = cent((Number(i.preco) || 0) - e);
-    if(conhecidos.some(v => Math.abs(v - atual) < 0.005)){ const novo = cent(unitKit(prod, n) + e); if(Math.abs(novo - (Number(i.preco) || 0)) > 0.001){ i.preco = novo; mudou = true; } } });
+  ids.forEach(id => {
+    const prod = produtos.find(p => p.id === id), tab = kitLimpo(prod.kit);
+    const ex = (prod.montagem && prod.montagem.extra) || 0, conhecidos = [Number(prod.preco) || 0, ...tab.map(f => f[1])];
+    ped.itens.filter(i => i.produto === id).forEach(i => { const e = i.montado === true ? ex : 0, atual = cent((Number(i.preco) || 0) - e);
+      if(conhecidos.some(v => Math.abs(v - atual) < 0.005)){ const novo = cent(unitKit(prod, n) + e); if(Math.abs(novo - (Number(i.preco) || 0)) > 0.001){ i.preco = novo; mudou = true; } } });
+  });
   return mudou;
 }
 const dataBR = iso => iso ? iso.slice(8,10) + "/" + iso.slice(5,7) + "/" + iso.slice(0,4) : "";
@@ -1901,7 +1912,17 @@ function infoCustoEditor(){
     t += ` No kit de ${q} (${brl(u)} cada): ${l < 0 ? `sobra ${brl(l)} por peça, não paga a sua hora inteira` : `lucro de ${brl(l)} por peça (${Math.round(l / u * 100)}%)`}, contando o custo da planilha em cada peça.`; }
   el.textContent = t; el.hidden = false;
 }
+let edKitId = "";
+function infoGrupo(){
+  const tem = !!$("#eKit").value.trim(); $("#eKitGrupoBox").hidden = !tem && !$("#eKitGrupo").value.trim();
+  const g = $("#eKitGrupo").value.trim().toLowerCase(), el = $("#eKitGrupoInfo");
+  if(!g){ el.textContent = "Produtos com o mesmo nome aqui somam as peças para o kit: o cliente pode misturar modelos. Vazio: conta só este produto."; return; }
+  const outros = produtos.filter(x => x.id !== edKitId && grupoKit(x).toLowerCase() === g);
+  el.textContent = outros.length ? `Soma com: ${outros.map(x => x.nome).join(", ")}.` : "Nenhum outro produto neste grupo ainda. Use o mesmo nome nos produtos que devem somar juntos.";
+}
+$("#eKitGrupo").addEventListener("input", infoGrupo);
 function infoKit(){
+  infoGrupo();
   const el = $("#eKitInfo"), base = num($("#ePreco").value), kr = kitDeTexto($("#eKit").value, base);
   el.classList.toggle("bad", !!kr.erro);
   if(kr.erro){ el.textContent = "Atenção: " + kr.erro; return; }
@@ -2416,7 +2437,7 @@ function novoPedidoBase(){
 const COLS = [
   ["id","Código",10],["nome","Nome",34],["visivel","No site",9],["categoria","Categoria",16],["preco","Preço (R$)",11],["unidade","Texto depois do preço",14],
   ["status","Situação",16],["estoque","Estoque pronta entrega",12],["destaque","Destaque",14],["lancamento","Preço de lançamento",12],
-  ["personalizado","Personalizado com nome",13],["montagem","Montagem",14],["montExtra","Adicional montado (R$)",12],["kit","Preço de kit",30],["pzMin","Produção mín. (dias úteis)",12],["pzMax","Produção máx. (dias úteis)",12],
+  ["personalizado","Personalizado com nome",13],["montagem","Montagem",14],["montExtra","Adicional montado (R$)",12],["kit","Preço de kit",30],["kitGrupo","Kit junto com",22],["pzMin","Produção mín. (dias úteis)",12],["pzMax","Produção máx. (dias úteis)",12],
   ["medidas","Medidas",30],["descricao","Descrição",60],["cores","Cores",40],["fotos","Fotos (não muda pela planilha)",18]
 ];
 const SIT_TXT = {encomenda:"Sob encomenda", disponivel:"Pronta entrega", esgotado:"Esgotado"};
@@ -2442,7 +2463,7 @@ async function baixarPlanilha(){
     produtos.forEach(p => { const pz = prazoProduto(p); ws.addRow({
       id:p.id, nome:p.nome, visivel:p.oculto ? "Não" : "Sim", categoria:p.categoria, preco:Number(p.preco)||0, unidade:p.unidade||"",
       status:SIT_TXT[p.status] || "Sob encomenda", estoque:p.estoque > 0 ? p.estoque : 0, destaque:DEST_TXT[p.destaque||""] || "Nenhum",
-      lancamento:p.lancamento ? "Sim" : "Não", personalizado:p.personalizado ? "Sim" : "Não", montagem:p.montagem ? "Para montar" : "Vai pronto", montExtra:p.montagem && p.montagem.extra ? p.montagem.extra : "", kit:kitTexto(p), pzMin:pz[0], pzMax:pz[1],
+      lancamento:p.lancamento ? "Sim" : "Não", personalizado:p.personalizado ? "Sim" : "Não", montagem:p.montagem ? "Para montar" : "Vai pronto", montExtra:p.montagem && p.montagem.extra ? p.montagem.extra : "", kit:kitTexto(p), kitGrupo:grupoKit(p), pzMin:pz[0], pzMax:pz[1],
       medidas:p.medidas||"", descricao:p.descricao||"", cores:coresTexto(p.cores), fotos:(p.fotos||[]).join(", ") }); });
     const cab = ws.getRow(1); cab.font = {bold:true, color:{argb:"FFFFFFFF"}}; cab.height = 32;
     cab.alignment = {vertical:"middle", wrapText:true};
@@ -2602,6 +2623,9 @@ async function importarPlanilha(arq){
     } else if(mx !== null && mx !== "" && p.montagem){ const ex = precoDe(mx); if(!isNaN(ex) && ex >= 0) p.montagem = ex > 0 ? {extra: ex} : {}; }
     const kt = pega(r,"kit");
     if(kt !== null){ const kr = kitDeTexto(kt, p.preco); if(kr.erro) erros.push(`Linha ${ln} (${id}): preço de kit: ${kr.erro}`); else if(kr.kit.length) p.kit = kr.kit; else delete p.kit; }
+    const kg = pega(r,"kitGrupo");
+    if(kg !== null){ const g = kg.replace(/\s+/g, " ").slice(0, 40); if(g) p.kitGrupo = g; else delete p.kitGrupo; }
+    if(!kitLimpo(p.kit).length) delete p.kitGrupo;
     const a = pega(r,"pzMin"), z = pega(r,"pzMax");
     if((a !== null && a !== "") || (z !== null && z !== "")){
       const na = parseInt(a || z, 10), nz = parseInt(z || a, 10);
@@ -3164,7 +3188,7 @@ $("#pdItens").addEventListener("input", e => {
   const el = e.target, k = el.dataset.ik, f = el.dataset.f; if(k === undefined || !f) return;
   const it = edPed.itens[+k];
   if(f === "qtd"){ it.qtd = Math.max(0, parseInt(el.value, 10) || 0);
-    if(ajustarKit(edPed, it.produto)) edPed.itens.forEach((x, j) => { if(x.produto === it.produto){ const c = document.querySelector(`#pdItens [data-ik="${j}"][data-f="preco"]`); if(c) c.value = valorBR(x.preco); } }); }
+    if(ajustarKit(edPed, it.produto)) edPed.itens.forEach((x, j) => { const c = document.querySelector(`#pdItens [data-ik="${j}"][data-f="preco"]`); if(c && document.activeElement !== c) c.value = valorBR(x.preco); }); }
   else if(f === "preco") it.preco = num(el.value);
   else it[f] = el.value;
   atualizarTotais();

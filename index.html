@@ -205,6 +205,7 @@ html.travado,html.travado body{overflow:hidden}
 @media (max-width:340px){.kit-op{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .kit-op button[aria-pressed="true"]{border-color:var(--ok-fg);box-shadow:inset 0 0 0 1px var(--ok-fg)}
 .kit-st{margin:0;font-size:13.5px;color:var(--ok-fg);line-height:1.4}.kit-st b{font-weight:700}
+.kit-mix{margin:0;font-size:13px;color:var(--ok-fg);line-height:1.45}.kit-mix a{color:inherit;font-weight:600}
 .mont-t{font-weight:700;font-size:14px}
 .mont-op{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mont-op button{display:grid;gap:2px;text-align:left;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card,#fff);cursor:pointer;font:inherit;color:inherit}
@@ -553,7 +554,10 @@ const precoSelKit = p => cent(precoSel(p) - (Number(p.price) || 0) + unitKit(p, 
 const unitKit = (p, n) => { let u = Number(p.price) || 0; for(const [q, v] of (p.kit || [])) if(n >= q) u = v; return u; };
 const cent = v => Math.round(v * 100) / 100;
 const qtdDe = id => LISTA.reduce((s,i) => s + (i.id === id ? i.qtd : 0), 0);
-const precoEf = i => { const p = P.find(x => x.id === i.id); return p && p.kit ? cent(i.preco - (Number(p.price) || 0) + unitKit(p, qtdDe(i.id))) : i.preco; };
+/* produtos do mesmo grupo somam as peças para o kit (o cliente pode misturar modelos) */
+const membrosKit = p => p.kit && p.grupo ? P.filter(x => x.kit && x.grupo && x.grupo.toLowerCase() === p.grupo.toLowerCase()) : [p];
+const qtdKit = p => { const ids = membrosKit(p).map(x => x.id); return LISTA.reduce((s,i) => s + (ids.includes(i.id) ? i.qtd : 0), 0); };
+const precoEf = i => { const p = P.find(x => x.id === i.id); return p && p.kit ? cent(i.preco - (Number(p.price) || 0) + unitKit(p, qtdKit(p))) : i.preco; };
 const economiaLista = () => cent(LISTA.reduce((s,i) => s + (i.preco - precoEf(i)) * i.qtd, 0));
 const pecas = n => n === 1 ? "1 peça" : n + " peças";
 /* entrega escolhida na lista */
@@ -726,15 +730,17 @@ function botoesWa(p){
 }
 function kitHTML(p){
   if(!p.kit) return "";
-  const ja = qtdDe(p.id), n = sel.qtd + ja, faixas = [[1, Number(p.price) || 0], ...p.kit];
+  const ja = qtdKit(p), n = sel.qtd + ja, faixas = [[1, Number(p.price) || 0], ...p.kit], outros = membrosKit(p).filter(x => x.id !== p.id);
   let at = faixas[0]; for(const f of faixas) if(n >= f[0]) at = f;
   const prox = p.kit.find(f => f[0] > n), u = unitKit(p, n), eco = cent(((Number(p.price) || 0) - u) * n);
-  const st = (u < p.price ? `Com ${pecas(n)}: <b>${brl(cent(u * n))}</b> (${brl(u)} cada). Você economiza <b>${brl(eco)}</b>.` : "")
-    + (prox ? `${u < p.price ? " " : ""}Com mais ${pecas(prox[0] - n)}, cada uma sai por <b>${brl(prox[1])}</b>.` : "")
-    + (ja ? ` Já conta ${ja === 1 ? "a peça que está" : `as ${ja} que estão`} no seu pedido.` : "");
-  return `<div class="kit" id="dKit"><div class="kit-t"><b>Quanto mais peças, menor o preço</b><span>Pode misturar nomes e cores</span></div>
+  const proxTxt = prox ? ` Com mais ${pecas(prox[0] - n)}, cada uma sai por <b>${brl(prox[1])}</b>.` : "";
+  const st = ja
+    ? `Somando com ${ja === 1 ? "a peça" : `as ${ja} peças`} do seu pedido, são ${pecas(n)}${u < p.price ? `: cada peça deste modelo sai por <b>${brl(u)}</b>` : ""}.` + proxTxt
+    : (u < p.price ? `Com ${pecas(n)}: <b>${brl(cent(u * n))}</b> (${brl(u)} cada). Você economiza <b>${brl(eco)}</b>.` : "") + (u < p.price && prox ? " " : "") + proxTxt.trim();
+  return `<div class="kit" id="dKit"><div class="kit-t"><b>Quanto mais peças, menor o preço</b><span>${outros.length ? "Pode misturar nomes, cores e modelos" : "Pode misturar nomes e cores"}</span></div>
     <div class="kit-op">${faixas.map(([q, v]) => `<button type="button" data-kq="${q}" aria-pressed="${at[0] === q}" aria-label="${pecas(q)} por ${brl(cent(q * v))}, ${brl(v)} cada"><b>${pecas(q)}</b><span>${brl(cent(q * v))}</span>${q > 1 ? `<small>${brl(v)} cada</small>` : `<small>&nbsp;</small>`}</button>`).join("")}</div>
-    ${st ? `<p class="kit-st">${st}</p>` : ""}</div>`;
+    ${st ? `<p class="kit-st">${st}</p>` : ""}
+    ${outros.length ? `<p class="kit-mix">Soma junto com ${outros.map(x => `<a href="#${x.id.toLowerCase()}" data-kitp="${x.id}">${esc(x.name)}</a>`).join(", ").replace(/, ([^,]*)$/, " e $1")}.</p>` : ""}</div>`;
 }
 function atualizarKit(p){ const k = document.getElementById("dKit"); if(k && p && p.kit) k.outerHTML = kitHTML(p); }
 function desenharEscolha(p, ok){
@@ -757,7 +763,9 @@ $("#dColors").addEventListener("click", e => {
 $("#dEscolha").addEventListener("input", e => { if(e.target.classList.contains("nome-g")){ if(/"/.test(e.target.value)) e.target.value = e.target.value.replace(/"/g, "'"); sel.nomes[+e.target.dataset.k] = e.target.value.trim(); sel.gravar = sel.nomes[0] || ""; e.target.classList.remove("erro"); botoesWa(cur); } });
 $("#dEscolha").addEventListener("click", e => {
   const kq = e.target.closest("[data-kq]");
-  if(kq && cur){ sel.qtd = Math.min(99, Math.max(1, +kq.dataset.kq - qtdDe(cur.id))); $("#dQtd").textContent = sel.qtd;
+  const kp = e.target.closest("[data-kitp]");
+  if(kp){ e.preventDefault(); openProduct(kp.dataset.kitp, true); return; }
+  if(kq && cur){ sel.qtd = Math.min(99, Math.max(1, +kq.dataset.kq - qtdKit(cur))); $("#dQtd").textContent = sel.qtd;
     if(cur.custom){ while(sel.nomes.length < sel.qtd) sel.nomes.push(""); desenharEscolha(cur); } else atualizarKit(cur);
     botoesWa(cur); return; }
   const q = e.target.closest("[data-q]");
@@ -801,8 +809,15 @@ function desenharLista(){
   $("#lItens").innerHTML = LISTA.map((i,k) => `<li><img src="${foto(i.img, true)}" alt="">
     <div><b>${esc(i.nome)}</b><small>${esc(i.id)}${i.cor ? " | " + esc(i.cor) : ""}${i.gravar ? ` | nome "${esc(i.gravar)}"` : ""}${i.montado === true ? " | montado" : i.montado === false ? " | para montar" : ""} | ${precoEf(i) < i.preco ? `<s>${brl(i.preco)}</s> ` : ""}${brl(precoEf(i))} cada</small></div><button class="l-rm" type="button" data-rm="${k}" aria-label="Remover ${esc(i.nome)}">Remover</button>
     <div class="qtd" role="group" aria-label="Quantidade de ${esc(i.nome)}"><button type="button" data-lq="${k}" data-d="-1" aria-label="Menos um">−</button><output>${i.qtd}</output><button type="button" data-lq="${k}" data-d="1" aria-label="Mais um">+</button></div></li>`).join("");
-  const kits = [...new Set(LISTA.map(i => i.id))].map(id => P.find(x => x.id === id)).filter(p => p && p.kit);
-  $("#lKit").innerHTML = kits.map(p => { const n = qtdDe(p.id), u = unitKit(p, n), prox = p.kit.find(f => f[0] > n);
+  const vistos = new Set(), kits = [];
+  LISTA.forEach(i => { const p = P.find(x => x.id === i.id); if(!p || !p.kit) return; const chave = membrosKit(p).length > 1 ? "g:" + p.grupo.toLowerCase() : "p:" + p.id; if(vistos.has(chave)) return; vistos.add(chave); kits.push(p); });
+  $("#lKit").innerHTML = kits.map(p => {
+    const n = qtdKit(p), noPedido = membrosKit(p).filter(x => qtdDe(x.id) > 0);
+    if(membrosKit(p).length > 1){
+      const ativo = noPedido.some(x => unitKit(x, n) < x.price), prox = Math.min(...noPedido.map(x => (x.kit.find(f => f[0] > n) || [Infinity])[0]));
+      return `<span><b>${esc(p.grupo)}</b>: ${pecas(n)} somadas${noPedido.length > 1 ? `, misturando ${noPedido.length} modelos` : ""}.${ativo ? " Preço de kit aplicado." : ""}${isFinite(prox) ? ` Com mais ${pecas(prox - n)}, cada peça fica no preço de ${prox}.` : ""}</span>`;
+    }
+    const u = unitKit(p, n), prox = p.kit.find(f => f[0] > n);
     return `<span>${esc(p.name)}: ${u < p.price ? `${pecas(n)} a <b>${brl(u)}</b> cada.` : `${pecas(n)}.`}${prox ? ` Com mais ${pecas(prox[0] - n)}, cada uma sai por <b>${brl(prox[1])}</b>.` : ""}</span>`; }).join("");
   $("#lKit").hidden = !kits.length;
   const eco = economiaLista(), ecoTxt = eco > 0 ? `<span class="l-sub l-eco">Economia do kit <span>−${brl(eco)}</span></span>` : "";
@@ -899,7 +914,8 @@ async function carregar(){
       status: o.estoque > 0 ? "disponivel" : (o.status === "disponivel" ? "encomenda" : (o.status||"encomenda")), estoque: o.estoque > 0 ? o.estoque : 0, destaque:o.destaque||"",
       custom:!!o.personalizado, launch:!!o.lancamento, desc:o.descricao||"", prazo:o.prazo||null, medidas:o.medidas||"", imgs:(o.fotos&&o.fotos.length?o.fotos:["45"]),
       fit:o.fotoInteira?"contain":"", colors:o.cores||[], resumo:(o.resumo||"").trim(), mont: o.montagem ? {extra: Number(o.montagem.extra) || 0} : null,
-      kit: (() => { const k = (Array.isArray(o.kit) ? o.kit : []).filter(f => Array.isArray(f) && f[0] >= 2 && f[1] > 0 && f[1] < o.preco).map(f => [Math.round(f[0]), Number(f[1])]).sort((a,b) => a[0] - b[0]); return k.length ? k : null; })()}));
+      kit: (() => { const k = (Array.isArray(o.kit) ? o.kit : []).filter(f => Array.isArray(f) && f[0] >= 2 && f[1] > 0 && f[1] < o.preco).map(f => [Math.round(f[0]), Number(f[1])]).sort((a,b) => a[0] - b[0]); return k.length ? k : null; })(),
+      grupo: String(o.kitGrupo || "").trim()}));
     const cats = [...new Set(P.map(p=>p.cat))];
     cats.sort((a,b)=>{const ia=ORDEM_CATS.indexOf(a), ib=ORDEM_CATS.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib);});
     CATS = ["Todos", ...cats];
