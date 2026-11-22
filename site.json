@@ -41,17 +41,17 @@
     {
       "nome": "Azul-claro",
       "hex": "#7EC8F2",
-      "disponivel": true
+      "disponivel": false
     },
     {
       "nome": "Verde",
       "hex": "#2FA84F",
-      "disponivel": true
+      "disponivel": false
     },
     {
       "nome": "Verde-escuro",
       "hex": "#1F7A3A",
-      "disponivel": true
+      "disponivel": false
     },
     {
       "nome": "Amarelo",
@@ -61,7 +61,7 @@
     {
       "nome": "Laranja",
       "hex": "#F07A1A",
-      "disponivel": true
+      "disponivel": false
     },
     {
       "nome": "Rosa",
@@ -86,27 +86,27 @@
     {
       "nome": "Cinza",
       "hex": "#8C9196",
-      "disponivel": true
+      "disponivel": false
     },
     {
       "nome": "Prata",
       "hex": "#C0C4CA",
-      "disponivel": true
+      "disponivel": false
     },
     {
       "nome": "Dourado",
       "hex": "#D4A62A",
-      "disponivel": true
+      "disponivel": false
     },
     {
       "nome": "Marrom",
       "hex": "#8B5A2B",
-      "disponivel": true
+      "disponivel": false
     },
     {
       "nome": "Bege",
       "hex": "#E8D9BF",
-      "disponivel": true
+      "disponivel": false
     }
   ],
   "avisos": [
@@ -159,6 +159,44 @@
       "para": [
         "personalizados"
       ]
+    }
+  ],
+  "fretes": [
+    {
+      "nome": "São Caetano do Sul",
+      "valor": 15
+    },
+    {
+      "nome": "Santo André",
+      "valor": 20
+    },
+    {
+      "nome": "São Paulo: Ipiranga e Sacomã",
+      "valor": 25
+    },
+    {
+      "nome": "São Bernardo do Campo",
+      "valor": 30
+    },
+    {
+      "nome": "São Paulo: Mooca e Vila Prudente",
+      "valor": 30
+    },
+    {
+      "nome": "Diadema",
+      "valor": 40
+    },
+    {
+      "nome": "Mauá",
+      "valor": 45
+    },
+    {
+      "nome": "Ribeirão Pires",
+      "valor": 65
+    },
+    {
+      "nome": "Rio Grande da Serra",
+      "valor": 80
     }
   ]
 }
