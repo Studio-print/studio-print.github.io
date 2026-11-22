@@ -115,7 +115,8 @@ main{padding:28px 0 56px}
 .info h3{font-size:17px;line-height:1.25;margin:0;font-weight:700}
 .info .resumo{margin:-2px 0 0;font-size:14px;line-height:1.4;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .meta:empty{display:none}
-.row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 8px;margin-top:auto}
+.row{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 8px;margin-top:auto}
+.row .status{display:inline-block}.row .status::before{display:inline-block;vertical-align:2px;margin-right:6px}
 .price{font-family:var(--display);font-variation-settings:"wdth" 110;font-weight:800;font-size:22px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .price small{white-space:nowrap;font-family:var(--body);font-variation-settings:"wdth" 100;font-size:13px;font-weight:500;color:var(--muted);margin-left:2px}
 .status{font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
@@ -182,7 +183,10 @@ html.travado,html.travado body{overflow:hidden}
 .close svg{width:18px;height:18px}
 .panel h2{font-family:var(--display);font-variation-settings:"wdth" 112;font-weight:850;font-size:clamp(26px,3vw,34px);line-height:1.05;letter-spacing:-.02em;margin:0;text-wrap:balance}
 .panel .price{font-size:32px}
-.facts{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.facts{display:flex;gap:6px 14px;align-items:baseline;flex-wrap:wrap}
+.facts .status{font-size:14px;align-self:baseline;display:inline-block}
+.facts .status::before{display:inline-block;vertical-align:2px;margin-right:6px}
+.facts .tag{align-self:center}
 .panel p{margin:0;color:#353B46}
 .colors h4{margin:0 0 8px;font-size:14px;color:var(--muted);font-weight:600}
 .colors.erro h4 .opc{color:#B42318;font-weight:700}
@@ -265,6 +269,7 @@ body.tem-lista{padding-bottom:84px}
 .l-campos input,.l-campos select{width:100%;min-width:0;box-sizing:border-box;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--card);color:var(--ink)}
 #lCidadeBox,#lPagarBox{display:grid;gap:6px}
 #lPagarBox[hidden]{display:none}
+.l-dica{margin:0;font-size:13px;color:var(--muted);line-height:1.4}.l-dica[hidden]{display:none}
 #lCidadeBox[hidden]{display:none}
 .l-info{margin:0;font-size:14px;color:var(--muted)}
 .l-total{flex-wrap:wrap;row-gap:4px}
@@ -394,7 +399,7 @@ body.tem-lista{padding-bottom:84px}
         <label for="lNome">Seu nome</label><input id="lNome" autocomplete="name" placeholder="Como podemos te chamar">
         <span class="l-rot">Como quer receber?</span>
         <div class="l-chips" id="lReceber"><button type="button" data-rec="retirada">Retirar</button><button type="button" data-rec="abc">Entrega no ABC</button><button type="button" data-rec="correios">Correios</button></div>
-        <div id="lPagarBox" hidden><span class="l-rot">Como quer pagar?</span><div class="l-chips" id="lPagar"></div></div>
+        <div id="lPagarBox" hidden><span class="l-rot">Como quer pagar?</span><div class="l-chips" id="lPagar"></div><p class="l-dica" id="lPagObs" hidden></p></div>
         <div id="lCidadeBox" hidden><label for="lCidade">Cidade ou região da entrega</label><select id="lCidade"></select></div>
         <p class="l-info" id="lInfoEntrega" hidden></p>
         <label for="lCep" id="lCepRot">Bairro ou CEP</label><input id="lCep" inputmode="text" placeholder="Ex.: Vila Assunção ou 09580-560">
@@ -482,6 +487,7 @@ function aplicarSite(cfg){
   const fs = PAG().formas;
   $("#lPagar").innerHTML = fs.map(f => `<button type="button" data-pag="${esc(f)}">${esc(f)}</button>`).join("");
   $("#lPagarBox").hidden = !fs.length;
+  const ob = PAG().obs || ""; $("#lPagObs").textContent = ob; $("#lPagObs").hidden = !ob;
 }
 function coresDisponiveis(p){
   const falta = new Set((SITE.filamentos||[]).filter(f=>f.disponivel===false).map(f=>f.nome.toLowerCase()));
@@ -648,7 +654,7 @@ function openProduct(id, setHash){
   $("#dFicha").innerHTML = (p.medidas ? `<div><dt>Medidas</dt><dd>${esc(p.medidas)}</dd></div>` : "")
     + (pz ? `<div><dt>Produção</dt><dd>${pz}</dd></div>` : "")
     + (p.mont ? `<div><dt>Montagem</dt><dd>Chega em peças para você montar${p.mont.extra ? `<small>Prefere receber montado? Escolha abaixo: + ${brl(p.mont.extra)} por peça.</small>` : ""}</dd></div>` : "")
-    + (fc ? `<div><dt>Pagamento</dt><dd>${esc(fc)}${p.status === "encomenda" && sn ? `<small>${esc(textoSinal()[0].toUpperCase() + textoSinal().slice(1))}</small>` : ""}${PAG().obs ? `<small>${esc(PAG().obs)}</small>` : ""}</dd></div>` : "");
+    + (fc ? `<div><dt>Pagamento</dt><dd>${esc(fc)}${p.status === "encomenda" && sn ? `<small>${esc(textoSinal()[0].toUpperCase() + textoSinal().slice(1))}</small>` : ""}</dd></div>` : "");
   const cs = coresDisponiveis(p);
   $("#dAvisos").innerHTML = avisosDe(p).length ? `<h4>Antes de comprar</h4><ul>${avisosDe(p).map(a=>`<li>${esc(a.texto)}</li>`).join("")}</ul>` : "";
   sel = {cor: cs.length === 1 ? cs[0].nome : "", qtd:1, gravar:"", nomes:[""], montado:false};
