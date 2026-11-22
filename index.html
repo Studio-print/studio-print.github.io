@@ -91,7 +91,7 @@ a{color:inherit}
 .chip .n{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:500}
 .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
 .chip[aria-pressed="true"] .n{color:#AEB5C2}
-.search{flex:0 1 240px;min-width:160px;position:relative}
+.search{flex:0 1 270px;min-width:160px;position:relative}
 .search input{width:100%;font:inherit;font-size:15px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 14px 8px 36px}
 .search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--muted)}
 
@@ -113,12 +113,12 @@ main{padding:28px 0 56px}
 .count svg{width:13px;height:13px}
 .info{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
 .info h3{font-size:17px;line-height:1.25;margin:0;font-weight:700}
-.row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto}
+.row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 8px;margin-top:auto}
 .price{font-family:var(--display);font-variation-settings:"wdth" 110;font-weight:800;font-size:22px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.price small{font-family:var(--body);font-variation-settings:"wdth" 100;font-size:13px;font-weight:500;color:var(--muted);margin-left:2px}
+.price small{white-space:nowrap;font-family:var(--body);font-variation-settings:"wdth" 100;font-size:13px;font-weight:500;color:var(--muted);margin-left:2px}
 .status{font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
 .status::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.7}
-.status.esgotado{text-decoration:line-through}
+.status.esgotado{color:var(--muted)}
 .meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:20px}
 .tag{font-size:13px;color:var(--muted);font-weight:500}
 .tag.launch{color:var(--ink);font-weight:600;border:1px solid var(--line);padding:2px 8px;border-radius:6px;white-space:nowrap}
@@ -232,7 +232,8 @@ html.travado,html.travado body{overflow:hidden}
 .lista-bar{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:40;display:flex;align-items:center;gap:12px;background:var(--ink);color:#fff;border:0;border-radius:999px;padding:10px 12px 10px 10px;font:inherit;font-weight:700;box-shadow:0 10px 30px rgba(21,24,30,.28);cursor:pointer;max-width:calc(100% - 24px)}
 .lista-bar[hidden]{display:none}
 .lb-n{background:#fff;color:var(--ink);border-radius:999px;min-width:28px;height:28px;display:grid;place-items:center;font-variant-numeric:tabular-nums}
-.lb-t{white-space:nowrap}
+.lb-t{white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:380px){.lista-bar{gap:8px;font-size:14px;padding:8px 8px 8px 8px}.lb-go{padding:7px 11px}}
 .lb-go{background:var(--wa);border-radius:999px;padding:7px 14px;white-space:nowrap}
 body.tem-lista{padding-bottom:84px}
 #dLista{border:0;padding:0;border-radius:18px;width:min(560px,calc(100% - 24px));max-height:calc(100vh - 32px);background:var(--card);color:var(--ink)}
@@ -250,10 +251,11 @@ body.tem-lista{padding-bottom:84px}
 .l-itens .l-rm{border:0;background:none;color:var(--muted);font-size:13px;text-decoration:underline;cursor:pointer;padding:8px 8px 4px 0;min-height:32px}
 .l-total{display:flex;justify-content:space-between;font-size:17px;font-weight:800;padding:2px 4px}
 .l-total span{font-weight:500;color:var(--muted);font-size:14px}
-.l-campos{border:1px solid var(--line);border-radius:12px;padding:12px;margin:0;display:grid;gap:8px}
+.l-campos{border:1px solid var(--line);border-radius:12px;padding:12px;margin:0;display:grid;gap:8px;min-width:0}
+.l-body > *{min-width:0}
 .l-campos legend{font-size:14px;color:var(--muted);font-weight:600;padding:0 4px}
 .l-campos label,.l-rot{font-size:14px;font-weight:600}
-.l-campos input,.l-campos select{font:inherit;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--card);color:var(--ink)}
+.l-campos input,.l-campos select{width:100%;min-width:0;box-sizing:border-box;font:inherit;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--card);color:var(--ink)}
 #lCidadeBox,#lPagarBox{display:grid;gap:6px}
 #lPagarBox[hidden]{display:none}
 #lCidadeBox[hidden]{display:none}
@@ -264,7 +266,7 @@ body.tem-lista{padding-bottom:84px}
 .l-chips button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--ink)}
 .l-chips button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
 .lista footer{padding:14px 20px 18px;border-top:1px solid var(--line);display:grid;gap:10px}
-.l-limpar{font:inherit;font-size:14px;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;justify-self:center}
+.l-limpar{font:inherit;font-size:14px;background:none;border:0;padding:10px 12px;margin:-6px 0;color:var(--muted);text-decoration:underline;cursor:pointer;justify-self:center}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .two.one{grid-template-columns:1fr}
 

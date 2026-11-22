@@ -78,6 +78,8 @@ details.help li{margin-bottom:6px}
 .row .t{min-width:0}
 .row .t b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row .t span{display:block;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .t span b{display:inline;font-size:inherit}
+.row .t span .badge-m{display:inline-block;font-size:12px;vertical-align:1px}
 .row .t .changed{color:var(--ink);font-weight:600}
 .row .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
 .cat-head{margin:18px 0 6px;font-size:14px;color:var(--muted);font-weight:650}
@@ -125,6 +127,7 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .tabs button{border:0;background:none;padding:10px 14px;font-weight:650;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px;cursor:pointer}
 .tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
 @media (max-width:640px){.tabs{overflow-x:auto;scrollbar-width:none;gap:0}.tabs::-webkit-scrollbar{display:none}.tabs button{padding:10px 9px;white-space:nowrap;flex:none;font-size:14px}.tabs .lg{display:none}}
+@media (max-width:380px){.tabs button{padding:10px 7px;font-size:13.5px}}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;display:grid;gap:12px}
 .card h3{margin:0;font-size:17px;font-variation-settings:"wdth" 110;font-weight:800}
 .card > p.hint{margin:-6px 0 0}
@@ -154,7 +157,8 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .kpis .alerta{border-color:var(--danger)}
 .kpis .alerta b{color:var(--danger)}
 .fbody{padding:16px 20px 4px;display:grid;gap:12px}
-.fbody .hint{margin:0}
+.fbody .hint{margin:0;padding:0}
+#dForm #formErr{padding:0 0 8px}#dForm #formErr:empty{display:none}
 .hoje-aviso{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:-2px 0 12px;padding:8px 12px;border-radius:8px;background:#FFF4E5;color:#7A4B00;font-size:14px}
 .hoje-aviso .btn{padding:6px 12px;font-size:13px}
 .hoje .fil-av{margin:8px 0 0;font-size:14px;color:var(--danger);font-weight:600}
@@ -181,7 +185,8 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .cli .prods{grid-column:1 / -1;font-size:13px;color:#2B3038}
 .cli .acts{display:flex;gap:6px}.cli .acts .btn{padding:6px 10px;font-size:13px}
 .cli .tag{display:inline-block;margin-left:6px;font-size:12px;font-weight:700;padding:1px 7px;border-radius:999px;background:#E7F5EC;color:#14703A}
-@media (max-width:640px){.cli article{grid-template-columns:1fr}.cli .acts{justify-content:flex-start}}
+@media (max-width:640px){.cli article{grid-template-columns:minmax(0,1fr)}.cli .acts{justify-content:flex-start;flex-wrap:wrap}.cli .acts .btn{flex:1 1 auto;justify-content:center}
+  .chip,.cor{min-height:34px}.resumo .rt .link{padding:6px 4px;margin:-6px -4px}}
 .hoje{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
 .hoje > h3{margin:0 0 10px;font-size:17px}.hoje > h3 span{color:var(--muted);font-weight:500;font-size:14px;margin-left:6px}
 .hoje .hg{display:grid;gap:16px 32px}
@@ -189,7 +194,7 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
   .hoje .h-prazos{grid-area:prazos}.hoje .h-sinal{grid-area:sinal}.hoje .h-receber{grid-area:receber}.hoje .fila{grid-area:fila;border-left:1px solid var(--line);padding-left:32px;margin-left:-16px}}
 .hoje h4{margin:0 0 6px;font-size:14px}
 .hoje ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
-.hoje li button{all:unset;cursor:pointer;display:flex;gap:8px;align-items:baseline;width:100%;padding:3px 6px;margin:0 -6px;border-radius:6px;font-size:14px}
+.hoje li button{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;width:calc(100% + 12px);padding:6px 6px;margin:0 -6px;border-radius:6px;font-size:14px;min-height:34px}
 .hoje li button:hover{background:var(--paper)}.hoje li button:focus-visible{outline:3px solid var(--accent)}
 .hoje li .pid{flex:none;color:var(--muted)}.hoje li .nm{flex:1 1 6em;min-width:6em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hoje li .q{margin-left:auto;flex:0 1 auto;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
 .hoje .fila ul{margin-bottom:8px}
@@ -382,7 +387,20 @@ dialog .body{overscroll-behavior:contain}
 @media (max-width:640px){
   .row{grid-template-columns:56px minmax(0,1fr)}
   .row img{width:56px;height:56px}
-  .row .acts{grid-column:1/-1;justify-content:flex-start;flex-wrap:nowrap;gap:6px}
+  .row .acts{grid-column:1/-1;justify-content:flex-start;flex-wrap:wrap;gap:6px}
+  .row .acts .btn:not(.icon){flex:1 1 auto;justify-content:center}
+  .tools{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tools > *{min-width:0}
+  .tools .btn{white-space:normal;text-align:center;line-height:1.2}
+  .tools > span[style*="flex:1"]{display:none}
+  .tools .count{grid-column:1/-1}
+  #dPed footer{gap:8px}
+  #dPed footer > span{display:none}
+  #dPed footer #pdExcluir,#dPed footer #pdRepetir,#dPed footer #pdWa{flex:1 1 calc(33.33% - 6px);min-width:0;font-size:13px;padding:8px 4px;white-space:normal;line-height:1.2}
+  #dPed footer #pdVoltar{flex:1 1 calc(33.33% - 6px)}
+  #dPed footer #pdProx{flex:2 1 calc(66.66% - 6px)}
+  #dPed footer #pdSalvar{flex:1 1 100%}
+  #dPed footer .lg{display:none}
   .row .acts .btn{padding:8px 10px;font-size:14px}
   .row .acts .icon{width:34px;height:34px;padding:0}
   .g2,.g3{grid-template-columns:1fr}
@@ -406,7 +424,7 @@ dialog .body{overscroll-behavior:contain}
 <header class="wrap top">
   <div class="brand"><span class="mark"><span></span></span><div><b>StudioPrint</b><small>Painel do catálogo</small></div></div>
   <nav id="topNav" hidden>
-    <a class="btn" href="./" target="_blank" rel="noopener"><svg width="16" height="16"><use href="#i-ext"/></svg><span>Ver catálogo</span></a>
+    <a class="btn" href="./" target="_blank" rel="noopener" aria-label="Ver catálogo"><svg width="16" height="16" aria-hidden="true"><use href="#i-ext"/></svg><span>Ver catálogo</span></a>
     <button class="btn" type="button" id="sair">Sair</button>
   </nav>
 </header>
@@ -572,7 +590,7 @@ dialog .body{overscroll-behavior:contain}
     </div>
     <div class="card" data-painel="contatos" hidden>
       <h3>Rodapé</h3>
-      <textarea class="in" id="sRod" data-bind="rodape"></textarea>
+      <textarea class="in" id="sRod" data-bind="rodape" aria-label="Texto do rodapé"></textarea>
     </div>
   </section>
   <section id="tAjustes" hidden>
@@ -591,11 +609,11 @@ dialog .body{overscroll-behavior:contain}
         <h3>Custos dos produtos</h3>
         <p>Usados para calcular o lucro no relatório. Vêm da sua planilha de precificação e ficam só no repositório privado, junto com os pedidos: os clientes não veem.</p>
         <p class="hint" id="cuInfo">Carregando…</p>
-        <h4 style="margin:8px 0 0">Capacidade de produção</h4>
-        <p class="hint" style="margin:0">Usada na fila de impressão da tela de pedidos para prever quando cada pedido fica pronto.</p>
-        <div class="g2" style="max-width:420px"><div><label class="f" for="capImp">Impressoras</label><input class="in" id="capImp" inputmode="numeric"></div><div><label class="f" for="capHoras">Horas de impressão por dia (cada uma)</label><input class="in" id="capHoras" inputmode="decimal"></div></div>
-        <div class="aj-acts"><button class="btn" type="button" id="bCap">Salvar capacidade</button></div>
         <div class="aj-acts"><label class="btn">Importar da planilha de precificação<input type="file" id="cuArq" accept=".xlsx" hidden></label></div>
+        <h4 style="margin:10px 0 0">Capacidade de produção</h4>
+        <p class="hint" style="margin:0">Usada na fila de impressão da tela de pedidos para prever quando cada pedido fica pronto.</p>
+        <div class="g2" style="max-width:420px;align-items:end"><div><label class="f" for="capImp">Impressoras</label><input class="in" id="capImp" inputmode="numeric"></div><div><label class="f" for="capHoras">Horas de impressão por dia</label><input class="in" id="capHoras" inputmode="decimal"></div></div>
+        <div class="aj-acts"><button class="btn" type="button" id="bCap">Salvar capacidade</button></div>
       </div>
       <div class="card aj">
         <h3>Contador de visitas</h3>
@@ -827,8 +845,8 @@ dialog .body{overscroll-behavior:contain}
     <div class="pdbar"><div class="totais" id="pdTotais"></div></div>
     <footer>
       <button class="btn danger" type="button" id="pdExcluir">Excluir</button>
-      <button class="btn" type="button" id="pdRepetir">Repetir pedido</button>
-      <button class="btn" type="button" id="pdWa">Mensagem no WhatsApp</button>
+      <button class="btn" type="button" id="pdRepetir">Repetir<span class="lg"> pedido</span></button>
+      <button class="btn" type="button" id="pdWa"><span class="lg">Mensagem no </span>WhatsApp</button>
       <span style="flex:1"></span>
       <button class="btn" type="button" id="pdVoltar">Voltar</button>
       <button class="btn" type="button" id="pdProx">Próximo</button>
@@ -876,7 +894,7 @@ dialog .body{overscroll-behavior:contain}
   <form class="ed" method="dialog" id="formEl" novalidate>
     <header><h2 id="formTit"></h2></header>
     <div class="fbody" id="formCorpo"></div>
-    <p class="err" id="formErr" style="margin:0 20px"></p>
+    <p class="err" id="formErr" style="margin:0 20px" role="alert"></p>
     <footer><button class="btn" type="button" id="formNao">Cancelar</button><button class="btn primary" type="submit" id="formSim">Salvar</button></footer>
   </form>
 </dialog>
@@ -2801,7 +2819,7 @@ function desenharItens(){
         <div><label class="f">Cor</label><input class="in" data-ik="${k}" data-f="cor" value="${esc(it.cor)}" placeholder="${cores.length ? "Toque numa cor acima" : "Ex.: Vermelho"}"></div>
         <div><label class="f">Nome a gravar</label><input class="in" data-ik="${k}" data-f="nome_gravado" value="${esc(it.nome_gravado)}" placeholder="${prod && prod.personalizado ? "Nome do cliente" : "Se tiver"}"></div>
         <div><label class="f">Quantidade</label><div class="qtd"><button type="button" class="btn icon" data-ik="${k}" data-q="-1" aria-label="Menos um">−</button><input class="in" data-ik="${k}" data-f="qtd" value="${esc(it.qtd)}" inputmode="numeric" aria-label="Quantidade"><button type="button" class="btn icon" data-ik="${k}" data-q="1" aria-label="Mais um">+</button></div></div>
-        <div><label class="f">Preço un. (R$)</label><input class="in" data-ik="${k}" data-f="preco" value="${valorBR(it.preco)}" inputmode="decimal"></div>
+        <div><label class="f">Preço un. (R$)</label><input class="in" data-ik="${k}" data-f="preco" aria-label="Preço unitário" value="${valorBR(it.preco)}" inputmode="decimal"></div>
       </div>
     </div>`; }).join("");
 }
