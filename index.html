@@ -246,7 +246,9 @@ body.tem-lista{padding-bottom:84px}
 .lista header h2{margin:0;font-size:20px}
 .l-body{overflow:auto;padding:14px 20px;display:grid;gap:14px;overscroll-behavior:contain}
 .l-itens{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-.l-itens li{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px}
+.l-itens li{display:grid;grid-template-columns:56px minmax(0,1fr) auto;grid-template-areas:"img txt qtd" "img rm qtd";column-gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:8px}
+.l-itens li > img{grid-area:img;align-self:start}.l-itens li > div:not(.qtd){grid-area:txt}.l-itens li > .l-rm{grid-area:rm;justify-self:start}.l-itens li > .qtd{grid-area:qtd}
+@media (max-width:480px){.l-itens li{grid-template-columns:48px minmax(0,1fr) auto;grid-template-areas:"img txt txt" "img rm qtd";row-gap:4px}.l-itens li > img{width:48px;height:48px}.l-itens .qtd button{min-height:36px;width:36px}}
 .l-itens img{width:56px;height:56px;object-fit:cover;border-radius:8px;background:var(--paper)}
 .l-itens b{display:block;font-size:15px}
 .l-itens small{color:var(--muted);font-size:13px;display:block}
@@ -729,7 +731,7 @@ function atualizarBarra(){
 function desenharLista(){
   if(!LISTA.length){ $("#lItens").innerHTML = `<li style="grid-template-columns:1fr">Seu pedido está vazio. Abra um produto e toque em Adicionar ao pedido.</li>`; $("#lTotal").innerHTML = ""; $("#lEnviar").innerHTML = ""; return; }
   $("#lItens").innerHTML = LISTA.map((i,k) => `<li><img src="${foto(i.img, true)}" alt="">
-    <div><b>${esc(i.nome)}</b><small>${esc(i.id)}${i.cor ? " | " + esc(i.cor) : ""}${i.gravar ? ` | nome "${esc(i.gravar)}"` : ""}${i.montado === true ? " | montado" : i.montado === false ? " | para montar" : ""} | ${brl(i.preco)} cada</small><button class="l-rm" type="button" data-rm="${k}">Remover</button></div>
+    <div><b>${esc(i.nome)}</b><small>${esc(i.id)}${i.cor ? " | " + esc(i.cor) : ""}${i.gravar ? ` | nome "${esc(i.gravar)}"` : ""}${i.montado === true ? " | montado" : i.montado === false ? " | para montar" : ""} | ${brl(i.preco)} cada</small></div><button class="l-rm" type="button" data-rm="${k}" aria-label="Remover ${esc(i.nome)}">Remover</button>
     <div class="qtd" role="group" aria-label="Quantidade de ${esc(i.nome)}"><button type="button" data-lq="${k}" data-d="-1" aria-label="Menos um">−</button><output>${i.qtd}</output><button type="button" data-lq="${k}" data-d="1" aria-label="Mais um">+</button></div></li>`).join("");
   const fr = freteLista(), tipo = entregaSel && entregaSel.tipo;
   $("#lTotal").innerHTML = tipo === "abc" && entregaSel.cidade && entregaSel.valor < 0
