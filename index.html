@@ -186,6 +186,12 @@ html.travado,html.travado body{overflow:hidden}
 .colors ul{list-style:none;margin:0;padding:0;display:flex;gap:10px;flex-wrap:wrap}
 .colors li{display:flex;align-items:center;gap:6px;font-size:14px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 6px}
 .colors .sw{width:16px;height:16px}
+.mont{display:grid;gap:6px;margin-bottom:12px}
+.mont-t{font-weight:700;font-size:14px}
+.mont-op{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mont-op button{display:grid;gap:2px;text-align:left;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card,#fff);cursor:pointer;font:inherit;color:inherit}
+.mont-op button b{font-size:15px}.mont-op button span{font-size:13px;color:var(--muted)}
+.mont-op button[aria-checked="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
 .ficha{display:grid;gap:6px;margin:0 0 4px;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
 .ficha:empty{display:none}
 .ficha div{display:flex;gap:10px;font-size:14px;line-height:1.4}
@@ -489,8 +495,10 @@ let cat = "Todos", q = "";
 let LISTA = [];
 try{ LISTA = JSON.parse(localStorage.getItem("sp_pedido") || "[]").filter(i => i && i.id && i.qtd > 0); }catch(_){ LISTA = []; }
 const guardar = () => { try{ localStorage.setItem("sp_pedido", JSON.stringify(LISTA)); }catch(_){} };
-let sel = {cor:"", qtd:1, gravar:""};
-const linhaPedido = i => `${i.qtd}x ${i.id} ${i.nome}${i.cor ? ` (${i.cor})` : ""}${i.gravar ? `, nome "${i.gravar}"` : ""}: ${brl(i.preco * i.qtd)}`;
+let sel = {cor:"", qtd:1, gravar:"", montado:false};
+const montTxt = i => i.montado === true ? ", montado" : i.montado === false ? ", para montar" : "";
+const linhaPedido = i => `${i.qtd}x ${i.id} ${i.nome}${i.cor ? ` (${i.cor})` : ""}${i.gravar ? `, nome "${i.gravar}"` : ""}${montTxt(i)}: ${brl(i.preco * i.qtd)}`;
+const precoSel = p => (Number(p.price) || 0) + (p.mont && sel.montado ? p.mont.extra : 0);
 /* entrega escolhida na lista */
 let entregaSel = null, pagSel = "";   /* {tipo:"retirada"|"abc"|"correios", cidade, valor} */
 const freteLista = () => entregaSel && entregaSel.tipo === "abc" && entregaSel.valor >= 0 && entregaSel.cidade ? entregaSel.valor : 0;
@@ -524,7 +532,7 @@ function waLink(c, p){
     const item = `${p.id}, ${p.name} (${brl(p.price)}${p.unit?" "+p.unit:""})`;
     msg = p.status==="disponivel" ? `${oi} Vi no catálogo da StudioPrint o ${item}. Ainda tem para pronta entrega?`
         : p.status==="esgotado" ? `${oi} Vi no catálogo da StudioPrint o ${item}. Quero entrar na lista de espera.`
-        : `${oi} Vi no catálogo da StudioPrint e quero encomendar:\n${linhaPedido({id:p.id, nome:p.name, cor:sel.cor, gravar:sel.gravar, qtd:sel.qtd, preco:p.price})}` +
+        : `${oi} Vi no catálogo da StudioPrint e quero encomendar:\n${linhaPedido({id:p.id, nome:p.name, cor:sel.cor, gravar:sel.gravar, qtd:sel.qtd, preco:precoSel(p), ...(p.mont ? {montado:sel.montado} : {})})}` +
           (p.custom && !sel.gravar ? `\nNome para personalizar: ` : "") + (!sel.cor ? `\nCor: ` : "");
   }
   if(p === "lista"){
@@ -575,7 +583,7 @@ function renderGrid(){
       </div>
       <div class="info">
         <h3>${esc(p.name)}</h3>
-        <div class="meta">${p.launch?`<span class="tag launch">Preço de lançamento</span>`:""}${p.custom?`<span class="tag">Personalizado com nome</span>`:""}${swatches(p)}</div>
+        <div class="meta">${p.launch?`<span class="tag launch">Preço de lançamento</span>`:""}${p.custom?`<span class="tag">Personalizado com nome</span>`:""}${p.mont?`<span class="tag">Para montar</span>`:""}${swatches(p)}</div>
         <div class="row"><span class="price">${brl(p.price)}${p.unit?`<small>${esc(p.unit)}</small>`:""}</span><span class="status ${p.status}">${p.estoque ? (p.estoque <= 2 ? `Últimas ${p.estoque === 1 ? "unidade" : p.estoque + " unidades"}` : STATUS.disponivel) : STATUS[p.status]}</span></div>
       </div>
     </button>`).join("")
@@ -607,10 +615,11 @@ function openProduct(id, setHash){
   const pz = prazoTexto(p);
   const fc = formasCurtas(), sn = PAG().sinal;
   $("#dFicha").innerHTML = (pz ? `<div><dt>Produção</dt><dd>${pz}</dd></div>` : "") + (p.medidas ? `<div><dt>Medidas</dt><dd>${esc(p.medidas)}</dd></div>` : "")
+    + (p.mont ? `<div><dt>Montagem</dt><dd>Chega em peças para você montar${p.mont.extra ? `<small>Prefere receber montado? Escolha abaixo: + ${brl(p.mont.extra)} por peça.</small>` : ""}</dd></div>` : "")
     + (fc ? `<div><dt>Pagamento</dt><dd>${esc(fc)}${p.status === "encomenda" && sn ? `<small>${esc(textoSinal()[0].toUpperCase() + textoSinal().slice(1))}</small>` : ""}${PAG().obs ? `<small>${esc(PAG().obs)}</small>` : ""}</dd></div>` : "");
   const cs = coresDisponiveis(p);
   $("#dAvisos").innerHTML = avisosDe(p).length ? `<h4>Antes de comprar</h4><ul>${avisosDe(p).map(a=>`<li>${esc(a.texto)}</li>`).join("")}</ul>` : "";
-  sel = {cor: cs.length === 1 ? cs[0].nome : "", qtd:1, gravar:""};
+  sel = {cor: cs.length === 1 ? cs[0].nome : "", qtd:1, gravar:"", montado:false};
   $("#dColors").innerHTML = cs.length ? `<h4>Cores <span class="opc">${cs.length > 1 ? "toque para escolher" : ""}</span></h4><ul>${cs.map(k=>`<li style="border:0;padding:0"><button type="button" data-cor="${esc(k.nome)}" aria-pressed="${sel.cor===k.nome}"><span class="sw" style="background:${esc(k.hex)}"></span>${esc(k.nome)}</button></li>`).join("")}</ul>` : "";
   desenharEscolha(p);
   $("#dNote").textContent = p.status==="encomenda"
@@ -656,6 +665,9 @@ function botoesWa(p){
 function desenharEscolha(p, ok){
   if(p.status === "esgotado"){ $("#dEscolha").innerHTML = ""; return; }
   $("#dEscolha").innerHTML =
+    (p.mont && p.mont.extra ? `<div class="mont"><span class="mont-t">Montagem</span><div class="mont-op" role="radiogroup" aria-label="Montagem">
+      <button type="button" role="radio" data-mont="0" aria-checked="${!sel.montado}"><b>Para montar</b><span>${brl(p.price)}</span></button>
+      <button type="button" role="radio" data-mont="1" aria-checked="${sel.montado}"><b>Montado</b><span>${brl(p.price + p.mont.extra)}</span></button></div></div>` : "") +
     (p.custom ? `<div><label for="dGravar">Nome para personalizar</label><input id="dGravar" maxlength="20" placeholder="Ex.: Ana" value="${esc(sel.gravar)}"></div>` : "") +
     `<div class="esc-linha"><div class="qtd" role="group" aria-label="Quantidade"><button type="button" data-q="-1" aria-label="Menos um">−</button><output id="dQtd">${sel.qtd}</output><button type="button" data-q="1" aria-label="Mais um">+</button></div>
       <button class="btn add" type="button" id="dAdd">Adicionar ao pedido</button></div>` +
@@ -672,14 +684,18 @@ $("#dEscolha").addEventListener("click", e => {
   const q = e.target.closest("[data-q]");
   if(q){ sel.qtd = Math.min(99, Math.max(1, sel.qtd + Number(q.dataset.q))); $("#dQtd").textContent = sel.qtd; botoesWa(cur); return; }
   if(e.target.closest("[data-ver]")){ abrirLista(); return; }
+  const mb = e.target.closest("[data-mont]");
+  if(mb){ sel.montado = mb.dataset.mont === "1"; $("#dEscolha").querySelectorAll("[data-mont]").forEach(x => x.setAttribute("aria-checked", (x.dataset.mont === "1") === sel.montado));
+    $("#dPrice").innerHTML = `${brl(precoSel(cur))}${cur.unit?`<small>${esc(cur.unit)}</small>`:""}`; botoesWa(cur); return; }
   if(e.target.closest("#dAdd")){
     const p = cur;
     if(p.custom && !sel.gravar){ const i = $("#dGravar"); i.classList.add("erro"); i.focus(); i.placeholder = "Digite o nome antes de adicionar"; return; }
-    const igual = LISTA.find(i => i.id === p.id && i.cor === sel.cor && i.gravar === sel.gravar);
+    const mont = p.mont ? {montado: !!sel.montado} : {};
+    const igual = LISTA.find(i => i.id === p.id && i.cor === sel.cor && i.gravar === sel.gravar && i.montado === mont.montado);
     if(igual) igual.qtd = Math.min(99, igual.qtd + sel.qtd);
-    else LISTA.push({id:p.id, nome:p.name, preco:Number(p.price)||0, cor:sel.cor, gravar:sel.gravar, qtd:sel.qtd, custom:p.custom, temCores:coresDisponiveis(p).length > 0, img:p.imgs[0]});
+    else LISTA.push({id:p.id, nome:p.name, preco:precoSel(p), cor:sel.cor, gravar:sel.gravar, qtd:sel.qtd, custom:p.custom, temCores:coresDisponiveis(p).length > 0, img:p.imgs[0], ...mont});
     guardar(); atualizarBarra();
-    const txt = `Adicionado: ${sel.qtd}x ${p.name}${sel.cor ? " (" + sel.cor + ")" : ""}.`;
+    const txt = `Adicionado: ${sel.qtd}x ${p.name}${sel.cor ? " (" + sel.cor + ")" : ""}${p.mont ? (sel.montado ? ", montado" : ", para montar") : ""}.`;
     sel.gravar = ""; sel.qtd = 1;
     desenharEscolha(p, txt); botoesWa(p);
   }
@@ -692,7 +708,7 @@ function atualizarBarra(){
 function desenharLista(){
   if(!LISTA.length){ $("#lItens").innerHTML = `<li style="grid-template-columns:1fr">Seu pedido está vazio. Abra um produto e toque em Adicionar ao pedido.</li>`; $("#lTotal").innerHTML = ""; $("#lEnviar").innerHTML = ""; return; }
   $("#lItens").innerHTML = LISTA.map((i,k) => `<li><img src="${foto(i.img, true)}" alt="">
-    <div><b>${esc(i.nome)}</b><small>${esc(i.id)}${i.cor ? " | " + esc(i.cor) : ""}${i.gravar ? ` | nome "${esc(i.gravar)}"` : ""} | ${brl(i.preco)} cada</small><button class="l-rm" type="button" data-rm="${k}">Remover</button></div>
+    <div><b>${esc(i.nome)}</b><small>${esc(i.id)}${i.cor ? " | " + esc(i.cor) : ""}${i.gravar ? ` | nome "${esc(i.gravar)}"` : ""}${i.montado === true ? " | montado" : i.montado === false ? " | para montar" : ""} | ${brl(i.preco)} cada</small><button class="l-rm" type="button" data-rm="${k}">Remover</button></div>
     <div class="qtd" role="group" aria-label="Quantidade de ${esc(i.nome)}"><button type="button" data-lq="${k}" data-d="-1" aria-label="Menos um">−</button><output>${i.qtd}</output><button type="button" data-lq="${k}" data-d="1" aria-label="Mais um">+</button></div></li>`).join("");
   const fr = freteLista(), tipo = entregaSel && entregaSel.tipo;
   $("#lTotal").innerHTML = tipo === "abc" && entregaSel.cidade
@@ -783,12 +799,14 @@ async function carregar(){
     P = dados.filter(o => !o.oculto).map(o => ({id:o.id, name:o.nome, cat:o.categoria, price:o.preco, unit:o.unidade||"",
       status: o.estoque > 0 ? "disponivel" : (o.status === "disponivel" ? "encomenda" : (o.status||"encomenda")), estoque: o.estoque > 0 ? o.estoque : 0, destaque:o.destaque||"",
       custom:!!o.personalizado, launch:!!o.lancamento, desc:o.descricao||"", prazo:o.prazo||null, medidas:o.medidas||"", imgs:(o.fotos&&o.fotos.length?o.fotos:["45"]),
-      fit:o.fotoInteira?"contain":"", colors:o.cores||[]}));
+      fit:o.fotoInteira?"contain":"", colors:o.cores||[], mont: o.montagem ? {extra: Number(o.montagem.extra) || 0} : null}));
     const cats = [...new Set(P.map(p=>p.cat))];
     cats.sort((a,b)=>{const ia=ORDEM_CATS.indexOf(a), ib=ORDEM_CATS.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib);});
     CATS = ["Todos", ...cats];
     /* pedido guardado: atualiza nome e preço e tira o que saiu do catálogo ou esgotou */
-    LISTA = LISTA.filter(i => { const p = P.find(x => x.id === i.id); if(!p || p.status === "esgotado") return false; i.nome = p.name; i.preco = Number(p.price)||0; i.img = p.imgs[0]; return true; });
+    LISTA = LISTA.filter(i => { const p = P.find(x => x.id === i.id); if(!p || p.status === "esgotado") return false;
+      if(!p.mont){ delete i.montado; } else { if(i.montado && !p.mont.extra) i.montado = false; if(i.montado === undefined) i.montado = false; }
+      i.nome = p.name; i.preco = (Number(p.price)||0) + (i.montado ? p.mont.extra : 0); i.img = p.imgs[0]; return true; });
     guardar(); atualizarBarra();
     renderChips(); renderGrid(); fromHash(); ligarDestaque();
   }catch(err){

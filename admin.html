@@ -8,6 +8,11 @@
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="painel.webmanifest">
+<meta name="theme-color" content="#15181E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Painel SP">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
@@ -119,6 +124,7 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .tabs{display:flex;gap:6px;margin:4px 0 14px;border-bottom:1px solid var(--line)}
 .tabs button{border:0;background:none;padding:10px 14px;font-weight:650;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px;cursor:pointer}
 .tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+@media (max-width:640px){.tabs{overflow-x:auto;scrollbar-width:none;gap:0}.tabs::-webkit-scrollbar{display:none}.tabs button{padding:10px 9px;white-space:nowrap;flex:none;font-size:14px}.tabs .lg{display:none}}
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;display:grid;gap:12px}
 .card h3{margin:0;font-size:17px;font-variation-settings:"wdth" 110;font-weight:800}
 .card > p.hint{margin:-6px 0 0}
@@ -147,6 +153,35 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .kpis span{color:var(--muted);font-size:13px}
 .kpis .alerta{border-color:var(--danger)}
 .kpis .alerta b{color:var(--danger)}
+.fbody{padding:16px 20px 4px;display:grid;gap:12px}
+.fbody .hint{margin:0}
+.hoje-aviso{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:-2px 0 12px;padding:8px 12px;border-radius:8px;background:#FFF4E5;color:#7A4B00;font-size:14px}
+.hoje-aviso .btn{padding:6px 12px;font-size:13px}
+.hoje .fil-av{margin:8px 0 0;font-size:14px;color:var(--danger);font-weight:600}
+.badge-m{display:inline-block;padding:1px 7px;border-radius:999px;font-size:12px;font-weight:700;line-height:18px}
+.badge-m.ruim{background:#FDE7E5;color:#B42318}.badge-m.baixo{background:#FFF1D6;color:#8A5300}
+.fil-res{display:grid;gap:6px;margin-bottom:14px}.fil-res p{margin:0;color:#2B3038}.fil-res .warn{color:var(--danger);font-weight:600}
+.fil-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.fcor{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:8px}
+.fcor.baixo{border-color:#E0A100}.fcor.falta{border-color:var(--danger)}
+.fcor .fh{display:flex;align-items:center;gap:10px}.fcor .sw{width:22px;height:22px;border-radius:50%;border:1px solid rgba(0,0,0,.15);flex:none}
+.fcor .fh b{font-size:15px}.fcor .tag{margin-left:auto;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px}
+.fcor.baixo .tag{background:#FFF1D6;color:#8A5300}.fcor.zero .tag{background:var(--paper);color:var(--muted)}
+.fcor .acts .fdel{margin-left:auto;font-size:13px;color:var(--muted)}.fcor.falta .tag{background:#FDE7E5;color:#B42318}
+.fcor .g{font-size:24px;font-weight:800;font-variation-settings:"wdth" 110;font-variant-numeric:tabular-nums}.fcor .g small{font-size:13px;font-weight:500;color:var(--muted);margin-left:6px}
+.fcor .bar{height:8px;background:var(--paper);border-radius:4px;overflow:hidden}.fcor .bar i{display:block;height:100%;background:var(--ink);border-radius:4px}
+.fcor.baixo .bar i{background:#E0A100}.fcor.falta .bar i{background:var(--danger)}
+.fcor p{margin:0;font-size:13px;color:var(--muted)}
+.fcor .acts{display:flex;gap:6px;flex-wrap:wrap}.fcor .acts .btn{padding:6px 10px;font-size:13px}
+.cli-f{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.cli{display:grid;gap:8px}
+.cli article{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;gap:6px 18px;align-items:center}
+.cli h4{margin:0;font-size:15px}.cli .sub{color:var(--muted);font-size:13px}
+.cli .num{font-variant-numeric:tabular-nums;font-size:14px}.cli .num b{font-size:15px}
+.cli .prods{grid-column:1 / -1;font-size:13px;color:#2B3038}
+.cli .acts{display:flex;gap:6px}.cli .acts .btn{padding:6px 10px;font-size:13px}
+.cli .tag{display:inline-block;margin-left:6px;font-size:12px;font-weight:700;padding:1px 7px;border-radius:999px;background:#E7F5EC;color:#14703A}
+@media (max-width:640px){.cli article{grid-template-columns:1fr}.cli .acts{justify-content:flex-start}}
 .hoje{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:14px}
 .hoje > h3{margin:0 0 10px;font-size:17px}.hoje > h3 span{color:var(--muted);font-weight:500;font-size:14px;margin-left:6px}
 .hoje .hg{display:grid;gap:16px 32px}
@@ -416,8 +451,9 @@ dialog .body{overscroll-behavior:contain}
 <main class="wrap" id="vApp" hidden>
   <div class="tabs" role="tablist">
     <button type="button" role="tab" aria-selected="true" data-tab="tPedidos">Pedidos</button>
+    <button type="button" role="tab" aria-selected="false" data-tab="tFilamento">Filamento</button>
     <button type="button" role="tab" aria-selected="false" data-tab="tProdutos">Produtos</button>
-    <button type="button" role="tab" aria-selected="false" data-tab="tSite">Site e avisos</button>
+    <button type="button" role="tab" aria-selected="false" data-tab="tSite">Site<span class="lg"> e avisos</span></button>
     <button type="button" role="tab" aria-selected="false" data-tab="tAjustes">Ajustes</button>
   </div>
   <section id="tPedidos">
@@ -441,15 +477,25 @@ dialog .body{overscroll-behavior:contain}
         <button class="btn primary" type="button" id="pedNovo">Novo pedido</button>
         <button class="btn" type="button" id="pedColar">Colar pedido do WhatsApp</button>
         <input class="in" type="search" id="pedBusca" placeholder="Buscar cliente, número ou produto" aria-label="Buscar pedidos">
-        <div class="viewsw" role="group" aria-label="Modo de ver"><button type="button" data-view="lista">Lista</button><button type="button" data-view="quadro">Quadro</button></div>
+        <div class="viewsw" role="group" aria-label="Modo de ver"><button type="button" data-view="lista">Lista</button><button type="button" data-view="quadro">Quadro</button><button type="button" data-view="clientes">Clientes</button></div>
         <button class="btn" type="button" id="pedCsv">Baixar planilha</button>
         <span class="count" id="pedSalvando" hidden><span class="busy"><span class="spin"></span>Salvando…</span></span>
       </div>
       <div class="ptabs" id="pedFiltros" role="tablist" aria-label="Etapas dos pedidos"></div>
       <div id="pedLista"></div>
       <div class="quadro" id="pedQuadro" hidden></div>
+      <div id="pedClientes" hidden></div>
     </div>
     <p class="count" id="pedMsg"></p>
+  </section>
+
+  <section id="tFilamento" hidden>
+    <div class="tools">
+      <button class="btn primary" type="button" id="filComprei">Comprei filamento</button>
+      <button class="btn" type="button" id="filNova">Adicionar cor</button>
+    </div>
+    <div class="card fil-res" id="filResumo"></div>
+    <div id="filLista"></div>
   </section>
 
   <section id="tProdutos" hidden>
@@ -576,6 +622,15 @@ dialog .body{overscroll-behavior:contain}
         <div class="aj-acts"><button class="btn" type="button" id="bBkPed">Pedidos em planilha</button><button class="btn" type="button" id="bBkPedJson">Pedidos (cópia completa)</button><button class="btn" type="button" id="bBkCat">Catálogo e site</button></div>
       </div>
       <div class="card aj">
+        <h3>Painel no celular</h3>
+        <p>Coloque o painel na tela inicial do celular. Ele abre como um aplicativo, sem a barra do navegador.</p>
+        <ul class="aj-lista">
+          <li><b>Android (Chrome):</b> abra o painel, toque em <b>⋮</b> e em <b>Adicionar à tela inicial</b> (ou <b>Instalar app</b>).</li>
+          <li><b>iPhone (Safari):</b> abra o painel, toque em <b>Compartilhar</b> e em <b>Adicionar à Tela de Início</b>.</li>
+          <li>Na primeira vez, entre com a senha do painel. Depois ele lembra neste aparelho.</li>
+        </ul>
+      </div>
+      <div class="card aj">
         <h3>Atalhos</h3>
         <ul class="aj-lista">
           <li><b>Ctrl + Enter</b> salva o pedido aberto.</li>
@@ -642,6 +697,10 @@ dialog .body{overscroll-behavior:contain}
           <div><label class="f" for="eMed">Medidas (opcional)</label><input class="in" id="eMed" placeholder="7 cm de diâmetro"></div>
         </div>
         <label class="check"><input type="checkbox" id="ePers"> Personalizado com nome (o cliente informa o nome no pedido)</label>
+        <div class="g2">
+          <div><label class="f" for="eMont">Montagem</label><select class="in" id="eMont"><option value="">Não se aplica (vai pronto)</option><option value="kit">Vai em peças para o cliente montar</option></select></div>
+          <div id="eMontExtraBox" hidden><label class="f" for="eMontExtra">Adicional para enviar montado (R$)</label><input class="in" id="eMontExtra" inputmode="decimal" placeholder="Vazio: só para montar"></div>
+        </div>
       </fieldset>
       <fieldset>
         <legend>Fotos</legend>
@@ -811,6 +870,15 @@ dialog .body{overscroll-behavior:contain}
     <p id="confTxt"></p>
     <footer><button class="btn" type="button" id="confNao">Cancelar</button><button class="btn primary" type="button" id="confSim">Confirmar</button></footer>
   </div>
+</dialog>
+
+<dialog id="dForm" class="conf" aria-labelledby="formTit">
+  <form class="ed" method="dialog" id="formEl" novalidate>
+    <header><h2 id="formTit"></h2></header>
+    <div class="fbody" id="formCorpo"></div>
+    <p class="err" id="formErr" style="margin:0 20px"></p>
+    <footer><button class="btn" type="button" id="formNao">Cancelar</button><button class="btn primary" type="submit" id="formSim">Salvar</button></footer>
+  </form>
 </dialog>
 
 <div class="toast" id="toast" role="status" hidden></div>
@@ -1041,7 +1109,7 @@ function render(){
       html += `<li class="row${p.oculto ? " is-oculto" : ""}">
         <img src="${esc(thumb(p.fotos[0]))}" alt="">
         <div class="t" data-edit="${i}" style="cursor:pointer"><b>${esc(p.nome)}</b>
-          <span>${esc(p.id)} | ${brl(p.preco)}${p.unidade ? " " + esc(p.unidade) : ""} | ${p.oculto ? '<b class="oculto">Oculto do site</b> | ' : ""}${STATUS[p.status] || p.status}${p.estoque > 0 ? ` (${p.estoque} un.)` : ""}${p.destaque ? " | <b>" + DESTAQUE[p.destaque] + "</b>" : ""}${p.lancamento ? " | Lançamento" : ""}${alterado ? ' | <span class="changed">' + (origMap[p.id] ? "Editado" : "Novo") + "</span>" : ""}</span></div>
+          <span>${esc(p.id)} | ${brl(p.preco)}${p.unidade ? " " + esc(p.unidade) : ""}${badgeMargem(p)} | ${p.oculto ? '<b class="oculto">Oculto do site</b> | ' : ""}${STATUS[p.status] || p.status}${p.estoque > 0 ? ` (${p.estoque} un.)` : ""}${p.destaque ? " | <b>" + DESTAQUE[p.destaque] + "</b>" : ""}${p.lancamento ? " | Lançamento" : ""}${alterado ? ' | <span class="changed">' + (origMap[p.id] ? "Editado" : "Novo") + "</span>" : ""}</span></div>
         <div class="acts">
           <button class="btn icon" type="button" data-up="${i}" aria-label="Subir ${esc(p.nome)}" ${k===0||q?"disabled":""}><svg><use href="#i-up"/></svg></button>
           <button class="btn icon" type="button" data-down="${i}" aria-label="Descer ${esc(p.nome)}" ${k===pos.length-1||q?"disabled":""}><svg><use href="#i-down"/></svg></button>
@@ -1114,6 +1182,7 @@ function diferencasProduto(a, b){
   campo("No site", !a.oculto, !b.oculto, v => v ? "aparece" : "oculto");
   campo("Preço de lançamento", !!a.lancamento, !!b.lancamento, v => v ? "sim" : "não");
   campo("Personalizado", !!a.personalizado, !!b.personalizado, v => v ? "sim" : "não");
+  campo("Montagem", textoMont(a), textoMont(b), v => v);
   if((a.descricao||"") !== (b.descricao||"")) d.push("Descrição alterada");
   if(JSON.stringify(a.fotos||[]) !== JSON.stringify(b.fotos||[])) d.push("Fotos alteradas");
   if(JSON.stringify(a.cores||[]) !== JSON.stringify(b.cores||[])) d.push("Cores alteradas");
@@ -1131,9 +1200,10 @@ function abrirEditor(i, modelo, posInsert){
   $("#eEst").value = p.estoque > 0 ? p.estoque : ""; $("#eDest").value = p.destaque || "";
   $("#eVisivel").checked = !p.oculto;
   const cu = custoDe(p.id);
-  $("#eCustoInfo").hidden = !cu;
-  if(cu) $("#eCustoInfo").textContent = `Pela planilha de precificação: custo ${brl(cu.total)} por peça (com a sua mão de obra). Material e embalagem: ${brl(cu.material)}.`;
+  $("#eCustoInfo").hidden = !cu; $("#eCustoInfo").dataset.id = p.id || "";
+  infoCustoEditor();
   $("#eLanc").checked = !!p.lancamento; $("#ePers").checked = !!p.personalizado; $("#eInteira").checked = !!p.fotoInteira;
+  $("#eMont").value = p.montagem ? "kit" : ""; $("#eMontExtra").value = p.montagem && p.montagem.extra ? valorBR(p.montagem.extra) : ""; $("#eMontExtraBox").hidden = !p.montagem;
   $("#eDesc").value = p.descricao || "";
   const pz = prazoProduto(p); $("#ePzMin").value = pz[0]; $("#ePzMax").value = pz[1]; $("#eMed").value = p.medidas || "";
   edFotos = [...(p.fotos || [])]; edCores = (p.cores || []).map(c => ({...c}));
@@ -1228,6 +1298,11 @@ $("#fEd").addEventListener("submit", async e => {
   const p = {id, nome, categoria:cat, preco};
   const un = $("#eUn").value.trim(); if(un) p.unidade = un;
   p.status = $("#eStatus").value; p.personalizado = $("#ePers").checked; p.lancamento = $("#eLanc").checked;
+  if($("#eMont").value === "kit"){
+    const ex = $("#eMontExtra").value.trim() ? precoDe($("#eMontExtra").value) : 0;
+    if(isNaN(ex) || ex < 0 || ex > 1000){ $("#edErr").textContent = "Adicional para enviar montado: use só números, ex.: 5. Deixe vazio se não oferece montado."; return; }
+    p.montagem = ex > 0 ? {extra: ex} : {};
+  }
   const est = parseInt($("#eEst").value, 10) || 0;
   if(est > 0){ p.estoque = Math.min(est, 999); p.status = "disponivel"; }
   else { delete p.estoque; if(p.status === "disponivel") p.status = "encomenda"; }
@@ -1428,7 +1503,9 @@ function totais(p){
   return {itens, frete, total, pago, saldo: Math.round((total - pago) * 100) / 100};
 }
 const atrasado = p => p.prazo && p.prazo < hojeISO() && !SEM_ATRASO.includes(p.status);
-const linhaItem = i => `${i.qtd}x ${i.nome}${i.cor ? " (" + i.cor + ")" : ""}${i.nome_gravado ? ' com o nome "' + i.nome_gravado + '"' : ""}`;
+const textoMont = p => !p.montagem ? "não se aplica" : p.montagem.extra ? `para montar ou montado (+${brl(p.montagem.extra)})` : "só para montar";
+const montTxt = i => i.montado === true ? ", montado" : i.montado === false ? ", para montar" : "";
+const linhaItem = i => `${i.qtd}x ${i.nome}${i.cor ? " (" + i.cor + ")" : ""}${i.nome_gravado ? ' com o nome "' + i.nome_gravado + '"' : ""}${montTxt(i)}`;
 const resumoItens = p => (p.itens||[]).map(linhaItem).join(", ");
 
 async function carregarPedidos(){
@@ -1443,7 +1520,11 @@ async function carregarPedidos(){
     const c = await api(`${PED_REPO}/contents/pedidos.json`).catch(e => { if(e.status === 404) return null; throw e; });
     pedidos = c ? JSON.parse(textoDeB64(c.content)) : []; shaPed = c ? c.sha : null;
     const cc = await api(`${PED_REPO}/contents/custos.json`).catch(e => { if(e.status === 404) return null; throw e; });
-    custos = cc ? JSON.parse(textoDeB64(cc.content)) : {itens:{}, taxaCartao:0.05}; shaCustos = cc ? cc.sha : null;
+    let cv = null; try{ cv = cc ? JSON.parse(textoDeB64(cc.content)) : null; }catch(e){}
+    custos = {itens:{}, taxaCartao:0.05, ...(cv && !Array.isArray(cv) ? cv : {})}; if(!custos.itens || typeof custos.itens !== "object") custos.itens = {}; shaCustos = cc ? cc.sha : null;
+    const fj = await api(`${PED_REPO}/contents/filamento.json`).catch(e => { if(e.status === 404) return null; throw e; });
+    let fv = null; try{ fv = fj ? JSON.parse(textoDeB64(fj.content)) : null; }catch(e){}
+    fil = {cores:[], compras:[], alerta:200, ...(fv && !Array.isArray(fv) ? fv : {})}; if(!Array.isArray(fil.cores)) fil.cores = []; if(!Array.isArray(fil.compras)) fil.compras = []; shaFil = fj ? fj.sha : null;
     renderCustos();
     pedPronto = true; $("#pedMsg").textContent = ""; $("#pedApp").hidden = false; renderPedidos();
   }catch(e){ $("#pedMsg").textContent = erroAmigavel(e); }
@@ -1468,7 +1549,8 @@ async function gravarCustos(novo){
 }
 function renderCustos(){
   if($("#capImp") && document.activeElement !== $("#capImp") && document.activeElement !== $("#capHoras")) mostrarCap();
-  if(pedPronto) renderHoje();
+  if(pedPronto){ renderHoje(); renderFil(); }
+  if($("#lista") && produtos.length && !$("#tProdutos").hidden) render();
   const n = Object.keys(custos.itens || {}).length, sem = produtos.filter(p => !custoDe(p.id));
   if(!$("#cuInfo")) return;
   $("#cuInfo").textContent = n ? `${n} produto${n > 1 ? "s" : ""} com custo${custos.atualizado ? ", atualizado em " + dataBR(custos.atualizado) : ""}. Taxa de cartão: ${Math.round((custos.taxaCartao || 0) * 1000) / 10}%.` + (sem.length ? ` Sem custo: ${sem.map(p => p.id).join(", ")}.` : "") : "Nenhum custo cadastrado ainda. Importe da planilha de precificação.";
@@ -1523,10 +1605,10 @@ async function importarCustos(arq){
     [...aba.linhas.keys()].sort((a, b) => a - b).forEach(n => {
       const r = aba.linhas.get(n), cel = k => r.get(k), a = semAcento(cel(1));
       if(a.startsWith("taxas")) taxa = num(cel(3));
-      if(!cab) [["filamento","kg"],["energia","kwh"],["consumo","kw"],["desgaste","desg"],["sua mao de obra","mao"],["perda com falhas","perda"]].forEach(([t, k]) => { if(a.startsWith(t) && num(cel(3)) !== null) par[k] = num(cel(3)); });
+      if(!cab) [["filamento","kg"],["energia","kwh"],["consumo","kw"],["desgaste","desg"],["sua mao de obra","mao"],["perda com falhas","perda"],["margem de lucro desejada","meta"]].forEach(([t, k]) => { if(a.startsWith(t) && num(cel(3)) !== null) par[k] = num(cel(3)); });
       if(!cab && a === "codigo"){
         cab = n; r.forEach((v, k) => { const h = semAcento(v); if(h.startsWith("custo total")) cols.total = k; if(h.startsWith("material")) cols.mat = k; if(h.startsWith("embalagem")) cols.emb = k;
-          if(h.startsWith("peso")) cols.peso = k; if(h.startsWith("impressao")) cols.imp = k; if(h.startsWith("montagem")) cols.mont = k; if(h.startsWith("perda na troca")) cols.troca = k; });
+          if(h.startsWith("peso")) cols.peso = k; if(h.startsWith("impressao")) cols.imp = k; if(h.startsWith("montagem se")) cols.montado = k; else if(h.startsWith("montagem")) cols.mont = k; if(h.startsWith("perda na troca")) cols.troca = k; });
         return;
       }
       if(cab && n > cab){
@@ -1536,6 +1618,8 @@ async function importarCustos(arq){
         itens[id] = {total: cent(total), material: cent(mat + emb)}; lidos.push(id);
         if(cols.imp && num(cel(cols.imp)) !== null) itens[id].horas = num(cel(cols.imp));
         if(cols.mont && num(cel(cols.mont)) !== null) itens[id].montagem = num(cel(cols.mont));
+        if(cols.montado && num(cel(cols.montado)) > 0) itens[id].montadoHoras = num(cel(cols.montado));
+        if(cols.peso && num(cel(cols.peso)) !== null) itens[id].gramas = Math.round(num(cel(cols.peso)) * (1 + (num(cel(cols.troca)) || 0)) * (1 + (par.perda || 0)));
         const temPar = ["kg","kwh","kw","desg","mao","perda"].every(k => par[k] !== undefined) && cols.peso && cols.imp && cols.mont;
         if(temPar){
           const peso = num(cel(cols.peso)) || 0, imp = num(cel(cols.imp)) || 0, mont = num(cel(cols.mont)) || 0, troca = num(cel(cols.troca)) || 0, f = 1 + par.perda;
@@ -1549,7 +1633,7 @@ async function importarCustos(arq){
     if(!cab || !cols.total || !cols.mat) throw new Error('Não achei as colunas "Código", "Custo total" e "Material" na planilha. Use a planilha Precificação StudioPrint.xlsx.');
     if(!lidos.length) throw new Error("A planilha não tem custos calculados. Abra no Excel, salve e tente de novo.");
     const noSite = new Set(produtos.map(p => p.id)), fora = lidos.filter(id => !noSite.has(id)), sem = produtos.filter(p => !itens[p.id]).map(p => p.id);
-    const novo = {...custos, itens, taxaCartao: taxa !== null ? taxa : (custos.taxaCartao ?? 0.05), atualizado: hojeISO()};
+    const novo = {...custos, itens, taxaCartao: taxa !== null ? taxa : (custos.taxaCartao ?? 0.05), atualizado: hojeISO(), ...(par.meta !== undefined ? {margemDesejada: par.meta} : {}), ...(par.mao !== undefined ? {maoHora: par.mao} : {})};
     const det = `${lidos.length} produtos com custo${nPartes ? ", separado em filamento, luz, desgaste da impressora, embalagem e mão de obra" : ""}. Taxa de cartão: ${Math.round(novo.taxaCartao * 1000) / 10}%.` + (sem.length ? `\nNo catálogo sem custo na planilha: ${sem.join(", ")}.` : "") + (fora.length ? `\nNa planilha mas não no catálogo: ${fora.join(", ")}.` : "") + "\nOs custos ficam só no repositório privado: os clientes não veem.";
     if(!(await confirmar("Atualizar os custos dos produtos?", det, "Atualizar custos"))) return;
     if(await gravarCustos(novo)) aviso("Custos atualizados.");
@@ -1597,8 +1681,10 @@ function renderPedidos(){
   $("#pedFiltros").innerHTML = filtros.map(([k,l,n]) => `<button type="button" role="tab" class="ptab${k==="atrasados" && n ? " bad" : ""}" aria-selected="${pedFiltro===k}" data-pf="${k}">${l}<span>${n}</span></button>`).join("");
   const vista = lembrar("sp_vista") || "lista";
   document.querySelectorAll("[data-view]").forEach(b => b.setAttribute("aria-pressed", b.dataset.view === vista));
-  $("#pedFiltros").hidden = vista === "quadro"; $("#pedLista").hidden = vista === "quadro"; $("#pedQuadro").hidden = vista !== "quadro";
+  $("#pedFiltros").hidden = vista !== "lista"; $("#pedLista").hidden = vista !== "lista"; $("#pedQuadro").hidden = vista !== "quadro"; $("#pedClientes").hidden = vista !== "clientes";
+  $("#pedBusca").placeholder = vista === "clientes" ? "Buscar cliente, telefone, cidade ou produto" : "Buscar cliente, número ou produto";
   if(vista === "quadro"){ desenharQuadro(); return; }
+  if(vista === "clientes"){ desenharClientes(); return; }
   const q = $("#pedBusca").value.trim().toLowerCase();
   let lista = pedidos.filter(p => pedFiltro === "todos" || (pedFiltro === "abertos" ? !FECHADOS.includes(p.status) : pedFiltro === "atrasados" ? atrasado(p) : p.status === pedFiltro));
   if(q) lista = lista.filter(p => [p.id, p.cliente && p.cliente.nome, p.cliente && p.cliente.whatsapp, resumoItens(p)].join(" ").toLowerCase().includes(q));
@@ -1633,12 +1719,235 @@ function renderPedidos(){
     : `<p class="count">${pedidos.length ? "Nenhum pedido neste filtro." : "Nenhum pedido ainda. Toque em Novo pedido para cadastrar o primeiro."}</p>`;
 }
 
+
+/* custo de um item do pedido, somando a montagem quando vai montado */
+function custoItem(i){
+  const c = i.produto && i.produto !== "__outro" ? custoDe(i.produto) : null; if(!c) return null;
+  if(i.montado !== true || !c.montadoHoras) return c;
+  const add = c.montadoHoras * (custos.maoHora || 25);
+  return {...c, total: cent(c.total + add), montagem: (c.montagem || 0) + c.montadoHoras, partes: c.partes ? {...c.partes, maoObra: cent((c.partes.maoObra || 0) + add)} : c.partes};
+}
+/* ---------- margem dos produtos ---------- */
+function margemDe(id, preco){
+  const cu = custoDe(id); if(!cu || !(preco > 0)) return null;
+  const taxa = Number(custos.taxaCartao) || 0, lucro = preco - cu.total - preco * taxa;
+  return {cu, lucro, margem: lucro / preco, meta: custos.margemDesejada ?? 0.4};
+}
+function badgeMargem(p){
+  const m = margemDe(p.id, Number(p.preco)); if(!m) return "";
+  if(m.lucro < 0) return ` <b class="badge-m ruim" title="Com taxa de cartão, o preço não cobre o custo com a sua mão de obra (${brl(m.cu.total)})">Não paga a sua hora</b>`;
+  if(m.margem < m.meta - 0.005) return ` <b class="badge-m baixo" title="Lucro de ${Math.round(m.margem * 100)}% no cartão. A meta da planilha é ${Math.round(m.meta * 100)}%.">Lucro ${Math.round(m.margem * 100)}%</b>`;
+  return "";
+}
+function infoCustoEditor(){
+  const el = $("#eCustoInfo"), id = el.dataset.id, cu = id ? custoDe(id) : null; if(!cu){ el.hidden = true; return; }
+  const preco = num($("#ePreco").value), m = margemDe(id, preco);
+  let t = `Pela planilha de precificação: custo ${brl(cu.total)} por peça (com a sua mão de obra). Material e embalagem: ${brl(cu.material)}.`;
+  if(m) t += m.lucro < 0 ? ` Com esse preço, no cartão sobra ${brl(m.lucro)}: não paga a sua hora inteira.` : ` Com esse preço, o lucro no cartão é ${brl(m.lucro)} por peça (${Math.round(m.margem * 100)}%${m.margem < m.meta - 0.005 ? `, abaixo da meta de ${Math.round(m.meta * 100)}%` : ""}).`;
+  const ex = $("#eMont").value === "kit" ? num($("#eMontExtra").value) : 0;
+  if(ex > 0 && preco > 0 && cu.montadoHoras){
+    const pm = preco + ex, lm = pm - cu.total - cu.montadoHoras * (custos.maoHora || 25) - pm * (Number(custos.taxaCartao) || 0);
+    t += ` Montado (${brl(pm)}, ${fmtH(cu.montadoHoras)} a mais de montagem): lucro de ${brl(lm)} por peça.`;
+  }
+  el.textContent = t; el.hidden = false;
+}
+$("#ePreco").addEventListener("input", infoCustoEditor);
+$("#eMont").addEventListener("change", () => { $("#eMontExtraBox").hidden = $("#eMont").value !== "kit"; infoCustoEditor(); });
+$("#eMontExtra").addEventListener("input", infoCustoEditor);
+
+/* ---------- formulário simples ---------- */
+function formulario(titulo, corpo, sim, validar){
+  return new Promise(res => {
+    const d = $("#dForm"); $("#formTit").textContent = titulo; $("#formCorpo").innerHTML = corpo; $("#formSim").textContent = sim; $("#formErr").textContent = "";
+    const fim = v => { d.close(); $("#formEl").onsubmit = $("#formNao").onclick = null; res(v); };
+    $("#formEl").onsubmit = e => { e.preventDefault(); const r = validar(); if(typeof r === "string"){ $("#formErr").textContent = r; return; } fim(r); };
+    $("#formNao").onclick = () => fim(null); d.oncancel = e => { e.preventDefault(); fim(null); };
+    d.showModal(); const f = d.querySelector("#formCorpo input, #formCorpo select"); if(f) f.focus();
+  });
+}
+
+/* ---------- clientes ---------- */
+let cliFiltro = "todos";
+function listaClientes(){
+  const mapa = new Map();
+  pedidos.filter(p => p.status !== "cancelado").forEach(p => {
+    const c = p.cliente || {}, fone = String(c.whatsapp || "").replace(/\D/g, ""), chave = fone.length >= 8 ? "f" + fone.slice(-9) : "n" + semAcento(c.nome || "");
+    if(chave === "n") return;
+    const a = mapa.get(chave) || {nome:"", whatsapp:"", cidade:"", endereco:"", pedidos:[], total:0, prods:{}};
+    const data = p.criado || "";
+    if(!a.ult || data >= a.ult){ a.ult = data; a.nome = c.nome || a.nome; a.whatsapp = c.whatsapp || a.whatsapp; a.cidade = c.cidade || a.cidade; a.endereco = c.endereco || a.endereco; }
+    if(!a.prim || data < a.prim) a.prim = data;
+    a.pedidos.push(p.id); a.total += totais(p).total;
+    (p.itens || []).forEach(i => { const n = i.nome || ""; if(n) a.prods[n] = (a.prods[n] || 0) + (Number(i.qtd) || 0); });
+    mapa.set(chave, a);
+  });
+  return [...mapa.values()].sort((a, b) => (b.ult || "").localeCompare(a.ult || ""));
+}
+function desenharClientes(){
+  const hoje = hojeISO(), dias = iso => iso ? Math.round((new Date(hoje) - new Date(iso)) / 864e5) : null;
+  const q = semAcento($("#pedBusca").value);
+  const todos = listaClientes();
+  const filtros = {todos: () => true, voltaram: c => c.pedidos.length >= 2, sumidos: c => dias(c.ult) >= 60};
+  const lista = todos.filter(filtros[cliFiltro]).filter(c => !q || semAcento([c.nome, c.whatsapp, c.cidade, Object.keys(c.prods).join(" ")].join(" ")).includes(q));
+  const nomes = {todos:"Todos", voltaram:"Compraram mais de uma vez", sumidos:"Sem comprar há 60 dias ou mais"};
+  $("#pedClientes").innerHTML = `<div class="cli-f" role="group" aria-label="Filtrar clientes">${Object.keys(nomes).map(k => `<button type="button" class="ptab" aria-selected="${cliFiltro === k}" data-cf="${k}">${nomes[k]}<span>${todos.filter(filtros[k]).length}</span></button>`).join("")}</div>`
+    + (lista.length ? `<div class="cli">${lista.map(c => { const d = dias(c.ult), prods = Object.entries(c.prods).sort((a, b) => b[1] - a[1]);
+      return `<article>
+        <div><h4>${esc(c.nome || "Sem nome")}${c.pedidos.length >= 2 ? `<span class="tag">voltou ${c.pedidos.length}x</span>` : ""}</h4><div class="sub">${[c.whatsapp, c.cidade].filter(Boolean).map(esc).join(" | ") || "sem telefone"}</div></div>
+        <div class="num"><b>${brl(c.total)}</b> em ${c.pedidos.length} pedido${c.pedidos.length > 1 ? "s" : ""}<div class="sub">Última compra ${d === 0 ? "hoje" : d === 1 ? "ontem" : `há ${d} dias`} (${dataBR(c.ult)})</div></div>
+        <div class="acts">${c.whatsapp ? `<a class="btn" href="https://wa.me/${foneWa(c.whatsapp)}?text=${encodeURIComponent(`Olá, ${(c.nome || "").split(" ")[0]}! Aqui é da StudioPrint.`)}" target="_blank" rel="noopener">Mensagem</a>` : ""}<button class="btn" type="button" data-cped="${esc(c.pedidos[c.pedidos.length - 1])}">Último pedido</button><button class="btn primary" type="button" data-cnovo="${esc(c.pedidos[c.pedidos.length - 1])}">Novo pedido</button></div>
+        <div class="prods">Comprou: ${prods.slice(0, 6).map(([n, k]) => `${k}x ${esc(n)}`).join(", ")}${prods.length > 6 ? ` e mais ${prods.length - 6}` : ""}</div>
+      </article>`; }).join("")}</div>`
+      : `<p class="count">${todos.length ? "Nenhum cliente neste filtro." : "Os clientes aparecem aqui conforme você cadastra pedidos."}</p>`);
+}
+$("#pedClientes").addEventListener("click", e => {
+  const f = e.target.closest("[data-cf]"); if(f){ cliFiltro = f.dataset.cf; desenharClientes(); return; }
+  const a = e.target.closest("[data-cped]"); if(a){ abrirPedido(a.dataset.cped); return; }
+  const n = e.target.closest("[data-cnovo]");
+  if(n){ const p = pedidos.find(x => x.id === n.dataset.cnovo); abrirPedido(null); if(p && p.cliente) preencherCliente(p.cliente, "deste cliente"); }
+});
+
+/* ---------- filamento ---------- */
+let fil = {cores:[], compras:[], alerta:200}, shaFil = null;
+const PROD_ST = ["imprimindo","pronto","enviado","entregue"];
+async function gravarFil(novo, msg){
+  const corpo = sha => ({message: msg, content: b64Texto(JSON.stringify(novo, null, 2) + "\n"), ...(sha ? {sha} : {})});
+  try{
+    let r;
+    try{ r = await api(`${PED_REPO}/contents/filamento.json`, {method:"PUT", body:JSON.stringify(corpo(shaFil))}); }
+    catch(e){ if(e.status !== 409 && e.status !== 422) throw e; const c = await api(`${PED_REPO}/contents/filamento.json`).catch(() => null); r = await api(`${PED_REPO}/contents/filamento.json`, {method:"PUT", body:JSON.stringify(corpo(c ? c.sha : null))}); }
+    fil = novo; shaFil = r.content.sha; renderFil(); renderHoje(); return true;
+  }catch(e){ aviso(erroAmigavel(e), true); return false; }
+}
+function entrouProducao(p){
+  if(!PROD_ST.includes(p.status)) return null;
+  const h = (p.historico || []).find(x => PROD_ST.includes(x.status));
+  return h && h.quando ? h.quando : (p.criado ? p.criado + "T12:00:00.000Z" : null);
+}
+function corDoItem(nome){
+  const n = semAcento(nome); if(!n) return null;
+  return fil.cores.find(c => semAcento(c.nome) === n) || fil.cores.find(c => n.startsWith(semAcento(c.nome) + " ") || semAcento(c.nome).startsWith(n + " ")) || null;
+}
+const gramasItem = i => { const c = i.produto && i.produto !== "__outro" ? custoDe(i.produto) : null; return c && c.gramas ? c.gramas * (Number(i.qtd) || 0) : 0; };
+function estadoFil(){
+  const est = new Map(fil.cores.map(c => [c.nome, {cor:c, saldo:Number(c.saldo) || 0, usado:0, comprado:0, fila:0}]));
+  fil.compras.forEach(k => { const e = est.get(k.cor); if(e && k.data > (e.cor.desde || "")){ e.saldo += k.gramas; e.comprado += k.gramas; } });
+  const semCor = {};
+  pedidos.forEach(p => {
+    const quando = entrouProducao(p), naFila = p.status === "novo" || p.status === "fila";
+    if(!quando && !naFila) return;
+    (p.itens || []).forEach(i => { const g = gramasItem(i); if(!g) return; const c = corDoItem(i.cor);
+      if(!c){ if(naFila || p.status === "imprimindo"){ const k = i.cor || "sem cor"; semCor[k] = (semCor[k] || 0) + g; } return; }
+      const e = est.get(c.nome);
+      if(naFila) e.fila += g; else if(quando > (c.desde || "")){ e.saldo -= g; e.usado += g; } });
+  });
+  return {lista:[...est.values()], semCor};
+}
+const fmtG = g => g >= 1000 ? (Math.round(g / 100) / 10).toString().replace(".", ",") + " kg" : Math.round(g) + " g";
+function avisosFil(){
+  const {lista} = estadoFil(), alerta = Number(fil.alerta) || 200;
+  return lista.map(e => ({e, falta: e.fila - Math.max(0, e.saldo), baixo: e.saldo > 0 && e.saldo < alerta})).filter(x => x.falta > 0 || x.baixo);
+}
+function renderFil(){
+  if(!$("#filLista")) return;
+  if(!pedPronto){ $("#filResumo").innerHTML = "<p>Carregando…</p>"; $("#filLista").innerHTML = ""; return; }
+  const {lista, semCor} = estadoFil(), alerta = Number(fil.alerta) || 200, temGramas = Object.values(custos.itens || {}).some(c => c.gramas);
+  const mes = hojeISO().slice(0, 7), comprasMes = fil.compras.filter(k => k.data.slice(0, 7) === mes);
+  let usadoMes = 0, custoMes = 0;
+  pedidos.forEach(p => { const q = entrouProducao(p); if(!q || q.slice(0, 7) !== mes) return;
+    (p.itens || []).forEach(i => { usadoMes += gramasItem(i); const pt = partesDoItem(i); if(pt && pt.filamento) custoMes += pt.filamento * (Number(i.qtd) || 0); }); });
+  const nomeMes = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"][+mes.slice(5, 7) - 1];
+  const gastoMes = comprasMes.reduce((s, k) => s + (Number(k.valor) || 0), 0), gMes = comprasMes.reduce((s, k) => s + k.gramas, 0);
+  const sc = Object.entries(semCor);
+  $("#filResumo").innerHTML = (!temGramas ? `<p class="warn">Importe a planilha de precificação em Ajustes > Custos dos produtos: é dela que vem o peso de cada peça.</p>` : "")
+    + `<p>Em ${nomeMes}: ${comprasMes.length ? `comprou ${fmtG(gMes)}${gastoMes ? ` por ${brl(gastoMes)}` : ""}` : "nenhuma compra registrada"}. As peças que entraram em produção usaram cerca de ${fmtG(usadoMes)}${custoMes ? ` (${brl(custoMes)} pela planilha de precificação)` : ""}.</p>`
+    + `<p class="hint" style="margin:0">O saldo de cada cor desconta o peso das peças (com as perdas) quando o pedido entra em produção. Peças de várias cores descontam tudo da cor escolhida no pedido. De vez em quando, pese os rolos e use "Pesei o rolo" para acertar.</p>`
+    + (sc.filter(([n]) => n !== "sem cor").length ? `<p class="warn">Cores dos pedidos sem rolo cadastrado: ${sc.filter(([n]) => n !== "sem cor").map(([n, g]) => `${esc(n)} (${fmtG(g)})`).join(", ")}. Adicione a cor com o mesmo nome usado no pedido.</p>` : "")
+    + (semCor["sem cor"] ? `<p class="hint" style="margin:0">Itens na fila sem cor escolhida no pedido: ${fmtG(semCor["sem cor"])} fora da conta.</p>` : "");
+  $("#filLista").innerHTML = lista.length ? `<div class="fil-grid">${lista.map(e => {
+      const falta = e.fila - Math.max(0, e.saldo), cls = falta > 0 ? "falta" : e.saldo <= 0 ? "zero" : e.saldo < alerta ? "baixo" : "";
+      const tag = falta > 0 ? "Falta para a fila" : e.saldo <= 0 ? "Sem saldo" : "Acabando";
+      return `<article class="fcor ${cls}">
+        <div class="fh"><span class="sw" style="background:${esc(e.cor.hex || "#ccc")}"></span><b>${esc(e.cor.nome)}</b>${cls ? `<span class="tag">${tag}</span>` : ""}</div>
+        <div class="g">${e.saldo < 0 ? "0 g" : fmtG(e.saldo)}<small>aprox.</small></div>
+        <div class="bar"><i style="width:${Math.max(0, Math.min(100, e.saldo / 10))}%"></i></div>
+        <p>${e.fila ? `A fila precisa de ${fmtG(e.fila)}${falta > 0 ? `: faltam ${fmtG(falta)}` : ""}.` : "Nada na fila com esta cor."}${e.cor.desde ? ` Pesado em ${dataBR(e.cor.desde.slice(0, 10))}.` : ""}</p>
+        <div class="acts"><button class="btn" type="button" data-fpes="${esc(e.cor.nome)}">Pesei o rolo</button><button class="btn" type="button" data-fcomp="${esc(e.cor.nome)}">Comprei</button><button class="link fdel" type="button" data-fdel="${esc(e.cor.nome)}">Remover</button></div>
+      </article>`; }).join("")}</div>`
+    : `<div class="card"><p style="margin:0">Cadastre as cores de filamento que você tem. Comece pelas cores que já aparecem nos produtos do catálogo, ou adicione uma por uma.</p><div><button class="btn primary" type="button" id="filDoCat">Usar as cores do catálogo</button></div></div>`;
+}
+const opcoesCor = sel => fil.cores.map(c => `<option ${c.nome === sel ? "selected" : ""}>${esc(c.nome)}</option>`).join("");
+async function comprei(cor){
+  if(!fil.cores.length){ aviso("Adicione a cor primeiro, em Adicionar cor.", true); return; }
+  const r = await formulario("Comprei filamento", `
+    <div><label class="f" for="fcCor">Cor</label><select class="in" id="fcCor">${opcoesCor(cor)}</select></div>
+    <div class="g2"><div><label class="f" for="fcRolos">Rolos de 1 kg</label><input class="in" id="fcRolos" inputmode="numeric" value="1"></div>
+    <div><label class="f" for="fcValor">Quanto pagou no total (R$)</label><input class="in" id="fcValor" inputmode="decimal" placeholder="opcional"></div></div>
+    <p class="hint">Rolo de outro tamanho? Escreva os gramas, ex.: 500 g. O valor serve para comparar o gasto real com a planilha de precificação.</p>`, "Registrar compra", () => {
+      const t = $("#fcRolos").value.trim().toLowerCase(), g = /g\s*$/.test(t) ? parseInt(t, 10) : Math.round(num(t) * 1000), v = $("#fcValor").value.trim() ? num($("#fcValor").value) : 0;
+      if(!(g > 0 && g <= 50000)) return "Quantidade inválida. Use o número de rolos (ex.: 2) ou os gramas (ex.: 500 g).";
+      if(v < 0) return "Valor inválido.";
+      return {cor: $("#fcCor").value, gramas: g, valor: v};
+    });
+  if(!r) return;
+  if(!(await confirmar("Registrar a compra?", `${fmtG(r.gramas)} de ${r.cor}${r.valor ? ` por ${brl(r.valor)}` : ""}.`, "Registrar"))) return;
+  if(await gravarFil({...fil, compras:[...fil.compras, {data:new Date().toISOString(), ...r}]}, `Compra de filamento: ${r.cor}`)) aviso(`Compra registrada: ${fmtG(r.gramas)} de ${r.cor}.`);
+}
+async function pesei(nome){
+  const c = fil.cores.find(x => x.nome === nome); if(!c) return;
+  const atual = (estadoFil().lista.find(e => e.cor.nome === nome) || {}).saldo || 0;
+  const r = await formulario(`Pesei o rolo: ${nome}`, `
+    <div><label class="f" for="fpG">Quanto filamento sobrou (g)</label><input class="in" id="fpG" inputmode="numeric" value="${Math.max(0, Math.round(atual))}"></div>
+    <p class="hint">Some todos os rolos desta cor. Pese o rolo e tire o peso do carretel vazio (em geral, de 150 a 250 g). Rolo fechado de 1 kg: some 1000.</p>`, "Salvar peso", () => {
+      const g = parseInt($("#fpG").value.replace(/\D/g, ""), 10);
+      return g >= 0 && g <= 100000 ? g : "Use só números, em gramas. Ex.: 740.";
+    });
+  if(r === null) return;
+  if(!(await confirmar("Acertar o saldo?", `${nome}: ${fmtG(Math.max(0, atual))} → ${fmtG(r)}. A partir de agora, o painel conta daqui.`, "Acertar saldo"))) return;
+  if(await gravarFil({...fil, cores: fil.cores.map(x => x.nome === nome ? {...x, saldo:r, desde:new Date().toISOString()} : x)}, `Filamento ${nome}: pesado`)) aviso(`${nome}: saldo acertado.`);
+}
+async function novaCor(){
+  const r = await formulario("Adicionar cor", `
+    <div class="g2"><div><label class="f" for="fnNome">Nome da cor</label><input class="in" id="fnNome" placeholder="Ex.: Vermelho"></div>
+    <div><label class="f" for="fnHex">Cor</label><input class="in" id="fnHex" type="color" value="#D7262E" style="height:42px;padding:4px"></div></div>
+    <div><label class="f" for="fnG">Quanto tem agora (g)</label><input class="in" id="fnG" inputmode="numeric" placeholder="Ex.: 1000"></div>
+    <p class="hint">Use o mesmo nome que aparece nos pedidos (ex.: Azul royal), para o painel descontar certo.</p>`, "Adicionar cor", () => {
+      const nome = $("#fnNome").value.trim(), g = parseInt(($("#fnG").value || "0").replace(/\D/g, ""), 10) || 0;
+      if(!nome) return "Escreva o nome da cor.";
+      if(fil.cores.some(c => semAcento(c.nome) === semAcento(nome))) return "Essa cor já está cadastrada.";
+      return {nome, hex: $("#fnHex").value, saldo: g, desde: new Date().toISOString()};
+    });
+  if(!r) return;
+  if(!(await confirmar("Adicionar a cor?", `${r.nome}, com ${fmtG(r.saldo)}.`, "Adicionar"))) return;
+  if(await gravarFil({...fil, cores:[...fil.cores, r]}, `Filamento: nova cor ${r.nome}`)) aviso(`Cor ${r.nome} adicionada.`);
+}
+async function coresDoCatalogo(){
+  const vistas = new Map(); produtos.forEach(p => (p.cores || []).forEach(c => { const k = semAcento(c.nome); if(c.nome && !vistas.has(k)) vistas.set(k, {nome:c.nome, hex:c.hex || "#cccccc"}); }));
+  if(!vistas.size){ aviso("Os produtos não têm cores cadastradas. Use Adicionar cor.", true); return; }
+  const novas = [...vistas.values()].filter(c => !fil.cores.some(x => semAcento(x.nome) === semAcento(c.nome)));
+  if(!(await confirmar("Usar as cores do catálogo?", `${novas.map(c => c.nome).join(", ")}.\n\nTodas começam com 0 g. Depois, em cada cor, use "Pesei o rolo" ou "Comprei" para colocar quanto você tem.`, "Adicionar cores"))) return;
+  const agora = new Date().toISOString();
+  if(await gravarFil({...fil, cores:[...fil.cores, ...novas.map(c => ({...c, saldo:0, desde:agora}))]}, "Filamento: cores do catálogo")) aviso(`${novas.length} cores adicionadas.`);
+}
+$("#filComprei").addEventListener("click", () => comprei());
+$("#filNova").addEventListener("click", novaCor);
+$("#tFilamento").addEventListener("click", async e => {
+  if(e.target.closest("#filDoCat")) return coresDoCatalogo();
+  const p = e.target.closest("[data-fpes]"); if(p) return pesei(p.dataset.fpes);
+  const c = e.target.closest("[data-fcomp]"); if(c) return comprei(c.dataset.fcomp);
+  const d = e.target.closest("[data-fdel]");
+  if(d){ const n = d.dataset.fdel; if(!(await confirmar(`Remover a cor ${n}?`, "Ela sai da lista de filamento. As compras registradas continuam guardadas.", "Remover"))) return;
+    if(await gravarFil({...fil, cores: fil.cores.filter(x => x.nome !== n)}, `Filamento: remove ${n}`)) aviso(`Cor ${n} removida.`); }
+});
+document.querySelector('[data-tab="tFilamento"]').addEventListener("click", renderFil);
+document.querySelector('[data-tab="tProdutos"]').addEventListener("click", () => { if(produtos.length) render(); });
+
 /* ---------- hoje e fila de impressão ---------- */
 const DIAS_SEM = ["domingo","segunda","terça","quarta","quinta","sexta","sábado"];
 const capacidade = () => ({impressoras: 1, horasDia: 12, ...(custos.capacidade || {})});
 function horasPedido(p){
   let imp = 0, mont = 0; const sem = [];
-  (p.itens || []).forEach(i => { const c = i.produto && i.produto !== "__outro" ? custoDe(i.produto) : null, q = Number(i.qtd) || 0;
+  (p.itens || []).forEach(i => { const c = custoItem(i), q = Number(i.qtd) || 0;
     if(c && c.horas != null){ imp += q * c.horas; mont += q * (c.montagem || 0); } else if(q) sem.push(i.nome || "item"); });
   return {imp, mont, sem};
 }
@@ -1678,14 +1987,18 @@ function renderHoje(){
     ${f.fora.length ? `<p class="warn">Não cabe no prazo:</p><ul>${f.fora.map(x => item(x.p, `${x.p.prazo < hojeISO() ? "atrasado" : "prazo " + dataCurta(x.p.prazo)}, fica ${dataCurta(x.fim)}`, "bad")).join("")}</ul>` : `<p>Todos os prazos cabem.</p>`}
     ${f.espera ? `<p>Esperando o sinal: mais ${fmtH(f.espera)} se pagarem.</p>` : ""}
     ${f.sem.length ? `<p class="hint" style="margin:0">Sem tempo cadastrado (fora da conta): ${esc(f.sem.join(", "))}.</p>` : ""}`;
+  const fa = avisosFil();
+  if(fa.length) fila += `<p class="fil-av">Filamento: ${fa.sort((a, b) => b.falta - a.falta).slice(0, 4).map(x => x.falta > 0 ? `falta ${fmtG(x.falta)} de ${esc(x.e.cor.nome)} para a fila` : `${esc(x.e.cor.nome)} acabando (${fmtG(Math.max(0, x.e.saldo))})`).join("; ")}${fa.length > 4 ? ` e mais ${fa.length - 4} (veja a aba Filamento)` : ""}.</p>`;
+  const uc = custos.ultimaCopia, dc = uc ? dias(uc) : null;
+  const copia = dc === null || dc > 30 ? `<p class="hoje-aviso">${dc === null ? "Você ainda não baixou uma cópia de segurança dos pedidos." : `A última cópia de segurança dos pedidos foi há ${dc} dias.`} <button class="btn" type="button" id="hojeCopia">Baixar cópia agora</button></p>` : "";
   const d = new Date(hoje + "T12:00:00");
-  el.innerHTML = `<h3 id="hojeTit">Hoje<span>${DIAS_SEM[d.getDay()]}, ${dataBR(hoje).slice(0,5)}</span></h3><div class="hg">
+  el.innerHTML = copia + `<h3 id="hojeTit">Hoje<span>${DIAS_SEM[d.getDay()]}, ${dataBR(hoje).slice(0,5)}</span></h3><div class="hg">
     <div class="h-prazos"><h4>Prazos</h4>${lista(prazos, "Nada atrasado nem para hoje ou amanhã.")}</div>
     <div class="h-sinal"><h4>Esperando o sinal</h4>${lista(sinal, "Nenhum pedido esperando o sinal.")}</div>
     <div class="h-receber"><h4>A receber de pedidos prontos</h4>${lista(receber, "Nada a receber.")}</div>
     <div class="fila"><h4>Fila de impressão</h4>${fila}</div></div>`;
 }
-$("#pedHoje").addEventListener("click", e => { const b = e.target.closest("[data-ped]"); if(b) abrirPedido(b.dataset.ped); });
+$("#pedHoje").addEventListener("click", e => { if(e.target.closest("#hojeCopia")) return $("#bBkPedJson").click(); const b = e.target.closest("[data-ped]"); if(b) abrirPedido(b.dataset.ped); });
 function mostrarCap(){ const c = capacidade(); $("#capImp").value = c.impressoras; $("#capHoras").value = String(c.horasDia).replace(".", ","); }
 $("#bCap").addEventListener("click", async () => {
   const imp = parseInt($("#capImp").value, 10), h = Number(String($("#capHoras").value).replace(",", "."));
@@ -1778,7 +2091,7 @@ function novoPedidoBase(){
 const COLS = [
   ["id","Código",10],["nome","Nome",34],["visivel","No site",9],["categoria","Categoria",16],["preco","Preço (R$)",11],["unidade","Texto depois do preço",14],
   ["status","Situação",16],["estoque","Estoque pronta entrega",12],["destaque","Destaque",14],["lancamento","Preço de lançamento",12],
-  ["personalizado","Personalizado com nome",13],["pzMin","Produção mín. (dias úteis)",12],["pzMax","Produção máx. (dias úteis)",12],
+  ["personalizado","Personalizado com nome",13],["montagem","Montagem",14],["montExtra","Adicional montado (R$)",12],["pzMin","Produção mín. (dias úteis)",12],["pzMax","Produção máx. (dias úteis)",12],
   ["medidas","Medidas",30],["descricao","Descrição",60],["cores","Cores",40],["fotos","Fotos (não muda pela planilha)",18]
 ];
 const SIT_TXT = {encomenda:"Sob encomenda", disponivel:"Pronta entrega", esgotado:"Esgotado"};
@@ -1804,7 +2117,7 @@ async function baixarPlanilha(){
     produtos.forEach(p => { const pz = prazoProduto(p); ws.addRow({
       id:p.id, nome:p.nome, visivel:p.oculto ? "Não" : "Sim", categoria:p.categoria, preco:Number(p.preco)||0, unidade:p.unidade||"",
       status:SIT_TXT[p.status] || "Sob encomenda", estoque:p.estoque > 0 ? p.estoque : 0, destaque:DEST_TXT[p.destaque||""] || "Nenhum",
-      lancamento:p.lancamento ? "Sim" : "Não", personalizado:p.personalizado ? "Sim" : "Não", pzMin:pz[0], pzMax:pz[1],
+      lancamento:p.lancamento ? "Sim" : "Não", personalizado:p.personalizado ? "Sim" : "Não", montagem:p.montagem ? "Para montar" : "Vai pronto", montExtra:p.montagem && p.montagem.extra ? p.montagem.extra : "", pzMin:pz[0], pzMax:pz[1],
       medidas:p.medidas||"", descricao:p.descricao||"", cores:coresTexto(p.cores), fotos:(p.fotos||[]).join(", ") }); });
     const cab = ws.getRow(1); cab.font = {bold:true, color:{argb:"FFFFFFFF"}}; cab.height = 32;
     cab.alignment = {vertical:"middle", wrapText:true};
@@ -1812,7 +2125,7 @@ async function baixarPlanilha(){
     const ult = Math.max(produtos.length + 200, 300);
     const lista = (col, itens, titulo) => { for(let r = 2; r <= ult; r++) ws.getCell(`${col}${r}`).dataValidation = {type:"list", allowBlank:true, formulae:[`"${itens.join(",")}"`], showErrorMessage:true, errorStyle:"stop", errorTitle:titulo, error:"Escolha uma opção da lista."}; };
     const L = k => String.fromCharCode(65 + COLS.findIndex(c => c[0] === k));
-    lista(L("visivel"), ["Sim","Não"], "No site"); lista(L("status"), Object.values(SIT_TXT), "Situação"); lista(L("destaque"), Object.values(DEST_TXT), "Destaque"); lista(L("lancamento"), ["Sim","Não"], "Preço de lançamento"); lista(L("personalizado"), ["Sim","Não"], "Personalizado");
+    lista(L("visivel"), ["Sim","Não"], "No site"); lista(L("status"), Object.values(SIT_TXT), "Situação"); lista(L("destaque"), Object.values(DEST_TXT), "Destaque"); lista(L("lancamento"), ["Sim","Não"], "Preço de lançamento"); lista(L("montagem"), ["Vai pronto","Para montar"], "Montagem"); lista(L("personalizado"), ["Sim","Não"], "Personalizado");
     for(let r = 2; r <= ult; r++){
       ws.getCell(`${L("preco")}${r}`).dataValidation = {type:"decimal", operator:"between", allowBlank:true, formulae:[0.01, 5000], showErrorMessage:true, errorTitle:"Preço", error:"Digite só o número, maior que zero. Ex.: 39,90"};
       ws.getCell(`${L("preco")}${r}`).numFmt = '"R$" #,##0.00';
@@ -1839,6 +2152,7 @@ async function baixarPlanilha(){
       "No site: Sim mostra o produto no catálogo; Não tira do catálogo sem apagar (ele continua no painel).",
       "Destaque: Nenhum, Mais vendido ou Novo.",
       "Preço de lançamento e Personalizado com nome: Sim ou Não.",
+      "Montagem: Vai pronto ou Para montar. Adicional montado: quanto o cliente paga a mais para receber montado (vazio = só para montar).",
       "Produção: dias úteis depois do pagamento, mínimo e máximo. Ex.: 2 e 3.",
       "Cores: separadas por ponto e vírgula, com o nome e o código da cor. Ex.: Vermelho (#D32F2F); Azul (#1E88E5). Cores que já existem podem ir só com o nome.",
       "Fotos: só para consulta. As fotos são trocadas pelo painel.",
@@ -1949,6 +2263,15 @@ async function importarPlanilha(arq){
       const v = pega(r,k); if(v === null) continue; const b = simNao(v);
       if(b === undefined) erros.push(`Linha ${ln} (${id}): em ${rot}, use Sim ou Não.`); else if(b !== null) p[k] = b; else if(!antes) p[k] = false;
     }
+    const mo = pega(r,"montagem"), mx = pega(r,"montExtra");
+    if(mo !== null && mo !== ""){
+      const v = semAcento(mo);
+      if(v.startsWith("para montar") || v === "kit"){
+        const ex = mx === null || mx === "" ? 0 : precoDe(mx);
+        if(isNaN(ex) || ex < 0) erros.push(`Linha ${ln} (${id}): adicional montado "${mx}" inválido. Use só o número, ex.: 5.`); else p.montagem = ex > 0 ? {extra: ex} : {};
+      } else if(v.startsWith("vai pronto") || v === "nao" || v === "pronto") delete p.montagem;
+      else erros.push(`Linha ${ln} (${id}): em Montagem, use Vai pronto ou Para montar.`);
+    } else if(mx !== null && mx !== "" && p.montagem){ const ex = precoDe(mx); if(!isNaN(ex) && ex >= 0) p.montagem = ex > 0 ? {extra: ex} : {}; }
     const a = pega(r,"pzMin"), z = pega(r,"pzMax");
     if((a !== null && a !== "") || (z !== null && z !== "")){
       const na = parseInt(a || z, 10), nz = parseInt(z || a, 10);
@@ -2055,7 +2378,7 @@ async function gerarRelatorio(){
       const d = dataEntrega(p), forma = (p.pagamento && p.pagamento.forma) || "";
       (p.itens || []).forEach(i => {
         const qtd = Number(i.qtd) || 0, valor = qtd * (Number(i.preco) || 0);
-        const cu = i.custo != null ? {total:i.custo, material:i.custoMaterial ?? i.custo} : custoDe(i.produto);
+        const cu = i.custo != null ? {total:i.custo, material:i.custoMaterial ?? i.custo} : custoItem(i);
         if(!cu) semCusto.add(i.produto === "__outro" ? i.nome : i.produto);
         const tx = cartao(forma) ? cent(valor * taxa) : 0, pt = partesDoItem(i);
         itens.push({d, mes:d.slice(0,7), ped:p.id, cli:(p.cliente && p.cliente.nome) || "", cid:(p.cliente && p.cliente.cidade) || "",
@@ -2208,7 +2531,9 @@ $("#bVersoes").addEventListener("click", abrirVersoes);
 $("#sair2").addEventListener("click", () => $("#sair").click());
 function baixar(nome, texto, tipo){ const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([texto], {type:tipo})); a.download = nome; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
 $("#bBkPed").addEventListener("click", () => { if(!pedPronto){ aviso("Os pedidos ainda não foram carregados.", true); return; } $("#pedCsv").click(); });
-$("#bBkPedJson").addEventListener("click", () => { if(!pedPronto){ aviso("Os pedidos ainda não foram carregados.", true); return; } baixar(`pedidos-studioprint-${hojeISO()}.json`, JSON.stringify(pedidos, null, 2), "application/json"); });
+$("#bBkPedJson").addEventListener("click", () => { if(!pedPronto){ aviso("Os pedidos ainda não foram carregados.", true); return; } baixar(`pedidos-studioprint-${hojeISO()}.json`, JSON.stringify(pedidos, null, 2), "application/json"); marcarCopia(); });
+$("#bBkPed").addEventListener("click", () => { if(pedPronto) marcarCopia(); });
+async function marcarCopia(){ if(custos.ultimaCopia === hojeISO()) return; if(await gravarCustos({...custos, ultimaCopia: hojeISO()})) renderHoje(); }
 $("#bBkCat").addEventListener("click", () => baixar(`catalogo-studioprint-${hojeISO()}.json`, JSON.stringify({produtos, site}, null, 2), "application/json"));
 $("#verLista").addEventListener("click", e => { const b = e.target.closest("[data-voltar]"); if(b) voltarVersao(b.dataset.voltar); });
 document.querySelectorAll("[data-verfechar]").forEach(b => b.addEventListener("click", () => $("#dVersoes").close()));
@@ -2225,12 +2550,14 @@ function lerMensagem(txt){
     if((m = l.match(/\bSou ([^.!\n]{2,40})[.!]/i))) r.nome = m[1].trim();
     if((m = l.match(/^[•\-*·]?\s*(\d{1,3})\s*x\s+([A-Z]{1,2}-\d{2,3})\s+(.+?):\s*R\$\s*([\d.]+(?:,\d{1,2})?)\s*$/i))){
       const qtd = +m[1], id = m[2].toUpperCase(), total = val(m[4]);
-      let resto = m[3], gravar = "", cor = "";
+      let resto = m[3], gravar = "", cor = "", montado;
+      const mt = resto.match(/,\s*(montado|para montar)\s*$/i); if(mt){ montado = /^montado$/i.test(mt[1]); resto = resto.slice(0, mt.index); }
       const g = resto.match(/,\s*nome\s+"([^"]*)"\s*$/i); if(g){ gravar = g[1]; resto = resto.slice(0, g.index); }
       const prod = produtos.find(p => p.id === id);
       if(prod && resto.toLowerCase().startsWith(prod.nome.toLowerCase())){ const c = resto.slice(prod.nome.length).trim().match(/^\((.+)\)$/); if(c) cor = c[1]; }
       else { const c = resto.match(/\s*\(([^()]+)\)\s*$/); if(c){ cor = c[1]; resto = resto.slice(0, c.index); } }
-      r.itens.push({produto: prod ? prod.id : "__outro", nome: prod ? prod.nome : `${id} ${resto}`.trim(), cor, nome_gravado:gravar, qtd, preco: qtd ? Math.round(total/qtd*100)/100 : 0, achado: !!prod});
+      r.itens.push({produto: prod ? prod.id : "__outro", nome: prod ? prod.nome : `${id} ${resto}`.trim(), cor, nome_gravado:gravar, qtd, preco: qtd ? Math.round(total/qtd*100)/100 : 0, achado: !!prod,
+        ...(prod && prod.montagem ? {montado: montado === true} : {})});
       continue;
     }
     if((m = l.match(/^Total dos produtos:\s*R\$\s*([\d.]+(?:,\d{1,2})?)/i))){ r.totalMsg = val(m[1]); continue; }
@@ -2371,7 +2698,7 @@ $("#pdSalvar").addEventListener("click", () => salvarPedido());
 const PARTES = [["filamento","Filamento"],["luz","Conta de luz"],["desgaste","Desgaste da impressora"],["embalagem","Embalagem"],["maoObra","Sua mão de obra"],["outros","Outros custos"]];
 function partesDoItem(i){
   if(i.custoPartes) return i.custoPartes;
-  const cu = i.produto && i.produto !== "__outro" ? custoDe(i.produto) : null;
+  const cu = custoItem(i);
   if(i.custo != null){
     if(!(cu && cu.partes && cu.total)) return {outros: i.custo};
     const k = i.custo / cu.total; return Object.fromEntries(Object.entries(cu.partes).map(([n, v]) => [n, v * k]));
@@ -2449,9 +2776,9 @@ $("#pdBuscaProd").addEventListener("keydown", e => { if(e.key === "Enter"){ e.pr
 $("#pdCatalogo").addEventListener("click", e => {
   const b = e.target.closest("[data-add]"); if(!b) return;
   const prod = produtos.find(p => p.id === b.dataset.add);
-  const igual = edPed.itens.find(i => i.produto === prod.id && !i.cor && !i.nome_gravado);
+  const igual = edPed.itens.find(i => i.produto === prod.id && !i.cor && !i.nome_gravado && i.montado !== true);
   if(igual) igual.qtd += 1;
-  else edPed.itens.push({produto:prod.id, nome:prod.nome, cor:"", nome_gravado:"", qtd:1, preco:prod.preco});
+  else edPed.itens.push({produto:prod.id, nome:prod.nome, cor:"", nome_gravado:"", qtd:1, preco:prod.preco, ...(prod.montagem ? {montado:false} : {})});
   desenharItens(); atualizarTotais();
   b.classList.add("ok"); setTimeout(() => b.classList.remove("ok"), 350);
 });
@@ -2468,6 +2795,7 @@ function desenharItens(){
         ${prod ? `<b>${esc(it.nome)}</b>` : `<input class="in" data-ik="${k}" data-f="nome" value="${esc(it.nome)}" placeholder="Descrição do item avulso" aria-label="Descrição do item">`}
         <button class="btn icon" type="button" data-irm="${k}" aria-label="Remover item"><svg><use href="#i-x"/></svg></button>
       </div>
+      ${prod && prod.montagem ? `<div class="cores mont" role="group" aria-label="Montagem"><button type="button" class="cor${it.montado !== true ? " sel" : ""}" data-ik="${k}" data-mont="0">Para montar</button>${prod.montagem.extra ? `<button type="button" class="cor${it.montado === true ? " sel" : ""}" data-ik="${k}" data-mont="1">Montado (+${brl(prod.montagem.extra)})</button>` : ""}</div>` : ""}
       ${cores.length ? `<div class="cores">${cores.map(c => `<button type="button" class="cor${it.cor === c.nome ? " sel" : ""}" data-ik="${k}" data-cor="${esc(c.nome)}"><span class="sw" style="background:${esc(c.hex)}"></span>${esc(c.nome)}</button>`).join("")}</div>` : ""}
       <div class="ig">
         <div><label class="f">Cor</label><input class="in" data-ik="${k}" data-f="cor" value="${esc(it.cor)}" placeholder="${cores.length ? "Toque numa cor acima" : "Ex.: Vermelho"}"></div>
@@ -2481,6 +2809,9 @@ $("#pdItens").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return; const k = +b.dataset.ik;
   if(b.dataset.irm !== undefined){ edPed.itens.splice(+b.dataset.irm, 1); desenharItens(); atualizarTotais(); return; }
   if(b.dataset.cor !== undefined){ const it = edPed.itens[k]; it.cor = it.cor === b.dataset.cor ? "" : b.dataset.cor; desenharItens(); return; }
+  if(b.dataset.mont !== undefined){ const it = edPed.itens[k], prod = produtos.find(p => p.id === it.produto), ex = (prod && prod.montagem && prod.montagem.extra) || 0, quer = b.dataset.mont === "1";
+    if(it.montado !== quer){ if(quer) it.preco = cent((Number(it.preco) || 0) + ex); else if(it.montado === true) it.preco = cent(Math.max(0, (Number(it.preco) || 0) - ex)); it.montado = quer; }
+    desenharItens(); atualizarTotais(); return; }
   if(b.dataset.q !== undefined){ const it = edPed.itens[k]; it.qtd = Math.max(1, (Number(it.qtd)||1) + Number(b.dataset.q)); desenharItens(); atualizarTotais(); }
 });
 $("#pdItens").addEventListener("input", e => {
@@ -2620,7 +2951,7 @@ async function salvarPedido(){
     if(!(await confirmar(`Salvar as alterações no pedido ${edPed.id}?`, difs.join("\n"), "Salvar alterações"))) return;
   }
   if(novo && !edPed.historico.length) edPed.historico = [{quando:new Date().toISOString(), status:edPed.status}];
-  if(novo) edPed.itens.forEach(i => { const cu = custoDe(i.produto); if(cu){ i.custo = cu.total; i.custoMaterial = cu.material; if(cu.partes) i.custoPartes = cu.partes; } });
+  if(novo) edPed.itens.forEach(i => { const cu = custoItem(i); if(cu){ i.custo = cu.total; i.custoMaterial = cu.material; if(cu.partes) i.custoPartes = cu.partes; } });
   if(novo && edPed.status !== "cancelado"){
     const res = reservaDoPedido(edPed);
     if(res.length){ edPed.estoqueReservado = res; estoqueAposSalvar.push({mov: res.map(r => ({id:r.id, qtd:-r.qtd})), motivo:`pedido ${edPed.id}`}); }
