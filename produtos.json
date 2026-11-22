@@ -184,6 +184,53 @@
     "cores": []
   },
   {
+    "id": "N-12",
+    "nome": "Pote de panetone Papai Noel",
+    "categoria": "Natal",
+    "preco": 49,
+    "unidade": "cada",
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": true,
+    "descricao": "Pote no formato da roupa do Papai Noel, com gola branca, botões e fivela dourados. Perfeito para presentear com panetone, chocotone ou biscoitos, e depois fica como enfeite de mesa ou cachepô. Para pedidos em quantidade (empresas, equipes, lembrancinhas), consulte o valor.",
+    "fotos": [
+      "56",
+      "57"
+    ],
+    "cores": []
+  },
+  {
+    "id": "N-13",
+    "nome": "Bola giratória com nome",
+    "categoria": "Natal",
+    "preco": 29,
+    "unidade": "cada",
+    "status": "encomenda",
+    "personalizado": true,
+    "lancamento": true,
+    "descricao": "Enfeite com aros que giram em volta da plaquinha com o nome. Três modelos: com flocos pequenos, lisa ou com floco de neve grande. Você escolhe o nome, a cor do enfeite e a cor das letras.",
+    "fotos": [
+      "58"
+    ],
+    "cores": []
+  },
+  {
+    "id": "N-14",
+    "nome": "Bolas de Natal heróis DC (kit com 5)",
+    "categoria": "Natal",
+    "preco": 89,
+    "unidade": "o kit",
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": true,
+    "descricao": "Cinco bolas de Natal com os símbolos da Mulher-Maravilha, Lanterna Verde, Flash, Batman e Superman, em camadas coloridas com contorno preto. Para a árvore de quem é fã. Quer só algumas? Consulte o valor por unidade.",
+    "fotos": [
+      "59",
+      "60"
+    ],
+    "cores": []
+  },
+  {
     "id": "P-01",
     "nome": "Deadpool articulado",
     "categoria": "Personagens",
@@ -442,6 +489,21 @@
     "fotos": [
       "14",
       "13"
+    ],
+    "cores": []
+  },
+  {
+    "id": "D-02",
+    "nome": "Suporte de controle GTA VI",
+    "categoria": "Decoração",
+    "preco": 49,
+    "unidade": "cada",
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": true,
+    "descricao": "Suporte de mesa para o controle do PS5 com o logo do GTA VI em alto-relevo, nas cores roxo, rosa, azul e branco. Deixa o controle em pé, à mão e o setup organizado. Não acompanha o controle.",
+    "fotos": [
+      "55"
     ],
     "cores": []
   }
