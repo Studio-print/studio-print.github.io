@@ -126,6 +126,7 @@ main{padding:28px 0 56px}
 .tag{font-size:13px;color:var(--muted);font-weight:500}
 .tag.launch{color:var(--ink);font-weight:600;border:1px solid var(--line);padding:2px 8px;border-radius:6px;white-space:nowrap}
 .tag[hidden]{display:none}
+.tag.kit{color:var(--ok-fg);background:var(--ok-bg);font-weight:600;padding:2px 8px;border-radius:6px;white-space:nowrap}
 .swatches{display:flex;gap:4px}
 .sw{width:14px;height:14px;border-radius:50%;border:1px solid rgba(21,24,30,.18)}
 .empty{grid-column:1/-1;background:var(--card);border:1px dashed var(--line);border-radius:16px;padding:32px;text-align:center;color:var(--muted)}
@@ -194,6 +195,16 @@ html.travado,html.travado body{overflow:hidden}
 .colors li{display:flex;align-items:center;gap:6px;font-size:14px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 6px}
 .colors .sw{width:16px;height:16px}
 .mont{display:grid;gap:6px;margin-bottom:12px}
+.kit{display:grid;gap:8px;margin-bottom:14px;padding:12px;border-radius:12px;background:var(--ok-bg)}
+.kit-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.kit-t b{font-size:15px;color:var(--ok-fg)}.kit-t span{font-size:13px;color:var(--ok-fg)}
+.kit-op{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.kit-op button{display:grid;gap:1px;text-align:left;padding:7px 9px;border:1.5px solid transparent;border-radius:9px;background:var(--card);cursor:pointer;font:inherit;color:inherit;min-width:0}
+.kit-op button b{font-size:13px;font-weight:600;color:var(--muted)}.kit-op button span{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}.kit-op button small{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+@media (max-width:400px){.kit{padding:10px}.kit-op{gap:5px}.kit-op button{padding:6px 7px}.kit-op button span{font-size:15px}.kit-op button small{font-size:11px}}
+@media (max-width:340px){.kit-op{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kit-op button[aria-pressed="true"]{border-color:var(--ok-fg);box-shadow:inset 0 0 0 1px var(--ok-fg)}
+.kit-st{margin:0;font-size:13.5px;color:var(--ok-fg);line-height:1.4}.kit-st b{font-weight:700}
 .mont-t{font-weight:700;font-size:14px}
 .mont-op{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .mont-op button{display:grid;gap:2px;text-align:left;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card,#fff);cursor:pointer;font:inherit;color:inherit}
@@ -274,6 +285,9 @@ body.tem-lista{padding-bottom:84px}
 .l-info{margin:0;font-size:14px;color:var(--muted)}
 .l-total{flex-wrap:wrap;row-gap:4px}
 .l-total .l-sub{width:100%;display:flex;justify-content:space-between;font-size:15px;font-weight:600;color:var(--muted)}
+.l-total .l-sub.l-eco{color:var(--ok-fg)}
+.l-kit{margin:0;padding:10px 12px;border-radius:10px;background:var(--ok-bg);color:var(--ok-fg);font-size:14px;line-height:1.45;display:grid;gap:4px}.l-kit[hidden]{display:none}
+.l-itens small s{color:var(--muted);font-weight:400}
 .l-chips{display:flex;gap:8px;flex-wrap:wrap}
 .l-chips button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--ink)}
 .l-chips button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
@@ -393,6 +407,7 @@ body.tem-lista{padding-bottom:84px}
     <header><h2 id="lTit">Seu pedido</h2><button class="close" type="button" id="lFechar" aria-label="Fechar"><svg><use href="#i-x"/></svg></button></header>
     <div class="l-body">
       <ul class="l-itens" id="lItens"></ul>
+      <div class="l-kit" id="lKit" role="status" hidden></div>
       <div class="l-total" id="lTotal"></div>
       <fieldset class="l-campos">
         <legend>Para agilizar (opcional)</legend>
@@ -533,10 +548,18 @@ const nomesAgrupados = () => { const m = new Map(); sel.nomes.slice(0, sel.qtd).
 const montTxt = i => i.montado === true ? ", montado" : i.montado === false ? ", para montar" : "";
 const linhaPedido = i => `${i.qtd}x ${i.id} ${i.nome}${i.cor ? ` (${i.cor})` : ""}${i.gravar ? `, nome "${i.gravar}"` : ""}${montTxt(i)}: ${brl(i.preco * i.qtd)}`;
 const precoSel = p => (Number(p.price) || 0) + (p.mont && sel.montado ? p.mont.extra : 0);
+const precoSelKit = p => cent(precoSel(p) - (Number(p.price) || 0) + unitKit(p, sel.qtd));
+/* preço de kit: o preço de cada peça cai conforme a quantidade do mesmo produto no pedido */
+const unitKit = (p, n) => { let u = Number(p.price) || 0; for(const [q, v] of (p.kit || [])) if(n >= q) u = v; return u; };
+const cent = v => Math.round(v * 100) / 100;
+const qtdDe = id => LISTA.reduce((s,i) => s + (i.id === id ? i.qtd : 0), 0);
+const precoEf = i => { const p = P.find(x => x.id === i.id); return p && p.kit ? cent(i.preco - (Number(p.price) || 0) + unitKit(p, qtdDe(i.id))) : i.preco; };
+const economiaLista = () => cent(LISTA.reduce((s,i) => s + (i.preco - precoEf(i)) * i.qtd, 0));
+const pecas = n => n === 1 ? "1 peça" : n + " peças";
 /* entrega escolhida na lista */
 let entregaSel = null, pagSel = "";   /* {tipo:"retirada"|"abc"|"correios", cidade, valor} */
 const freteLista = () => entregaSel && entregaSel.tipo === "abc" && entregaSel.valor >= 0 && entregaSel.cidade ? entregaSel.valor : 0;
-const totalLista = () => LISTA.reduce((s,i) => s + i.preco * i.qtd, 0);
+const totalLista = () => cent(LISTA.reduce((s,i) => s + precoEf(i) * i.qtd, 0));
 const qtdLista = () => LISTA.reduce((s,i) => s + i.qtd, 0);
 const UNICO = () => CONTACTS.length === 1;
 function ligarContador(){
@@ -567,8 +590,9 @@ function waLink(c, p){
     msg = p.status==="disponivel" ? `${oi} Vi no catálogo da StudioPrint o ${item}. Ainda tem para pronta entrega?`
         : p.status==="esgotado" ? `${oi} Vi no catálogo da StudioPrint o ${item}. Quero entrar na lista de espera.`
         : `${oi} Vi no catálogo da StudioPrint e quero encomendar:\n` +
-          (p.custom ? nomesAgrupados().map(([n, q]) => linhaPedido({id:p.id, nome:p.name, cor:sel.cor, gravar:n, qtd:q, preco:precoSel(p), ...(p.mont ? {montado:sel.montado} : {})})).join("\n")
-                    : linhaPedido({id:p.id, nome:p.name, cor:sel.cor, gravar:"", qtd:sel.qtd, preco:precoSel(p), ...(p.mont ? {montado:sel.montado} : {})})) +
+          (p.custom ? nomesAgrupados().map(([n, q]) => linhaPedido({id:p.id, nome:p.name, cor:sel.cor, gravar:n, qtd:q, preco:precoSelKit(p), ...(p.mont ? {montado:sel.montado} : {})})).join("\n")
+                    : linhaPedido({id:p.id, nome:p.name, cor:sel.cor, gravar:"", qtd:sel.qtd, preco:precoSelKit(p), ...(p.mont ? {montado:sel.montado} : {})})) +
+          (p.kit && unitKit(p, sel.qtd) < p.price ? `\nPreço de kit: ${pecas(sel.qtd)} a ${brl(unitKit(p, sel.qtd))} cada` : "") +
           (p.custom && nomesAgrupados().some(([n]) => !n) ? `\nNome para personalizar: ` : "") + (!sel.cor && coresDisponiveis(p).length ? `\nCor: ` : "");
   }
   if(p === "lista"){
@@ -576,7 +600,8 @@ function waLink(c, p){
     const tipo = entregaSel && entregaSel.tipo;
     const receber = tipo === "retirada" ? "Retirar em São Caetano do Sul" : tipo === "abc" ? (entregaSel.cidade ? `Entrega no ABC, ${entregaSel.cidade}` : "Entrega no ABC") : tipo === "correios" ? "Envio pelos Correios" : "";
     msg = `${oi}${nome ? ` Sou ${nome}.` : ""} Vi o catálogo da StudioPrint e quero fazer este pedido:\n` +
-      LISTA.map(i => "• " + linhaPedido(i)).join("\n") +
+      LISTA.map(i => "• " + linhaPedido({...i, preco: precoEf(i)})).join("\n") +
+      (economiaLista() > 0 ? `\nEconomia do kit: ${brl(economiaLista())}` : "") +
       `\nTotal dos produtos: ${brl(totalLista())}` +
       (tipo === "abc" && entregaSel.cidade && entregaSel.valor >= 0 ? `\nEntrega: ${brl(fr)}\nTotal com a entrega: ${brl(totalLista() + fr)}` : tipo === "abc" && entregaSel.valor < 0 ? " (entrega a combinar)" : tipo === "retirada" ? " (retirada, sem custo de entrega)" : " (sem a entrega)") +
       (receber ? `\nComo quero receber: ${receber}` : "") + (pagSel ? `\nComo quero pagar: ${pagSel}` : "") + (cep ? `\n${tipo === "correios" ? "CEP" : "Bairro ou CEP"}: ${cep}` : "") +
@@ -620,7 +645,7 @@ function renderGrid(){
       <div class="info">
         <h3>${esc(p.name)}</h3>
         ${resumoDe(p) ? `<p class="resumo">${esc(resumoDe(p))}</p>` : ""}
-        <div class="meta">${p.launch?`<span class="tag launch">Preço de lançamento</span>`:""}${p.custom?`<span class="tag">Personalizado com nome</span>`:""}${p.mont?`<span class="tag">Para montar</span>`:""}${swatches(p)}</div>
+        <div class="meta">${p.launch?`<span class="tag launch">Preço de lançamento</span>`:""}${p.custom?`<span class="tag">Personalizado com nome</span>`:""}${p.mont?`<span class="tag">Para montar</span>`:""}${p.kit?`<span class="tag kit">${(f => `${f[0]} por ${brl(cent(f[0] * f[1]))}`)(p.kit[p.kit.length - 1])}</span>`:""}${swatches(p)}</div>
         <div class="row"><span class="price">${brl(p.price)}${p.unit?`<small>${esc(p.unit)}</small>`:""}</span>${p.status !== "encomenda" || p.estoque ? `<span class="status ${p.status}">${p.estoque ? (p.estoque <= 2 ? `Últimas ${p.estoque === 1 ? "unidade" : p.estoque + " unidades"}` : STATUS.disponivel) : STATUS[p.status]}</span>` : ""}</div>
       </div>
     </button>`).join("")
@@ -699,9 +724,22 @@ function botoesWa(p){
   $("#dWa").innerHTML = CONTACTS.map(c => `<a class="btn wa" href="${waLink(c,p)}" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>${UNICO() ? (varios ? "Pedir só este pelo WhatsApp" : "Pedir pelo WhatsApp") : `Pedir com ${c.artigo ? c.artigo+" " : ""}${esc(c.name)}`}</a>`).join("");
   $("#dWa").classList.toggle("one", UNICO());
 }
+function kitHTML(p){
+  if(!p.kit) return "";
+  const ja = qtdDe(p.id), n = sel.qtd + ja, faixas = [[1, Number(p.price) || 0], ...p.kit];
+  let at = faixas[0]; for(const f of faixas) if(n >= f[0]) at = f;
+  const prox = p.kit.find(f => f[0] > n), u = unitKit(p, n), eco = cent(((Number(p.price) || 0) - u) * n);
+  const st = (u < p.price ? `Com ${pecas(n)}: <b>${brl(cent(u * n))}</b> (${brl(u)} cada). Você economiza <b>${brl(eco)}</b>.` : "")
+    + (prox ? `${u < p.price ? " " : ""}Com mais ${pecas(prox[0] - n)}, cada uma sai por <b>${brl(prox[1])}</b>.` : "")
+    + (ja ? ` Já conta ${ja === 1 ? "a peça que está" : `as ${ja} que estão`} no seu pedido.` : "");
+  return `<div class="kit" id="dKit"><div class="kit-t"><b>Quanto mais peças, menor o preço</b><span>Pode misturar nomes e cores</span></div>
+    <div class="kit-op">${faixas.map(([q, v]) => `<button type="button" data-kq="${q}" aria-pressed="${at[0] === q}" aria-label="${pecas(q)} por ${brl(cent(q * v))}, ${brl(v)} cada"><b>${pecas(q)}</b><span>${brl(cent(q * v))}</span>${q > 1 ? `<small>${brl(v)} cada</small>` : `<small>&nbsp;</small>`}</button>`).join("")}</div>
+    ${st ? `<p class="kit-st">${st}</p>` : ""}</div>`;
+}
+function atualizarKit(p){ const k = document.getElementById("dKit"); if(k && p && p.kit) k.outerHTML = kitHTML(p); }
 function desenharEscolha(p, ok){
   if(p.status === "esgotado"){ $("#dEscolha").innerHTML = ""; return; }
-  $("#dEscolha").innerHTML =
+  $("#dEscolha").innerHTML = kitHTML(p) +
     (p.mont && p.mont.extra ? `<div class="mont"><span class="mont-t">Montagem</span><div class="mont-op" role="radiogroup" aria-label="Montagem">
       <button type="button" role="radio" data-mont="0" aria-checked="${!sel.montado}"><b>Para montar</b><span>${brl(p.price)}</span></button>
       <button type="button" role="radio" data-mont="1" aria-checked="${sel.montado}"><b>Montado</b><span>${brl(p.price + p.mont.extra)}</span></button></div></div>` : "") +
@@ -718,9 +756,14 @@ $("#dColors").addEventListener("click", e => {
 });
 $("#dEscolha").addEventListener("input", e => { if(e.target.classList.contains("nome-g")){ if(/"/.test(e.target.value)) e.target.value = e.target.value.replace(/"/g, "'"); sel.nomes[+e.target.dataset.k] = e.target.value.trim(); sel.gravar = sel.nomes[0] || ""; e.target.classList.remove("erro"); botoesWa(cur); } });
 $("#dEscolha").addEventListener("click", e => {
+  const kq = e.target.closest("[data-kq]");
+  if(kq && cur){ sel.qtd = Math.min(99, Math.max(1, +kq.dataset.kq - qtdDe(cur.id))); $("#dQtd").textContent = sel.qtd;
+    if(cur.custom){ while(sel.nomes.length < sel.qtd) sel.nomes.push(""); desenharEscolha(cur); } else atualizarKit(cur);
+    botoesWa(cur); return; }
   const q = e.target.closest("[data-q]");
   if(q){ sel.qtd = Math.min(99, Math.max(1, sel.qtd + Number(q.dataset.q))); $("#dQtd").textContent = sel.qtd;
     if(cur && cur.custom){ while(sel.nomes.length < sel.qtd) sel.nomes.push(""); desenharEscolha(cur); if(Number(q.dataset.q) > 0){ const ult = document.getElementById("dGravar" + (sel.qtd - 1)); if(ult) ult.focus(); } }
+    else atualizarKit(cur);
     botoesWa(cur); return; }
   if(e.target.closest("[data-ver]")){ abrirLista(); return; }
   const mb = e.target.closest("[data-mont]");
@@ -754,16 +797,21 @@ function atualizarBarra(){
   $("#lbN").textContent = n; $("#lbT").textContent = `Seu pedido: ${brl(totalLista())}`;
 }
 function desenharLista(){
-  if(!LISTA.length){ $("#lItens").innerHTML = `<li style="grid-template-columns:1fr">Seu pedido está vazio. Abra um produto e toque em Adicionar ao pedido.</li>`; $("#lTotal").innerHTML = ""; $("#lEnviar").innerHTML = ""; return; }
+  if(!LISTA.length){ $("#lItens").innerHTML = `<li style="grid-template-columns:1fr">Seu pedido está vazio. Abra um produto e toque em Adicionar ao pedido.</li>`; $("#lTotal").innerHTML = ""; $("#lKit").hidden = true; $("#lEnviar").innerHTML = ""; return; }
   $("#lItens").innerHTML = LISTA.map((i,k) => `<li><img src="${foto(i.img, true)}" alt="">
-    <div><b>${esc(i.nome)}</b><small>${esc(i.id)}${i.cor ? " | " + esc(i.cor) : ""}${i.gravar ? ` | nome "${esc(i.gravar)}"` : ""}${i.montado === true ? " | montado" : i.montado === false ? " | para montar" : ""} | ${brl(i.preco)} cada</small></div><button class="l-rm" type="button" data-rm="${k}" aria-label="Remover ${esc(i.nome)}">Remover</button>
+    <div><b>${esc(i.nome)}</b><small>${esc(i.id)}${i.cor ? " | " + esc(i.cor) : ""}${i.gravar ? ` | nome "${esc(i.gravar)}"` : ""}${i.montado === true ? " | montado" : i.montado === false ? " | para montar" : ""} | ${precoEf(i) < i.preco ? `<s>${brl(i.preco)}</s> ` : ""}${brl(precoEf(i))} cada</small></div><button class="l-rm" type="button" data-rm="${k}" aria-label="Remover ${esc(i.nome)}">Remover</button>
     <div class="qtd" role="group" aria-label="Quantidade de ${esc(i.nome)}"><button type="button" data-lq="${k}" data-d="-1" aria-label="Menos um">−</button><output>${i.qtd}</output><button type="button" data-lq="${k}" data-d="1" aria-label="Mais um">+</button></div></li>`).join("");
+  const kits = [...new Set(LISTA.map(i => i.id))].map(id => P.find(x => x.id === id)).filter(p => p && p.kit);
+  $("#lKit").innerHTML = kits.map(p => { const n = qtdDe(p.id), u = unitKit(p, n), prox = p.kit.find(f => f[0] > n);
+    return `<span>${esc(p.name)}: ${u < p.price ? `${pecas(n)} a <b>${brl(u)}</b> cada.` : `${pecas(n)}.`}${prox ? ` Com mais ${pecas(prox[0] - n)}, cada uma sai por <b>${brl(prox[1])}</b>.` : ""}</span>`; }).join("");
+  $("#lKit").hidden = !kits.length;
+  const eco = economiaLista(), ecoTxt = eco > 0 ? `<span class="l-sub l-eco">Economia do kit <span>−${brl(eco)}</span></span>` : "";
   const fr = freteLista(), tipo = entregaSel && entregaSel.tipo;
-  $("#lTotal").innerHTML = tipo === "abc" && entregaSel.cidade && entregaSel.valor < 0
+  $("#lTotal").innerHTML = ecoTxt + (tipo === "abc" && entregaSel.cidade && entregaSel.valor < 0
     ? `<span class="l-sub">Produtos <span>${brl(totalLista())}</span></span><span class="l-sub">Entrega em outra cidade <span>a combinar</span></span>Total dos produtos <b>${brl(totalLista())}</b>`
     : tipo === "abc" && entregaSel.cidade
     ? `<span class="l-sub">Produtos <span>${brl(totalLista())}</span></span><span class="l-sub">Entrega em ${esc(entregaSel.cidade)} <span>${brl(fr)}</span></span>Total com a entrega <b>${brl(totalLista() + fr)}</b>`
-    : `Total dos produtos <b>${brl(totalLista())}</b>`;
+    : `Total dos produtos <b>${brl(totalLista())}</b>`);
   $("#lCidadeBox").hidden = tipo !== "abc";
   const info = $("#lInfoEntrega");
   info.hidden = !tipo;
@@ -850,7 +898,8 @@ async function carregar(){
     P = dados.filter(o => !o.oculto).map(o => ({id:o.id, name:o.nome, cat:o.categoria, price:o.preco, unit:o.unidade||"",
       status: o.estoque > 0 ? "disponivel" : (o.status === "disponivel" ? "encomenda" : (o.status||"encomenda")), estoque: o.estoque > 0 ? o.estoque : 0, destaque:o.destaque||"",
       custom:!!o.personalizado, launch:!!o.lancamento, desc:o.descricao||"", prazo:o.prazo||null, medidas:o.medidas||"", imgs:(o.fotos&&o.fotos.length?o.fotos:["45"]),
-      fit:o.fotoInteira?"contain":"", colors:o.cores||[], resumo:(o.resumo||"").trim(), mont: o.montagem ? {extra: Number(o.montagem.extra) || 0} : null}));
+      fit:o.fotoInteira?"contain":"", colors:o.cores||[], resumo:(o.resumo||"").trim(), mont: o.montagem ? {extra: Number(o.montagem.extra) || 0} : null,
+      kit: (() => { const k = (Array.isArray(o.kit) ? o.kit : []).filter(f => Array.isArray(f) && f[0] >= 2 && f[1] > 0 && f[1] < o.preco).map(f => [Math.round(f[0]), Number(f[1])]).sort((a,b) => a[0] - b[0]); return k.length ? k : null; })()}));
     const cats = [...new Set(P.map(p=>p.cat))];
     cats.sort((a,b)=>{const ia=ORDEM_CATS.indexOf(a), ib=ORDEM_CATS.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib);});
     CATS = ["Todos", ...cats];
