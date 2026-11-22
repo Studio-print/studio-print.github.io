@@ -57,9 +57,15 @@ a{color:inherit}
 .season small{display:block;color:var(--muted);font-size:14px}
 .stack{position:relative;aspect-ratio:1/1;max-width:440px;justify-self:end;width:100%}
 .stack img{position:absolute;object-fit:cover;border-radius:16px;border:6px solid var(--card);box-shadow:0 18px 40px -18px rgba(21,24,30,.45)}
-.stack .s1{width:62%;aspect-ratio:3/4;left:0;top:6%;transform:rotate(-4deg)}
-.stack .s2{width:56%;aspect-ratio:3/4;right:0;top:0;transform:rotate(3deg)}
-.stack .s3{width:58%;aspect-ratio:1/1;left:24%;bottom:0;transform:rotate(-1deg)}
+.stack .s1{width:54%;aspect-ratio:3/4;left:0;top:4%;transform:rotate(-4deg)}
+.stack .s2{width:52%;aspect-ratio:3/4;right:0;top:0;transform:rotate(3deg)}
+.stack .s3{width:50%;aspect-ratio:1/1;left:27%;bottom:-4%;transform:rotate(-1deg)}
+.stack img.link{cursor:pointer;transition:transform .25s ease, box-shadow .25s ease}
+.stack img.link:hover,.stack img.link:focus-visible,.stack img.frente{z-index:3;transform:rotate(0) scale(1.04);box-shadow:0 24px 50px -16px rgba(21,24,30,.55)}
+.stack img.link:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.stack .dica{position:absolute;left:0;right:0;text-align:center;bottom:-40px;font-size:13px;color:var(--muted);font-weight:600}
+.stack.tem-dica{margin-bottom:44px}
+@media (prefers-reduced-motion: reduce){.stack img.link{transition:none}}
 
 /* Filtros */
 .filters{position:sticky;top:0;z-index:5;background:rgba(236,238,242,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
@@ -86,6 +92,8 @@ main{padding:28px 0 56px}
 .thumb img{width:100%;height:100%;object-fit:cover}
 .thumb img.contain{object-fit:contain}
 .code{position:absolute;left:10px;top:10px;background:rgba(21,24,30,.82);color:#fff;font-size:12px;font-weight:700;letter-spacing:.02em;padding:3px 8px;border-radius:6px;font-variant-numeric:tabular-nums}
+.selo{position:absolute;left:10px;bottom:10px;background:var(--card);color:var(--ink);font-size:12px;font-weight:800;padding:4px 9px;border-radius:999px;box-shadow:0 2px 8px rgba(21,24,30,.18)}
+.selo.mais-vendido::before{content:"★ ";color:#B7791F}
 .count{position:absolute;right:10px;top:10px;background:rgba(255,255,255,.92);font-size:12px;font-weight:600;padding:3px 8px;border-radius:6px;display:flex;gap:4px;align-items:center}
 .count svg{width:13px;height:13px}
 .info{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
@@ -208,7 +216,12 @@ body.tem-lista{padding-bottom:84px}
 .l-campos{border:1px solid var(--line);border-radius:12px;padding:12px;margin:0;display:grid;gap:8px}
 .l-campos legend{font-size:14px;color:var(--muted);font-weight:600;padding:0 4px}
 .l-campos label,.l-rot{font-size:14px;font-weight:600}
-.l-campos input{font:inherit;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.l-campos input,.l-campos select{font:inherit;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--card);color:var(--ink)}
+#lCidadeBox{display:grid;gap:6px}
+#lCidadeBox[hidden]{display:none}
+.l-info{margin:0;font-size:14px;color:var(--muted)}
+.l-total{flex-wrap:wrap;row-gap:4px}
+.l-total .l-sub{width:100%;display:flex;justify-content:space-between;font-size:15px;font-weight:600;color:var(--muted)}
 .l-chips{display:flex;gap:8px;flex-wrap:wrap}
 .l-chips button{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 14px;cursor:pointer;color:var(--ink)}
 .l-chips button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
@@ -278,7 +291,7 @@ body.tem-lista{padding-bottom:84px}
       <span><strong id="fTitulo">Natal 2026: enfeites com o nome de quem você ama</strong><small id="fTexto">Peça com antecedência para chegar antes do Natal. Veja os modelos</small></span>
     </button>
   </div>
-  <div class="stack" aria-hidden="true">
+  <div class="stack" id="stack">
     <img class="s1" src="miniaturas/45.webp" alt="">
     <img class="s2" src="miniaturas/29.webp" alt="">
     <img class="s3" src="miniaturas/41.webp" alt="">
@@ -322,8 +335,10 @@ body.tem-lista{padding-bottom:84px}
         <legend>Para agilizar (opcional)</legend>
         <label for="lNome">Seu nome</label><input id="lNome" autocomplete="name" placeholder="Como podemos te chamar">
         <span class="l-rot">Como quer receber?</span>
-        <div class="l-chips" id="lReceber"><button type="button" data-rec="Retirar em São Caetano do Sul">Retirar</button><button type="button" data-rec="Entrega no ABC">Entrega no ABC</button><button type="button" data-rec="Envio pelos Correios">Correios</button></div>
-        <label for="lCep">CEP ou bairro (para calcular a entrega)</label><input id="lCep" inputmode="text" placeholder="Ex.: 09580-560 ou Vila Assunção, Santo André">
+        <div class="l-chips" id="lReceber"><button type="button" data-rec="retirada">Retirar</button><button type="button" data-rec="abc">Entrega no ABC</button><button type="button" data-rec="correios">Correios</button></div>
+        <div id="lCidadeBox" hidden><label for="lCidade">Cidade ou região da entrega</label><select id="lCidade"></select></div>
+        <p class="l-info" id="lInfoEntrega" hidden></p>
+        <label for="lCep" id="lCepRot">Bairro ou CEP</label><input id="lCep" inputmode="text" placeholder="Ex.: Vila Assunção ou 09580-560">
       </fieldset>
     </div>
     <footer>
@@ -381,7 +396,7 @@ function aplicarSite(cfg){
   const i = SITE.inicio || {};
   if(i.titulo) $("#hTitulo").textContent = i.titulo;
   if(i.texto) $("#hTexto").textContent = i.texto;
-  (i.fotos||[]).slice(0,3).forEach((n,k) => { const im = document.querySelector(".stack .s"+(k+1)); if(im && n) im.src = foto(n,true); });
+  (i.fotos||[]).slice(0,3).forEach((n,k) => { const im = document.querySelector(".stack .s"+(k+1)); if(im && n){ im.src = foto(n,true); im.dataset.foto = n; } });
   const f = SITE.faixa;
   if(f){
     $("#faixa").hidden = !f.ativa;
@@ -404,6 +419,7 @@ function avisosDe(p){
   return (SITE.avisos||[]).filter(a => a.texto && (a.para||["todos"]).some(x => x==="todos" || x===p.cat || (x==="personalizados" && p.custom)));
 }
 const STATUS = {disponivel:"Pronta entrega", encomenda:"Sob encomenda", esgotado:"Esgotado"};
+const DESTAQUE = {"mais-vendido":"Mais vendido", "novo":"Novo"};
 const ORDEM_CATS = ["Natal","Personagens","Bonecos de pose","Decoração"];
 let P = [], CATS = ["Todos"];
 const foto = (n, mini) => (mini ? "miniaturas/" : "fotos/") + (n.includes(".") ? n : n + ".webp");
@@ -419,6 +435,9 @@ try{ LISTA = JSON.parse(localStorage.getItem("sp_pedido") || "[]").filter(i => i
 const guardar = () => { try{ localStorage.setItem("sp_pedido", JSON.stringify(LISTA)); }catch(_){} };
 let sel = {cor:"", qtd:1, gravar:""};
 const linhaPedido = i => `${i.qtd}x ${i.id} ${i.nome}${i.cor ? ` (${i.cor})` : ""}${i.gravar ? `, nome "${i.gravar}"` : ""}: ${brl(i.preco * i.qtd)}`;
+/* entrega escolhida na lista */
+let entregaSel = null;   /* {tipo:"retirada"|"abc"|"correios", cidade, valor} */
+const freteLista = () => entregaSel && entregaSel.tipo === "abc" && entregaSel.valor >= 0 && entregaSel.cidade ? entregaSel.valor : 0;
 const totalLista = () => LISTA.reduce((s,i) => s + i.preco * i.qtd, 0);
 const qtdLista = () => LISTA.reduce((s,i) => s + i.qtd, 0);
 const UNICO = () => CONTACTS.length === 1;
@@ -434,11 +453,14 @@ function waLink(c, p){
           (p.custom && !sel.gravar ? `\nNome para personalizar: ` : "") + (!sel.cor ? `\nCor: ` : "");
   }
   if(p === "lista"){
-    const nome = $("#lNome").value.trim(), rec = ($("#lReceber [aria-pressed='true']") || {}).dataset, cep = $("#lCep").value.trim();
+    const nome = $("#lNome").value.trim(), cep = $("#lCep").value.trim(), fr = freteLista();
+    const tipo = entregaSel && entregaSel.tipo;
+    const receber = tipo === "retirada" ? "Retirar em São Caetano do Sul" : tipo === "abc" ? (entregaSel.cidade ? `Entrega no ABC, ${entregaSel.cidade}` : "Entrega no ABC") : tipo === "correios" ? "Envio pelos Correios" : "";
     msg = `${oi}${nome ? ` Sou ${nome}.` : ""} Vi o catálogo da StudioPrint e quero fazer este pedido:\n` +
       LISTA.map(i => "• " + linhaPedido(i)).join("\n") +
-      `\nTotal dos produtos: ${brl(totalLista())} (sem a entrega)` +
-      (rec ? `\nComo quero receber: ${rec.rec}` : "") + (cep ? `\nCEP ou bairro: ${cep}` : "") +
+      `\nTotal dos produtos: ${brl(totalLista())}` +
+      (tipo === "abc" && entregaSel.cidade ? `\nEntrega: ${brl(fr)}\nTotal com a entrega: ${brl(totalLista() + fr)}` : tipo === "retirada" ? `\nTotal: ${brl(totalLista())} (retirada, sem custo de entrega)` : " (sem a entrega)") +
+      (receber ? `\nComo quero receber: ${receber}` : "") + (cep ? `\n${tipo === "correios" ? "CEP" : "Bairro ou CEP"}: ${cep}` : "") +
       (LISTA.some(i => i.custom && !i.gravar) ? `\nNome para personalizar: ` : "") + (LISTA.some(i => !i.cor && i.temCores) ? `\nCores: ` : "");
   }
   return `https://wa.me/${c.phone}?text=${encodeURIComponent(msg)}`;
@@ -463,7 +485,9 @@ function swatches(p){
 }
 function renderGrid(){
   const nq = norm(q.trim());
-  const list = P.filter(p => (cat==="Todos"||p.cat===cat) && (!nq || norm(p.name+" "+p.id+" "+p.cat).includes(nq)));
+  const peso = p => p.destaque === "mais-vendido" ? 0 : p.destaque === "novo" ? 1 : 2;
+  const list = P.filter(p => (cat==="Todos"||p.cat===cat) && (!nq || norm(p.name+" "+p.id+" "+p.cat).includes(nq)))
+    .map((p,i) => ({p,i})).sort((a,b) => peso(a.p) - peso(b.p) || a.i - b.i).map(x => x.p);
   $("#listTitle").textContent = cat==="Todos" ? "Todos os produtos" : cat;
   $("#listCount").textContent = list.length===1 ? "1 produto" : `${list.length} produtos`;
   $("#grid").innerHTML = list.length ? list.map(p => `
@@ -472,11 +496,12 @@ function renderGrid(){
         <img src="${foto(p.imgs[0],true)}" alt="${esc(p.name)}" loading="lazy" class="${p.fit==="contain"?"contain":""}" onerror="this.style.visibility='hidden'">
         <span class="code">${p.id}</span>
         ${p.imgs.length>1?`<span class="count"><svg><use href="#i-photos"/></svg>${p.imgs.length}</span>`:""}
+        ${p.destaque?`<span class="selo ${p.destaque}">${DESTAQUE[p.destaque]}</span>`:""}
       </div>
       <div class="info">
         <h3>${esc(p.name)}</h3>
         <div class="meta">${p.launch?`<span class="tag launch">Preço de lançamento</span>`:""}${p.custom?`<span class="tag">Personalizado com nome</span>`:""}${swatches(p)}</div>
-        <div class="row"><span class="price">${brl(p.price)}${p.unit?`<small>${esc(p.unit)}</small>`:""}</span><span class="status ${p.status}">${STATUS[p.status]}</span></div>
+        <div class="row"><span class="price">${brl(p.price)}${p.unit?`<small>${esc(p.unit)}</small>`:""}</span><span class="status ${p.status}">${p.estoque ? (p.estoque <= 2 ? `Últimas ${p.estoque === 1 ? "unidade" : p.estoque + " unidades"}` : STATUS.disponivel) : STATUS[p.status]}</span></div>
       </div>
     </button>`).join("")
     : `<div class="empty">Nenhum produto encontrado para “${esc(q)}”. Tente outra palavra ou veja todos os produtos.</div>`;
@@ -501,7 +526,7 @@ function openProduct(id, setHash){
   $("#dKicker").textContent = `${p.cat}  |  Código ${p.id}`;
   $("#dTitle").textContent = p.name;
   $("#dPrice").innerHTML = `${brl(p.price)}${p.unit?`<small>${esc(p.unit)}</small>`:""}`;
-  const st = $("#dStatus"); st.className = "status " + p.status; st.textContent = STATUS[p.status];
+  const st = $("#dStatus"); st.className = "status " + p.status; st.textContent = p.estoque ? `Pronta entrega: ${p.estoque === 1 ? "1 unidade" : p.estoque + " unidades"}` : STATUS[p.status];
   $("#dLaunch").hidden = !p.launch;
   $("#dDesc").textContent = p.desc;
   const pz = prazoTexto(p);
@@ -515,7 +540,7 @@ function openProduct(id, setHash){
     ? (p.custom ? "Feito sob encomenda depois que você manda o nome e as cores. Combine os detalhes e o pagamento pelo WhatsApp."
                 : "Feito sob encomenda: a peça é produzida depois do pedido, na cor que você escolher. Combine a cor e o pagamento pelo WhatsApp.")
     : p.status==="esgotado" ? "Esgotado no momento. Chame no WhatsApp para entrar na lista de espera."
-    : "Pronta entrega. Chame no WhatsApp para combinar a retirada ou o envio.";
+    : `Pronta entrega${p.estoque ? ` (${p.estoque === 1 ? "1 unidade" : p.estoque + " unidades"})` : ""}: sai logo depois do pagamento. Se quiser mais do que isso, o restante é feito sob encomenda.`;
   botoesWa(p);
   const url = (SITE_URL || "") + "#" + p.id.toLowerCase();
   const shareMsg = `Olha esse produto da StudioPrint: ${p.name}, ${brl(p.price)}${p.unit?" "+p.unit:""}.${SITE_URL?" "+url:""}`;
@@ -593,7 +618,18 @@ function desenharLista(){
   $("#lItens").innerHTML = LISTA.map((i,k) => `<li><img src="${foto(i.img, true)}" alt="">
     <div><b>${esc(i.nome)}</b><small>${esc(i.id)}${i.cor ? " | " + esc(i.cor) : ""}${i.gravar ? ` | nome "${esc(i.gravar)}"` : ""} | ${brl(i.preco)} cada</small><button class="l-rm" type="button" data-rm="${k}">Remover</button></div>
     <div class="qtd" role="group" aria-label="Quantidade de ${esc(i.nome)}"><button type="button" data-lq="${k}" data-d="-1" aria-label="Menos um">−</button><output>${i.qtd}</output><button type="button" data-lq="${k}" data-d="1" aria-label="Mais um">+</button></div></li>`).join("");
-  $("#lTotal").innerHTML = `Total dos produtos <b>${brl(totalLista())}</b>`;
+  const fr = freteLista(), tipo = entregaSel && entregaSel.tipo;
+  $("#lTotal").innerHTML = tipo === "abc" && entregaSel.cidade
+    ? `<span class="l-sub">Produtos <span>${brl(totalLista())}</span></span><span class="l-sub">Entrega em ${esc(entregaSel.cidade)} <span>${brl(fr)}</span></span>Total com a entrega <b>${brl(totalLista() + fr)}</b>`
+    : `Total dos produtos <b>${brl(totalLista())}</b>`;
+  $("#lCidadeBox").hidden = tipo !== "abc";
+  const info = $("#lInfoEntrega");
+  info.hidden = !tipo;
+  info.textContent = tipo === "retirada" ? "Retirada sem custo em São Caetano do Sul (bairro Mauá). Combinamos o horário pelo WhatsApp."
+    : tipo === "correios" ? "O frete dos Correios é calculado pelo seu CEP e passado no WhatsApp."
+    : tipo === "abc" && !entregaSel.cidade ? "Escolha a cidade para ver o valor da entrega." : "";
+  if(tipo === "abc" && entregaSel.cidade) info.hidden = true;
+  $("#lCepRot").textContent = tipo === "correios" ? "CEP" : "Bairro ou CEP";
   $("#lTotal").insertAdjacentHTML("afterend", "");
   $("#lEnviar").innerHTML = CONTACTS.map(c => `<a class="btn wa" href="${waLink(c, "lista")}" target="_blank" rel="noopener"><svg><use href="#i-wa"/></svg>${UNICO() ? "Enviar pedido pelo WhatsApp" : `Enviar para ${c.artigo ? c.artigo+" " : ""}${esc(c.name)}`}</a>`).join("");
   $("#lEnviar").classList.toggle("one", UNICO());
@@ -616,7 +652,24 @@ $("#lItens").addEventListener("click", e => {
   else return;
   guardar(); atualizarBarra(); desenharLista();
 });
-$("#lReceber").addEventListener("click", e => { const b = e.target.closest("[data-rec]"); if(!b) return; const on = b.getAttribute("aria-pressed") !== "true"; $("#lReceber").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", "false")); b.setAttribute("aria-pressed", on); desenharLista(); });
+$("#lReceber").addEventListener("click", e => {
+  const b = e.target.closest("[data-rec]"); if(!b) return;
+  const on = b.getAttribute("aria-pressed") !== "true";
+  $("#lReceber").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", "false")); b.setAttribute("aria-pressed", on);
+  entregaSel = on ? {tipo:b.dataset.rec, cidade:"", valor:0} : null;
+  if(on && b.dataset.rec === "abc"){
+    const fs = (SITE.fretes||[]).filter(f => f.nome);
+    $("#lCidade").innerHTML = `<option value="">Escolha a cidade</option>` + fs.map((f,k) => `<option value="${k}">${esc(f.nome)}: ${brl(Number(f.valor)||0)}</option>`).join("") + `<option value="outra">Outra cidade (consultar)</option>`;
+  }
+  desenharLista();
+});
+$("#lCidade").addEventListener("change", e => {
+  const v = e.target.value, fs = (SITE.fretes||[]).filter(f => f.nome);
+  if(v === "" ){ entregaSel = {tipo:"abc", cidade:"", valor:0}; }
+  else if(v === "outra"){ entregaSel = {tipo:"abc", cidade:"outra cidade (valor a combinar)", valor:-1}; }
+  else entregaSel = {tipo:"abc", cidade:fs[+v].nome, valor:Number(fs[+v].valor)||0};
+  desenharLista();
+});
 ["#lNome","#lCep"].forEach(s => $(s).addEventListener("input", () => { desenharLista(); }));
 $("#lLimpar").addEventListener("click", () => { if(confirm("Esvaziar o pedido? Os produtos escolhidos saem da lista.")){ LISTA = []; guardar(); atualizarBarra(); desenharLista(); } });
 function closeDlg(){
@@ -645,7 +698,8 @@ async function carregar(){
     const r = await fetch("produtos.json", {cache:"no-store"});
     if(!r.ok) throw new Error(r.status);
     const dados = await r.json();
-    P = dados.map(o => ({id:o.id, name:o.nome, cat:o.categoria, price:o.preco, unit:o.unidade||"", status:o.status||"encomenda",
+    P = dados.map(o => ({id:o.id, name:o.nome, cat:o.categoria, price:o.preco, unit:o.unidade||"",
+      status: o.estoque > 0 ? "disponivel" : (o.status === "disponivel" ? "encomenda" : (o.status||"encomenda")), estoque: o.estoque > 0 ? o.estoque : 0, destaque:o.destaque||"",
       custom:!!o.personalizado, launch:!!o.lancamento, desc:o.descricao||"", prazo:o.prazo||null, medidas:o.medidas||"", imgs:(o.fotos&&o.fotos.length?o.fotos:["45"]),
       fit:o.fotoInteira?"contain":"", colors:o.cores||[]}));
     const cats = [...new Set(P.map(p=>p.cat))];
@@ -654,12 +708,26 @@ async function carregar(){
     /* pedido guardado: atualiza nome e preço e tira o que saiu do catálogo ou esgotou */
     LISTA = LISTA.filter(i => { const p = P.find(x => x.id === i.id); if(!p || p.status === "esgotado") return false; i.nome = p.name; i.preco = Number(p.price)||0; i.img = p.imgs[0]; return true; });
     guardar(); atualizarBarra();
-    renderChips(); renderGrid(); fromHash();
+    renderChips(); renderGrid(); fromHash(); ligarDestaque();
   }catch(err){
     $("#grid").innerHTML = `<div class="empty">Não foi possível carregar os produtos agora. Atualize a página em alguns segundos.</div>`;
   }
 }
 carregar();
+/* fotos do início: abrem o produto da foto */
+function ligarDestaque(){
+  document.querySelectorAll(".stack img").forEach(im => {
+    const n = im.dataset.foto || (im.getAttribute("src")||"").replace(/^.*\//,"").replace(/\.webp$/,"");
+    const p = P.find(x => x.imgs.includes(n));
+    im.classList.toggle("link", !!p);
+    if(p){ im.dataset.id = p.id; im.alt = `Ver ${p.name}`; im.tabIndex = 0; im.setAttribute("role","link"); }
+    else { im.removeAttribute("data-id"); im.alt = ""; im.removeAttribute("tabindex"); im.removeAttribute("role"); }
+  });
+  const algum = document.querySelector(".stack img.link");
+  if(algum && !document.querySelector(".stack .dica")){ $("#stack").insertAdjacentHTML("beforeend", `<span class="dica">Toque na foto para ver o produto</span>`); $("#stack").classList.add("tem-dica"); }
+}
+$("#stack").addEventListener("click", e => { const im = e.target.closest("img[data-id]"); if(im) openProduct(im.dataset.id, true); });
+$("#stack").addEventListener("keydown", e => { if(e.key === "Enter"){ const im = e.target.closest("img[data-id]"); if(im) openProduct(im.dataset.id, true); } });
 </script>
 </body>
 </html>

@@ -92,7 +92,8 @@ dialog::backdrop{background:rgba(15,17,22,.6)}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .g3{display:grid;grid-template-columns:120px 1fr 1fr;gap:12px}
 .hint{font-size:13px;color:var(--muted);margin-top:4px}
-fieldset{border:1px solid var(--line);border-radius:12px;padding:12px;margin:0}
+fieldset{border:1px solid var(--line);border-radius:12px;padding:12px 14px 14px;margin:0;display:grid;gap:12px;min-width:0}
+#fEd fieldset .g2,#fEd fieldset .g3{margin:0}
 legend{font-weight:650;font-size:14px;padding:0 6px}
 .photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:10px}
 .ph{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#E4E7EC}
@@ -180,7 +181,17 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .pmeta .m i{font-style:normal;font-size:12px;font-weight:500;color:var(--muted)}
 .pmeta .m.bad{border-color:#E8A39C;color:var(--danger)}
 .pmeta .m.strong{border-color:var(--ink)}
-.pacts{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;border-top:1px solid var(--line);padding-top:12px}
+.pbase{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.pacts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pacts .btn{padding:9px 14px}
+.phd .stmini{margin-left:auto;width:auto;min-width:170px;padding:7px 34px 7px 12px;font-size:14px;font-weight:600;border-radius:999px;background-position:right 12px center}
+.pcard{gap:10px}
+.ajustes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.aj{display:grid;gap:10px;align-content:start}
+.aj h3{margin:0;font-size:17px}
+.aj p{margin:0;color:#353B46;line-height:1.5}
+.aj-acts{display:flex;gap:8px;flex-wrap:wrap}
+.aj-lista{margin:0;padding-left:18px;display:grid;gap:6px;color:#353B46;line-height:1.45}
 .stsel{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--muted);margin-right:auto}
 .stsel .in{width:auto;min-width:180px;padding:8px 10px;color:var(--ink);font-size:15px}
 .sec{border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:12px}
@@ -218,7 +229,7 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 #dPed{width:min(960px,calc(100vw - 24px))}
 #dPed .body{gap:16px;padding:20px 24px}
 dialog .body{overscroll-behavior:contain}
-@media (max-width:640px){#dPed{width:100%;max-width:100%}#dPed footer .btn{flex:1 1 auto}.ig{grid-template-columns:1fr 1fr}.totais{grid-template-columns:repeat(2,minmax(0,1fr))}.totais .tot{grid-column:1/-1}.pcard{padding:14px 16px}.pst{margin-left:0}.stsel{margin-right:0;width:100%}.stsel .in{width:100%}#dPed .body{padding:14px}.fr{grid-template-columns:1fr 90px auto}}
+@media (max-width:640px){#dPed{width:100%;max-width:100%}#dPed footer .btn{flex:1 1 auto}.ig{grid-template-columns:1fr 1fr}.totais{grid-template-columns:repeat(2,minmax(0,1fr))}.totais .tot{grid-column:1/-1}.pcard{padding:14px 16px}.phd .stmini{margin-left:0;width:100%}.pbase{display:grid;gap:12px}.pacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.pacts .btn{justify-content:center;padding:10px 8px}.ajustes{grid-template-columns:1fr}.tools{display:grid;grid-template-columns:1fr 1fr}.tools .in{grid-column:1/-1}.tools .viewsw{grid-column:1/-1;display:flex}.tools .viewsw button{flex:1}.tools .btn{justify-content:center}#pedCsv{display:none}.tabs{overflow-x:auto;scrollbar-width:none}.tabs button{white-space:nowrap;flex:none}#dPed .body{padding:14px}.fr{grid-template-columns:1fr 90px auto}}
 #confTxt{white-space:pre-line;line-height:1.55}
 #dColar,#dVersoes{width:min(620px,calc(100% - 24px))}
 .versoes{list-style:none;margin:0;padding:0;display:grid;gap:8px}
@@ -316,7 +327,6 @@ dialog .body{overscroll-behavior:contain}
   <div class="brand"><span class="mark"><span></span></span><div><b>StudioPrint</b><small>Painel do catálogo</small></div></div>
   <nav id="topNav" hidden>
     <a class="btn" href="./" target="_blank" rel="noopener"><svg width="16" height="16"><use href="#i-ext"/></svg><span>Ver catálogo</span></a>
-    <button class="btn" type="button" id="bSenha">Senha</button>
     <button class="btn" type="button" id="sair">Sair</button>
   </nav>
 </header>
@@ -363,6 +373,7 @@ dialog .body{overscroll-behavior:contain}
     <button type="button" role="tab" aria-selected="true" data-tab="tPedidos">Pedidos</button>
     <button type="button" role="tab" aria-selected="false" data-tab="tProdutos">Produtos</button>
     <button type="button" role="tab" aria-selected="false" data-tab="tSite">Site e avisos</button>
+    <button type="button" role="tab" aria-selected="false" data-tab="tAjustes">Ajustes</button>
   </div>
   <section id="tPedidos">
     <div class="card" id="pedSetup" hidden>
@@ -400,7 +411,6 @@ dialog .body{overscroll-behavior:contain}
     <button class="btn primary" type="button" id="bNovo">Novo produto</button>
     <input class="in" type="search" id="busca" placeholder="Buscar por nome ou código" aria-label="Buscar por nome ou código">
     <span class="count" id="contagem"></span>
-    <button class="btn" type="button" id="bVersoes" style="margin-left:auto">Versões anteriores</button>
   </div>
   <div id="lista"></div>
   </section>
@@ -457,6 +467,34 @@ dialog .body{overscroll-behavior:contain}
       <textarea class="in" id="sRod" data-bind="rodape"></textarea>
     </div>
   </section>
+  <section id="tAjustes" hidden>
+    <div class="ajustes">
+      <div class="card aj">
+        <h3>Acesso ao painel</h3>
+        <p>Troque a senha que vocês usam para entrar no painel. Ela vale para todos os aparelhos.</p>
+        <div class="aj-acts"><button class="btn" type="button" id="bSenha">Trocar senha</button><button class="btn" type="button" id="sair2">Sair deste aparelho</button></div>
+      </div>
+      <div class="card aj">
+        <h3>Versões do catálogo</h3>
+        <p>Cada publicação fica guardada. Se algo saiu errado, volte o catálogo para como estava antes.</p>
+        <div class="aj-acts"><button class="btn" type="button" id="bVersoes">Ver versões anteriores</button></div>
+      </div>
+      <div class="card aj">
+        <h3>Cópias de segurança</h3>
+        <p>Baixe uma cópia uma vez por mês e guarde em <b>04 Comprovantes e notas</b>, no seu computador.</p>
+        <div class="aj-acts"><button class="btn" type="button" id="bBkPed">Pedidos em planilha</button><button class="btn" type="button" id="bBkPedJson">Pedidos (cópia completa)</button><button class="btn" type="button" id="bBkCat">Catálogo e site</button></div>
+      </div>
+      <div class="card aj">
+        <h3>Atalhos</h3>
+        <ul class="aj-lista">
+          <li><b>Ctrl + Enter</b> salva o pedido aberto.</li>
+          <li><b>Enter</b> na busca de produto do pedido adiciona o primeiro da lista.</li>
+          <li><b>Colar pedido do WhatsApp</b> monta o pedido sozinho a partir da mensagem do cliente.</li>
+          <li>Nada vai para o site antes de você tocar em <b>Publicar no site</b>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
 </main>
 
 <div class="pub" id="pubBar" hidden>
@@ -474,36 +512,43 @@ dialog .body{overscroll-behavior:contain}
   <form class="ed" id="fEd" novalidate>
     <header><h2 id="edTitulo">Editar produto</h2><button class="btn icon" type="button" data-close aria-label="Fechar"><svg><use href="#i-x"/></svg></button></header>
     <div class="body">
-      <div class="g3">
-        <div><label class="f" for="eId">Código</label><input class="in" id="eId" required></div>
-        <div style="grid-column:span 2"><label class="f" for="eNome">Nome do produto</label><input class="in" id="eNome" required></div>
-      </div>
-      <div class="g2">
+      <fieldset>
+        <legend>Produto</legend>
+        <div class="g3">
+          <div><label class="f" for="eId">Código</label><input class="in" id="eId" required></div>
+          <div style="grid-column:span 2"><label class="f" for="eNome">Nome do produto</label><input class="in" id="eNome" required></div>
+        </div>
         <div><label class="f" for="eCat">Categoria</label><input class="in" id="eCat" list="cats" required><datalist id="cats"></datalist><div class="hint">Escolha uma da lista ou digite uma nova.</div></div>
-        <div><label class="f" for="eStatus">Situação</label>
-          <select class="in" id="eStatus"><option value="encomenda">Sob encomenda</option><option value="disponivel">Pronta entrega</option><option value="esgotado">Esgotado</option></select></div>
-      </div>
-      <div class="g2">
-        <div><label class="f" for="ePreco">Preço (R$)</label><input class="in" id="ePreco" inputmode="decimal" placeholder="39,90" required></div>
-        <div><label class="f" for="eUn">Texto depois do preço (opcional)</label><input class="in" id="eUn" placeholder="cada, o kit, a dupla"></div>
-      </div>
-      <div class="g2">
-        <div><label class="f" for="eEst">Pronta entrega (quantidade em estoque)</label><input class="in" id="eEst" inputmode="numeric" placeholder="0">
-          <div class="hint">Com 1 ou mais, o produto aparece como Pronta entrega. Quando zerar, volta sozinho para Sob encomenda.</div></div>
-        <div><label class="f" for="eDest">Destaque no catálogo</label>
-          <select class="in" id="eDest"><option value="">Nenhum</option><option value="mais-vendido">Mais vendido</option><option value="novo">Novo</option></select>
-          <div class="hint">Produtos com destaque aparecem primeiro, com um selo.</div></div>
-      </div>
-      <div>
-        <label class="check"><input type="checkbox" id="eLanc"> Mostrar "Preço de lançamento"</label>
-        <label class="check"><input type="checkbox" id="ePers"> Personalizado com nome</label>
-      </div>
-      <div class="g2">
-        <div><label class="f" for="ePzMin">Produção em dias úteis, depois do pagamento</label>
-          <div class="pzin"><input class="in" id="ePzMin" inputmode="numeric" aria-label="Mínimo de dias úteis"><span>a</span><input class="in" id="ePzMax" inputmode="numeric" aria-label="Máximo de dias úteis"><span>dias</span></div></div>
-        <div><label class="f" for="eMed">Medidas (opcional)</label><input class="in" id="eMed" placeholder="7 cm de diâmetro"></div>
-      </div>
-      <div><label class="f" for="eDesc">Descrição</label><textarea class="in" id="eDesc" placeholder="O que é, cores, detalhes, para quem é um bom presente."></textarea></div>
+        <div><label class="f" for="eDesc">Descrição</label><textarea class="in" id="eDesc" placeholder="O que é, cores, detalhes, para quem é um bom presente."></textarea></div>
+      </fieldset>
+      <fieldset>
+        <legend>Preço e venda</legend>
+        <div class="g2">
+          <div><label class="f" for="ePreco">Preço (R$)</label><input class="in" id="ePreco" inputmode="decimal" placeholder="39,90" required></div>
+          <div><label class="f" for="eUn">Texto depois do preço (opcional)</label><input class="in" id="eUn" placeholder="cada, o kit, a dupla"></div>
+        </div>
+        <div class="g2">
+          <div><label class="f" for="eStatus">Situação</label>
+            <select class="in" id="eStatus"><option value="encomenda">Sob encomenda</option><option value="disponivel">Pronta entrega</option><option value="esgotado">Esgotado</option></select></div>
+          <div><label class="f" for="eEst">Peças prontas em estoque</label><input class="in" id="eEst" inputmode="numeric" placeholder="0"></div>
+        </div>
+        <div class="hint" style="margin-top:-6px">Com 1 ou mais peças em estoque, o produto aparece como Pronta entrega. Quando zerar, volta sozinho para Sob encomenda.</div>
+        <div class="g2">
+          <div><label class="f" for="eDest">Destaque no catálogo</label>
+            <select class="in" id="eDest"><option value="">Nenhum</option><option value="mais-vendido">Mais vendido</option><option value="novo">Novo</option></select>
+            <div class="hint">Com destaque, aparece primeiro e com selo.</div></div>
+          <div style="align-self:center"><label class="check"><input type="checkbox" id="eLanc"> Mostrar "Preço de lançamento"</label></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Produção</legend>
+        <div class="g2">
+          <div><label class="f" for="ePzMin">Dias úteis depois do pagamento</label>
+            <div class="pzin"><input class="in" id="ePzMin" inputmode="numeric" aria-label="Mínimo de dias úteis"><span>a</span><input class="in" id="ePzMax" inputmode="numeric" aria-label="Máximo de dias úteis"><span>dias</span></div></div>
+          <div><label class="f" for="eMed">Medidas (opcional)</label><input class="in" id="eMed" placeholder="7 cm de diâmetro"></div>
+        </div>
+        <label class="check"><input type="checkbox" id="ePers"> Personalizado com nome (o cliente informa o nome no pedido)</label>
+      </fieldset>
       <fieldset>
         <legend>Fotos</legend>
         <div class="photos" id="eFotos"></div>
@@ -892,7 +937,7 @@ function render(){
       const alterado = origMap[p.id] !== JSON.stringify(p);
       html += `<li class="row">
         <img src="${esc(thumb(p.fotos[0]))}" alt="">
-        <div class="t"><b>${esc(p.nome)}</b>
+        <div class="t" data-edit="${i}" style="cursor:pointer"><b>${esc(p.nome)}</b>
           <span>${esc(p.id)} | ${brl(p.preco)}${p.unidade ? " " + esc(p.unidade) : ""} | ${STATUS[p.status] || p.status}${p.estoque > 0 ? ` (${p.estoque} un.)` : ""}${p.destaque ? " | <b>" + DESTAQUE[p.destaque] + "</b>" : ""}${p.lancamento ? " | Lançamento" : ""}${alterado ? ' | <span class="changed">' + (origMap[p.id] ? "Editado" : "Novo") + "</span>" : ""}</span></div>
         <div class="acts">
           <button class="btn icon" type="button" data-up="${i}" aria-label="Subir ${esc(p.nome)}" ${k===0||q?"disabled":""}><svg><use href="#i-up"/></svg></button>
@@ -919,7 +964,7 @@ function moverNaCategoria(i, dir){
   const j = alvo[1]; [produtos[i], produtos[j]] = [produtos[j], produtos[i]]; render();
 }
 $("#lista").addEventListener("click", async e => {
-  const b = e.target.closest("button"); if(!b) return;
+  const b = e.target.closest("button, [data-edit]"); if(!b) return;
   if(b.dataset.up) moverNaCategoria(+b.dataset.up, -1);
   else if(b.dataset.down) moverNaCategoria(+b.dataset.down, 1);
   else if(b.dataset.edit) abrirEditor(+b.dataset.edit);
@@ -1323,10 +1368,10 @@ function renderPedidos(){
       <header class="phd">
         <span class="pid">${esc(p.id)}</span>
         <b class="pcli">${esc(c.nome || "Sem nome")}</b>
-        <span class="pst">${ST_LABEL[p.status] || p.status}</span>
+        <select class="in stmini" data-pst="${esc(p.id)}" aria-label="Situação do pedido ${esc(p.id)}">${ST_PED.map(([k,l]) => `<option value="${k}" ${p.status===k?"selected":""}>${l}</option>`).join("")}</select>
       </header>
       <ul class="pitens">${(p.itens||[]).map(i => `<li>${esc(linhaItem(i))}</li>`).join("") || "<li>Sem itens</li>"}</ul>
-      <div class="pmeta">
+      <div class="pbase"><div class="pmeta">
         <span class="m${late ? " bad" : ""}"><i>Prazo</i>${p.prazo ? dataBR(p.prazo) + (late ? " (atrasado)" : "") : "sem prazo"}</span>
         <span class="m"><i>Entrega</i>${ENTREGA[p.entrega && p.entrega.tipo] || "a combinar"}${t.frete ? " " + brl(t.frete) : ""}</span>
         <span class="m"><i>Total</i>${brl(t.total)}</span>
@@ -1334,12 +1379,11 @@ function renderPedidos(){
         ${c.cidade ? `<span class="m"><i>Onde</i>${esc(c.cidade)}</span>` : ""}
         ${p.responsavel ? `<span class="m"><i>Atende</i>${esc(p.responsavel)}</span>` : ""}
       </div>
-      <footer class="pacts">
-        <label class="stsel"><span>Situação</span><select class="in" data-pst="${esc(p.id)}" aria-label="Situação do pedido ${esc(p.id)}">${ST_PED.map(([k,l]) => `<option value="${k}" ${p.status===k?"selected":""}>${l}</option>`).join("")}</select></label>
+      </div><div class="pacts">
         ${c.whatsapp ? `<a class="btn" href="${esc(msgCliente(p))}" target="_blank" rel="noopener">Mensagem</a>` : ""}
         <button class="btn" type="button" data-pdup="${esc(p.id)}">Repetir</button>
         <button class="btn primary" type="button" data-ped="${esc(p.id)}">Abrir</button>
-      </footer></article>`; }).join("")
+      </div></div></article>`; }).join("")
     : `<p class="count">${pedidos.length ? "Nenhum pedido neste filtro." : "Nenhum pedido ainda. Toque em Novo pedido para cadastrar o primeiro."}</p>`;
 }
 const COLUNAS = ["novo","fila","imprimindo","pronto","enviado"];
@@ -1460,6 +1504,11 @@ async function voltarVersao(sha){
   }catch(e){ aviso(erroAmigavel(e), true); }
 }
 $("#bVersoes").addEventListener("click", abrirVersoes);
+$("#sair2").addEventListener("click", () => $("#sair").click());
+function baixar(nome, texto, tipo){ const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([texto], {type:tipo})); a.download = nome; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+$("#bBkPed").addEventListener("click", () => { if(!pedPronto){ aviso("Os pedidos ainda não foram carregados.", true); return; } $("#pedCsv").click(); });
+$("#bBkPedJson").addEventListener("click", () => { if(!pedPronto){ aviso("Os pedidos ainda não foram carregados.", true); return; } baixar(`pedidos-studioprint-${hojeISO()}.json`, JSON.stringify(pedidos, null, 2), "application/json"); });
+$("#bBkCat").addEventListener("click", () => baixar(`catalogo-studioprint-${hojeISO()}.json`, JSON.stringify({produtos, site}, null, 2), "application/json"));
 $("#verLista").addEventListener("click", e => { const b = e.target.closest("[data-voltar]"); if(b) voltarVersao(b.dataset.voltar); });
 document.querySelectorAll("[data-verfechar]").forEach(b => b.addEventListener("click", () => $("#dVersoes").close()));
 
@@ -1600,6 +1649,7 @@ function mostrarPasso(n){
     if(i === n) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
   });
   $("#pdWa").hidden = ehNovo && n < 5;
+  document.querySelector("#dPed .pdbar").hidden = n === 1;
   $("#pdVoltar").hidden = n === 1;
   $("#pdProx").hidden = n === 5;
   $("#pdProx").textContent = n < 5 ? `Próximo: ${PASSOS[n]}` : "";
