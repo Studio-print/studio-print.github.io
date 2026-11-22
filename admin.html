@@ -111,6 +111,7 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .custom .in{width:auto;flex:1 1 140px}
 .custom input[type=color]{width:44px;height:40px;border:1px solid var(--line);border-radius:8px;padding:2px;background:#fff}
 
+.link{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;cursor:pointer;font-weight:600}
 .toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;z-index:50;max-width:calc(100vw - 32px);box-shadow:0 10px 30px rgba(0,0,0,.25)}
 .toast.bad{background:var(--danger)}
 .conf p{margin:0;padding:20px;color:#353B46}
@@ -146,13 +147,24 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
   <div class="brand"><span class="mark"><span></span></span><div><b>StudioPrint</b><small>Painel do catálogo</small></div></div>
   <nav id="topNav" hidden>
     <a class="btn" href="./" target="_blank" rel="noopener"><svg width="16" height="16"><use href="#i-ext"/></svg><span>Ver catálogo</span></a>
+    <button class="btn" type="button" id="bSenha">Senha</button>
     <button class="btn" type="button" id="sair">Sair</button>
   </nav>
 </header>
 
 <!-- Entrada -->
 <section class="wrap" id="vLogin">
-  <form class="login" id="fLogin">
+  <form class="login" id="fSenha" hidden>
+    <h1>Entrar no painel</h1>
+    <p>Digite a senha do painel da StudioPrint.</p>
+    <label class="f" for="senha">Senha</label>
+    <input class="in" id="senha" type="password" autocomplete="current-password" required>
+    <label class="check"><input type="checkbox" id="lembrarS" checked> Lembrar neste aparelho</label>
+    <button class="btn primary" type="submit" id="bEntrarS">Entrar</button>
+    <div class="err" id="senhaErr" role="alert"></div>
+    <p class="note"><button class="link" type="button" id="irToken">Entrar com o token do GitHub</button></p>
+  </form>
+  <form class="login" id="fLogin" hidden>
     <h1>Entrar no painel</h1>
     <p>Cole o código de acesso (token) do GitHub para editar os produtos do catálogo.</p>
     <label class="f" for="token">Token do GitHub</label>
@@ -171,6 +183,7 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
         <li>Clique em <b>Generate token</b>, copie o código (começa com github_pat_) e cole aqui.</li>
       </ol>
     </details>
+    <p class="note" id="voltarSenhaP" hidden><button class="link" type="button" id="irSenha">Voltar e entrar com a senha</button></p>
     <p class="note">O token fica guardado só neste aparelho. Ele dá acesso apenas ao repositório do catálogo. Não mande para ninguém: quem tiver o token consegue mudar o site.</p>
   </form>
 </section>
@@ -237,6 +250,20 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
       <div class="err" id="edErr" role="alert"></div>
     </div>
     <footer><button class="btn" type="button" data-close>Cancelar</button><button class="btn primary" type="submit">Salvar produto</button></footer>
+  </form>
+</dialog>
+
+<!-- Senha -->
+<dialog id="dSenha" aria-labelledby="sTit">
+  <form class="ed" id="fNovaSenha" novalidate>
+    <header><h2 id="sTit">Senha do painel</h2><button class="btn icon" type="button" data-sclose aria-label="Fechar"><svg><use href="#i-x"/></svg></button></header>
+    <div class="body">
+      <p style="margin:0;color:#353B46" id="sInfo"></p>
+      <div><label class="f" for="sNova">Nova senha</label><input class="in" id="sNova" type="password" autocomplete="new-password"><div class="hint">Use pelo menos 12 caracteres. Uma frase com 3 ou 4 palavras e um número é fácil de lembrar e difícil de adivinhar.</div></div>
+      <div><label class="f" for="sConf">Repita a senha</label><input class="in" id="sConf" type="password" autocomplete="new-password"></div>
+      <div class="err" id="sErr" role="alert"></div>
+    </div>
+    <footer><button class="btn danger" type="button" id="sRemover" hidden>Remover senha</button><span style="flex:1"></span><button class="btn" type="button" data-sclose>Cancelar</button><button class="btn primary" type="submit" id="sSalvar">Salvar senha</button></footer>
   </form>
 </dialog>
 
@@ -309,13 +336,91 @@ function precoDe(v){
   const n = Number(s); return isFinite(n) && n >= 0 && s !== "" ? Math.round(n*100)/100 : NaN;
 }
 
+/* ---------- senha (token trancado com a senha do painel) ---------- */
+const ITER = 600000;
+const b64De = u8 => { let s = ""; u8.forEach(b => s += String.fromCharCode(b)); return btoa(s); };
+const u8De = b => Uint8Array.from(atob(b), c => c.charCodeAt(0));
+async function chave(senha, salt, iter){
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(senha), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2", salt, iterations:iter, hash:"SHA-256"}, base, {name:"AES-GCM", length:256}, false, ["encrypt","decrypt"]);
+}
+async function trancar(tok, senha){
+  const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+  const k = await chave(senha, salt, ITER);
+  const ct = new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM", iv}, k, new TextEncoder().encode(tok)));
+  return {v:1, kdf:"PBKDF2-SHA256", iter:ITER, salt:b64De(salt), iv:b64De(iv), dados:b64De(ct)};
+}
+async function destrancar(acesso, senha){
+  const k = await chave(senha, u8De(acesso.salt), acesso.iter);
+  const pt = await crypto.subtle.decrypt({name:"AES-GCM", iv:u8De(acesso.iv)}, k, u8De(acesso.dados));
+  return new TextDecoder().decode(pt);
+}
+let acessoPublico = null;
+async function lerAcessoPublico(){
+  try{ const r = await fetch("acesso.json?t=" + Date.now(), {cache:"no-store"}); if(r.ok){ const j = await r.json(); if(j && j.dados) return j; } }catch(e){}
+  return null;
+}
+function mostrarEntrada(modo){
+  $("#fSenha").hidden = modo !== "senha"; $("#fLogin").hidden = modo !== "token";
+  $("#voltarSenhaP").hidden = !acessoPublico;
+  setTimeout(() => (modo === "senha" ? $("#senha") : $("#token")).focus(), 30);
+}
+$("#irToken").addEventListener("click", () => mostrarEntrada("token"));
+$("#irSenha").addEventListener("click", () => mostrarEntrada("senha"));
+$("#fSenha").addEventListener("submit", async e => {
+  e.preventDefault(); $("#senhaErr").textContent = "";
+  const b = $("#bEntrarS"); b.disabled = true; b.innerHTML = '<span class="busy"><span class="spin"></span>Conferindo a senha…</span>';
+  let tok;
+  try{ acessoPublico = acessoPublico || await lerAcessoPublico(); tok = await destrancar(acessoPublico, $("#senha").value); }
+  catch(err){ $("#senhaErr").textContent = "Senha incorreta."; b.disabled = false; b.textContent = "Entrar"; return; }
+  b.disabled = false; b.textContent = "Entrar";
+  await entrar(tok, $("#lembrarS").checked, false, "senha");
+});
+
+async function arquivoNoRepo(caminho){
+  try{ return await api(`${REPO}/contents/${caminho}?ref=${CFG.branch}`); }catch(e){ if(e.status === 404) return null; throw e; }
+}
+$("#bSenha").addEventListener("click", async () => {
+  $("#sErr").textContent = ""; $("#sNova").value = ""; $("#sConf").value = "";
+  let existe = null; try{ existe = await arquivoNoRepo("acesso.json"); }catch(e){}
+  $("#sRemover").hidden = !existe;
+  $("#sInfo").textContent = existe
+    ? "O painel já tem uma senha. Digite uma nova para trocar. A senha antiga para de funcionar."
+    : "Crie uma senha para entrar no painel em qualquer aparelho, sem precisar colar o token.";
+  $("#dSenha").showModal(); setTimeout(() => $("#sNova").focus(), 30);
+});
+document.querySelectorAll("[data-sclose]").forEach(b => b.addEventListener("click", () => $("#dSenha").close()));
+$("#fNovaSenha").addEventListener("submit", async e => {
+  e.preventDefault();
+  const n = $("#sNova").value, c = $("#sConf").value;
+  const erro = n.length < 12 ? "A senha precisa ter pelo menos 12 caracteres." : n !== c ? "As duas senhas não são iguais." : "";
+  if(erro){ $("#sErr").textContent = erro; return; }
+  const b = $("#sSalvar"); b.disabled = true; b.innerHTML = '<span class="busy"><span class="spin"></span>Salvando…</span>';
+  try{
+    const conteudo = JSON.stringify(await trancar(token, n), null, 2) + "\n";
+    const atual = await arquivoNoRepo("acesso.json");
+    await api(`${REPO}/contents/acesso.json`, {method:"PUT", body:JSON.stringify({message: atual ? "Troca a senha do painel" : "Cria a senha do painel", content:b64Texto(conteudo), branch:CFG.branch, ...(atual ? {sha:atual.sha} : {})})});
+    $("#dSenha").close();
+    aviso("Senha salva. Em 1 a 2 minutos ela já funciona em qualquer aparelho.");
+  }catch(err){ $("#sErr").textContent = erroAmigavel(err); }
+  finally{ b.disabled = false; b.textContent = "Salvar senha"; }
+});
+$("#sRemover").addEventListener("click", async () => {
+  if(!(await confirmar("Remover a senha?", "Depois disso, para entrar no painel em outro aparelho vai ser preciso colar o token do GitHub.", "Remover senha"))) return;
+  try{
+    const atual = await arquivoNoRepo("acesso.json");
+    if(atual) await api(`${REPO}/contents/acesso.json`, {method:"DELETE", body:JSON.stringify({message:"Remove a senha do painel", sha:atual.sha, branch:CFG.branch})});
+    $("#dSenha").close(); aviso("Senha removida.");
+  }catch(err){ $("#sErr").textContent = erroAmigavel(err); }
+});
+
 /* ---------- entrada ---------- */
 function guardado(){ try{ return localStorage.getItem("sp_token") || sessionStorage.getItem("sp_token") || ""; }catch(e){ return ""; } }
 function guardar(t, lembrar){ try{ (lembrar ? localStorage : sessionStorage).setItem("sp_token", t); }catch(e){} }
 function esquecer(){ try{ localStorage.removeItem("sp_token"); sessionStorage.removeItem("sp_token"); }catch(e){} }
 
-async function entrar(t, lembrar, silencioso){
-  token = t.trim(); $("#loginErr").textContent = "";
+async function entrar(t, lembrar, silencioso, origem){
+  token = t.trim(); $("#loginErr").textContent = ""; $("#senhaErr").textContent = "";
   const b = $("#bEntrar"); b.disabled = true; b.innerHTML = '<span class="busy"><span class="spin"></span>Entrando…</span>';
   try{
     const repo = await api(REPO);
@@ -325,7 +430,14 @@ async function entrar(t, lembrar, silencioso){
     $("#vLogin").hidden = true; $("#vApp").hidden = false; $("#topNav").hidden = false;
   }catch(e){
     token = ""; if(silencioso) esquecer();
-    $("#loginErr").textContent = silencioso ? "Sua sessão expirou. Cole o token de novo." : erroAmigavel(e);
+    if(origem === "senha"){
+      $("#senhaErr").textContent = e.status === 401
+        ? "A senha está certa, mas o token guardado com ela venceu ou foi apagado. Entre com um token novo e crie a senha de novo."
+        : erroAmigavel(e);
+    } else if(silencioso){
+      mostrarEntrada(acessoPublico ? "senha" : "token");
+      (acessoPublico ? $("#senhaErr") : $("#loginErr")).textContent = "Sua sessão expirou. Entre de novo.";
+    } else $("#loginErr").textContent = erroAmigavel(e);
   }finally{ b.disabled = false; b.textContent = "Entrar"; }
 }
 $("#fLogin").addEventListener("submit", e => { e.preventDefault(); entrar($("#token").value, $("#lembrar").checked); });
@@ -564,8 +676,12 @@ async function publicar(){
 window.addEventListener("beforeunload", e => { if(token && mudou()){ e.preventDefault(); e.returnValue = ""; } });
 
 /* ---------- início ---------- */
-const salvo = guardado();
-if(salvo) entrar(salvo, null, true);
+(async () => {
+  acessoPublico = await lerAcessoPublico();
+  const salvo = guardado();
+  if(salvo) entrar(salvo, null, true);
+  else mostrarEntrada(acessoPublico ? "senha" : "token");
+})();
 </script>
 </body>
 </html>
