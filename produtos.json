@@ -3,12 +3,16 @@
     "id": "N-01",
     "nome": "Stitch e Angel com gorro de Noel",
     "categoria": "Natal",
-    "preco": 39,
+    "preco": 29.9,
     "unidade": "cada",
     "status": "encomenda",
     "personalizado": false,
     "lancamento": false,
-    "descricao": "Cabeças do Stitch e da Angel com gorro de Papai Noel. Ficam lindos pendurados na árvore ou enfeitando a mesa de Natal. Vendidos separados.",
+    "descricao": "Stitch e da Angel com gorro de Papai Noel. Ficam lindos pendurados na árvore ou enfeitando a mesa de Natal. Vendidos separados.",
+    "prazo": [
+      2,
+      3
+    ],
     "fotos": [
       "29",
       "27",
@@ -16,11 +20,7 @@
       "30",
       "31"
     ],
-    "cores": [],
-    "prazo": [
-      2,
-      3
-    ]
+    "cores": []
   },
   {
     "id": "N-02",
