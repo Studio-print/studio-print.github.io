@@ -4,6 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Catálogo StudioPrint</title>
+<meta name="description" content="Personagens, bonecos articulados e enfeites de Natal sob encomenda. Escolha a cor, monte o pedido e envie pelo WhatsApp.">
+<meta name="theme-color" content="#15181E">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="StudioPrint">
+<meta property="og:title" content="StudioPrint: do seu jeito, peça por peça">
+<meta property="og:description" content="Personagens, bonecos articulados e enfeites de Natal sob encomenda. Veja o catálogo e peça pelo WhatsApp.">
+<meta property="og:url" content="https://studio-print.github.io/">
+<meta property="og:image" content="https://studio-print.github.io/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="pt_BR">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
@@ -438,6 +453,7 @@ function aplicarSite(cfg){
   if(typeof SITE.rodape === "string") $("#rodape").textContent = SITE.rodape;
   $("#topContacts").innerHTML = contactsHTML("pill");
   $("#bottomContacts").innerHTML = contactsHTML("card");
+  ligarContador();
   const P_ = PAG();
   $("#pagto").hidden = !P_.formas.length;
   $("#pgChips").innerHTML = P_.formas.map(f => `<li>${esc(f)}</li>`).join("");
@@ -481,6 +497,14 @@ const freteLista = () => entregaSel && entregaSel.tipo === "abc" && entregaSel.v
 const totalLista = () => LISTA.reduce((s,i) => s + i.preco * i.qtd, 0);
 const qtdLista = () => LISTA.reduce((s,i) => s + i.qtd, 0);
 const UNICO = () => CONTACTS.length === 1;
+function ligarContador(){
+  const tk = SITE.visitas && SITE.visitas.token;
+  if(!tk || !/^[a-f0-9]{20,64}$/i.test(tk) || document.getElementById("cfBeacon")) return;
+  const s = document.createElement("script");
+  s.id = "cfBeacon"; s.defer = true; s.src = "https://static.cloudflareinsights.com/beacon.min.js";
+  s.setAttribute("data-cf-beacon", JSON.stringify({token: tk}));
+  document.body.appendChild(s);
+}
 const PAG = () => Object.assign({formas:["Pix"], sinal:50, obs:""}, SITE.pagamento || {});
 function listaBR(a){ a = a.map(x => x.toLowerCase()).map((x,i) => i === 0 ? x[0].toUpperCase() + x.slice(1) : x); return a.length < 2 ? (a[0]||"") : a.slice(0,-1).join(", ") + " ou " + a[a.length-1]; }
 const PIX_BR = s => s.replace(/\bpix\b/i, "Pix");

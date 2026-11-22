@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Painel StudioPrint</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
@@ -492,6 +495,20 @@ dialog .body{overscroll-behavior:contain}
         <h3>Acesso ao painel</h3>
         <p>Troque a senha que vocês usam para entrar no painel. Ela vale para todos os aparelhos.</p>
         <div class="aj-acts"><button class="btn" type="button" id="bSenha">Trocar senha</button><button class="btn" type="button" id="sair2">Sair deste aparelho</button></div>
+      </div>
+      <div class="card aj">
+        <h3>Contador de visitas</h3>
+        <p>Mostra quantas pessoas abrem o catálogo, de onde vieram (Instagram, WhatsApp) e se usam celular ou computador. É grátis, pelo Cloudflare.</p>
+        <ol class="aj-lista">
+          <li>No Cloudflare, abra <b>Web Analytics</b> e clique em <b>Add a site</b>.</li>
+          <li>Digite <b>studio-print.github.io</b> e clique em <b>Done</b>.</li>
+          <li>Em <b>Manage site</b>, copie o código que aparece e cole aqui embaixo.</li>
+          <li>Clique em <b>Publicar no site</b>.</li>
+        </ol>
+        <label class="f" for="sVisitas">Código do Cloudflare</label>
+        <textarea class="in" id="sVisitas" rows="3" placeholder="Cole aqui o código inteiro (começa com &lt;script) ou só o token"></textarea>
+        <p class="hint" id="sVisitasOk" aria-live="polite"></p>
+        <div class="aj-acts"><a class="btn" href="https://dash.cloudflare.com/?to=/:account/web-analytics" target="_blank" rel="noopener">Ver visitas no Cloudflare</a></div>
       </div>
       <div class="card aj">
         <h3>Versões do catálogo</h3>
@@ -1163,6 +1180,13 @@ document.querySelectorAll("[data-bind]").forEach(el => el.addEventListener("inpu
 $("#sPgFormas").addEventListener("change", () => { site.pagamento.formas = FORMAS_PG.filter(f => document.querySelector(`[data-pgf="${f}"]`).checked); barra(); });
 $("#sPgSinal").addEventListener("change", e => { site.pagamento.sinal = Number(e.target.value); barra(); });
 $("#sPgObs").addEventListener("input", e => { site.pagamento.obs = e.target.value.trim(); barra(); });
+$("#sVisitas").addEventListener("input", e => {
+  const v = e.target.value.trim(), m = v.match(/"token"\s*:\s*"([a-f0-9]{20,64})"/i) || v.match(/^([a-f0-9]{20,64})$/i);
+  if(!v){ delete site.visitas; $("#sVisitasOk").textContent = "Contador desligado."; barra(); return; }
+  if(!m){ $("#sVisitasOk").textContent = "Não achei o token nesse código. Copie de novo o código inteiro em Manage site."; return; }
+  site.visitas = {token: m[1]}; e.target.value = m[1];
+  $("#sVisitasOk").textContent = "Código certo. Clique em Publicar no site para ligar o contador."; barra();
+});
 $("#sEquipe").addEventListener("input", e => { site.equipe = e.target.value.split(",").map(x => x.trim()).filter(Boolean); barra(); });
 $("#sFaixaAtiva").addEventListener("change", e => { site.faixa = site.faixa || {}; site.faixa.ativa = e.target.checked; barra(); });
 $("#sFaixaCat").addEventListener("change", e => { site.faixa = site.faixa || {}; site.faixa.categoria = e.target.value; barra(); });
@@ -1174,6 +1198,8 @@ function renderSite(){
   $("#sPgFormas").innerHTML = FORMAS_PG.map(f => `<label class="check"><input type="checkbox" data-pgf="${esc(f)}" ${site.pagamento.formas.includes(f) ? "checked" : ""}> ${esc(f)}</label>`).join("");
   $("#sPgSinal").value = String(site.pagamento.sinal ?? 50); $("#sPgObs").value = site.pagamento.obs || "";
   $("#sEquipe").value = (site.equipe || []).join(", ");
+  $("#sVisitas").value = (site.visitas && site.visitas.token) || "";
+  $("#sVisitasOk").textContent = site.visitas && site.visitas.token ? "Contador ligado. Os números aparecem no Cloudflare alguns minutos depois das primeiras visitas." : "Contador desligado.";
   $("#sFaixaAtiva").checked = !!(site.faixa && site.faixa.ativa);
   $("#sFaixaCat").innerHTML = categorias().map(c => `<option ${site.faixa && site.faixa.categoria===c ? "selected" : ""}>${esc(c)}</option>`).join("");
   site.inicio = site.inicio || {}; site.inicio.fotos = site.inicio.fotos || [];
