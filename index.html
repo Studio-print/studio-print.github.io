@@ -236,7 +236,7 @@ dialog::backdrop{background:rgba(15,17,22,.72)}
 
 <main class="wrap">
   <div class="section-head"><h2 id="listTitle">Todos os produtos</h2><span id="listCount"></span></div>
-  <div class="grid" id="grid"></div>
+  <div class="grid" id="grid"><div class="empty">Carregando produtos…</div></div>
 </main>
 
 <section class="wrap">
@@ -282,62 +282,12 @@ const CONTACTS = [
   {name:"Arthur", artigo:"o", phone:"5511972006390", shown:"(11) 97200-6390"}
 ];
 const STATUS = {disponivel:"Pronta entrega", encomenda:"Sob encomenda", esgotado:"Esgotado"};
-const C = {
-  verm:["Vermelho","#D7262E"], verde:["Verde","#2FA84F"], verdeE:["Verde-escuro","#1F7A3A"], lar:["Laranja","#F07A1A"],
-  roxo:["Roxo","#6B5BD6"], cinza:["Cinza","#8C9196"], branco:["Branco","#F4F4F4"], preto:["Preto","#2A2A2A"],
-  azul:["Azul","#3B6FC4"], dour:["Dourado","#D4A62A"], rosa:["Rosa","#F08FC0"], amar:["Amarelo","#F4C51C"]
-};
-const P = [
- {id:"N-01",cat:"Natal",name:"Stitch e Angel com gorro de Noel",price:39,unit:"cada",status:"encomenda",imgs:["29","27","28","30","31"],
-  desc:"Cabeças do Stitch e da Angel com gorro de Papai Noel. Ficam lindos pendurados na árvore ou enfeitando a mesa de Natal. Vendidos separados."},
- {id:"N-02",cat:"Natal",name:"Grinch sentado",price:69,status:"encomenda",imgs:["40","34"],
-  desc:"Grinch de gorro e cachecol, sentado com as pernas para fora. Feito para a beira da estante, da lareira ou da mesa."},
- {id:"N-03",cat:"Natal",name:"Rena geométrica",price:49,unit:"cada",status:"encomenda",imgs:["33","38"],colors:["verm","verdeE","branco","dour"],
-  desc:"Rena em estilo geométrico, de facetas retas. Monte a coleção em várias cores ou use na lareira para segurar a meia de Natal."},
- {id:"N-04",cat:"Natal",name:"Turminha de Natal com bandeja",price:169,status:"encomenda",imgs:["39"],fit:"contain",
-  desc:"Árvore, biscoito de gengibre, Papai Noel, rena, urso polar, boneco de neve e pinguim, todos com textura de tricô, sobre uma bandeja."},
- {id:"N-05",cat:"Natal",name:"Bola de Natal com nome e flocos",price:29,status:"encomenda",custom:true,imgs:["42","24"],
-  desc:"Bola vazada com o nome que você escolher e flocos de neve. Você escolhe a cor do aro, do nome e dos detalhes."},
- {id:"N-06",cat:"Natal",name:"Enfeite suéter com nome",price:29,status:"encomenda",custom:true,imgs:["32"],
-  desc:"Suéter natalino com o nome em relevo e desenhos de renas e flocos. Dá para fazer um para cada pessoa da família."},
- {id:"N-07",cat:"Natal",name:"Bola vilarejo com nome",price:34,status:"encomenda",custom:true,imgs:["41","36"],
-  desc:"Bola com casinha, pinheiros e o nome em destaque. Em vermelho com branco ou verde com branco."},
- {id:"N-08",cat:"Natal",name:"Bola com laço e nome",price:32,status:"encomenda",custom:true,imgs:["37"],
-  desc:"Bola com laço, ramos de azevinho e o nome em letra cursiva, em duas cores."},
- {id:"N-09",cat:"Natal",name:"Floco de neve com nome",price:25,status:"encomenda",custom:true,imgs:["26"],
-  desc:"Floco de neve rendado com o nome no centro, em uma cor só. Delicado e leve para a árvore."},
- {id:"N-10",cat:"Natal",name:"Placa natalina com nome",price:49,status:"encomenda",custom:true,imgs:["23"],fit:"contain",
-  desc:"Placa redonda com nome, flocos de neve, pinheiros e boneco de neve. Para a porta, a árvore ou para dar de presente."},
- {id:"N-11",cat:"Natal",name:"Bolas de Natal geek (kit com 5)",price:89,unit:"o kit",status:"encomenda",imgs:["25"],
-  desc:"Cinco bolas de Natal com símbolos de heróis dos quadrinhos, em duas cores cada. Para a árvore de quem é fã."},
- {id:"P-01",launch:true,cat:"Personagens",name:"Deadpool articulado",price:39,status:"encomenda",imgs:["06","05","04"],
-  desc:"Boneco com todas as juntas articuladas, katanas nas costas e pistolas. Faz poses de ação e fica em pé sozinho."},
- {id:"P-02",launch:true,cat:"Personagens",name:"Capitão América articulado",price:39,status:"encomenda",imgs:["02","03"],
-  desc:"Boneco articulado com escudo e martelo, pronto para a pose de batalha."},
- {id:"P-03",launch:true,cat:"Personagens",name:"Homem de Ferro articulado",price:39,status:"encomenda",imgs:["18","19","17"],
-  desc:"Armadura em vermelho e dourado, com todas as juntas móveis."},
- {id:"P-04",launch:true,cat:"Personagens",name:"Hulk articulado",price:39,status:"encomenda",imgs:["16","15"],
-  desc:"Hulk de punhos grandes e calção roxo, com braços, pernas e cabeça articulados."},
- {id:"P-05",launch:true,cat:"Personagens",name:"Superman articulado",price:39,status:"encomenda",imgs:["49","48","50"],
-  desc:"Boneco articulado com o uniforme clássico e capa vermelha."},
- {id:"P-06",launch:true,cat:"Personagens",name:"Mandaloriano articulado",price:39,status:"encomenda",imgs:["20","21","22"],
-  desc:"Armadura cinza com detalhes em vermelho e juntas móveis para montar poses."},
- {id:"P-07",launch:true,cat:"Personagens",name:"Stormtrooper articulado",price:39,status:"encomenda",imgs:["45","43","44","46","47"],colors:["branco","preto","verm","azul","dour"],
-  desc:"Soldado articulado com blaster. Escolha a cor da armadura ou monte o esquadrão completo."},
- {id:"P-09",launch:true,cat:"Personagens",name:"Homem-Aranha articulado",price:39,status:"encomenda",imgs:["51","52","53","54"],colors:["verm","azul"],
-  desc:"Homem-Aranha com textura de teia em relevo, aranha branca no peito e mãos na pose de soltar teia. Todas as juntas são móveis, então ele agacha, se estica e faz as poses clássicas."},
- {id:"P-08",launch:true,cat:"Personagens",name:"Dupla de bananas articuladas",price:69,unit:"a dupla",status:"encomenda",imgs:["01","00"],colors:["amar","azul"],
-  desc:"Uma banana amarela e uma azul, articuladas, para fazer passos de dança na estante."},
- {id:"A-01",launch:true,cat:"Bonecos de pose",name:"Boneco articulado de pose",price:35,status:"encomenda",imgs:["11","07","08","09","10"],colors:["verde","lar","verm","roxo","cinza"],
-  desc:"O boneco de 13 juntas que faz qualquer pose. Bom para desenhar, fotografar, decorar a mesa ou brincar. Escolha a cor."},
- {id:"A-02",launch:true,cat:"Bonecos de pose",name:"Casal de bonecos articulados",price:65,unit:"o casal",status:"encomenda",imgs:["12"],colors:["rosa","branco"],
-  desc:"Dois bonecos articulados, um rosa e um branco, para dar de presente a dois."},
- {id:"D-01",cat:"Decoração",name:"Fita cassete GTA VI decorativa",price:89,status:"encomenda",imgs:["14","13"],
-  desc:"Peça decorativa em formato de fita cassete com o logo do GTA VI, nas cores rosa, azul-piscina e preto. Fica de pé na mesa ou na estante."}
-];
-const CATS = ["Todos","Natal","Personagens","Bonecos de pose","Decoração"];
+const ORDEM_CATS = ["Natal","Personagens","Bonecos de pose","Decoração"];
+let P = [], CATS = ["Todos"];
+const foto = (n, mini) => (mini ? "miniaturas/" : "fotos/") + (n.includes(".") ? n : n + ".webp");
 const $ = s => document.querySelector(s);
-const brl = n => "R$ " + n.toLocaleString("pt-BR",{minimumFractionDigits:0});
+const brl = n => "R$ " + Number(n).toLocaleString("pt-BR",{minimumFractionDigits: Number(n)%1 ? 2 : 0, maximumFractionDigits:2});
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
 let cat = "Todos", q = "";
 
@@ -362,7 +312,7 @@ function renderChips(){
   }).join("");
 }
 function swatches(p){
-  return p.colors ? `<span class="swatches" aria-label="${p.colors.length} cores">${p.colors.map(k=>`<span class="sw" style="background:${C[k][1]}" title="${C[k][0]}"></span>`).join("")}</span>` : "";
+  return p.colors && p.colors.length ? `<span class="swatches" aria-label="${p.colors.length} cores">${p.colors.map(k=>`<span class="sw" style="background:${esc(k.hex)}" title="${esc(k.nome)}"></span>`).join("")}</span>` : "";
 }
 function renderGrid(){
   const nq = norm(q.trim());
@@ -370,19 +320,19 @@ function renderGrid(){
   $("#listTitle").textContent = cat==="Todos" ? "Todos os produtos" : cat;
   $("#listCount").textContent = list.length===1 ? "1 produto" : `${list.length} produtos`;
   $("#grid").innerHTML = list.length ? list.map(p => `
-    <button class="card" type="button" data-id="${p.id}" aria-label="${p.name}, ${brl(p.price)}, ${STATUS[p.status]}">
+    <button class="card" type="button" data-id="${p.id}" aria-label="${esc(p.name)}, ${brl(p.price)}, ${STATUS[p.status]}">
       <div class="thumb">
-        <img src="miniaturas/${p.imgs[0]}.webp" alt="${p.name}" loading="lazy" class="${p.fit==="contain"?"contain":""}">
+        <img src="${foto(p.imgs[0],true)}" alt="${esc(p.name)}" loading="lazy" class="${p.fit==="contain"?"contain":""}">
         <span class="code">${p.id}</span>
         ${p.imgs.length>1?`<span class="count"><svg><use href="#i-photos"/></svg>${p.imgs.length}</span>`:""}
       </div>
       <div class="info">
-        <h3>${p.name}</h3>
+        <h3>${esc(p.name)}</h3>
         <div class="meta">${p.launch?`<span class="tag launch">Preço de lançamento</span>`:""}${p.custom?`<span class="tag">Personalizado com nome</span>`:""}${swatches(p)}</div>
-        <div class="row"><span class="price">${brl(p.price)}${p.unit?`<small>${p.unit}</small>`:""}</span><span class="status ${p.status}">${STATUS[p.status]}</span></div>
+        <div class="row"><span class="price">${brl(p.price)}${p.unit?`<small>${esc(p.unit)}</small>`:""}</span><span class="status ${p.status}">${STATUS[p.status]}</span></div>
       </div>
     </button>`).join("")
-    : `<div class="empty">Nenhum produto encontrado para “${q}”. Tente outra palavra ou veja todos os produtos.</div>`;
+    : `<div class="empty">Nenhum produto encontrado para “${esc(q)}”. Tente outra palavra ou veja todos os produtos.</div>`;
 }
 $("#chips").addEventListener("click", e => {
   const b = e.target.closest("[data-cat]"); if(!b) return;
@@ -403,11 +353,11 @@ function openProduct(id, setHash){
   cur = p; idx = 0;
   $("#dKicker").textContent = `${p.cat}  |  Código ${p.id}`;
   $("#dTitle").textContent = p.name;
-  $("#dPrice").innerHTML = `${brl(p.price)}${p.unit?`<small>${p.unit}</small>`:""}`;
+  $("#dPrice").innerHTML = `${brl(p.price)}${p.unit?`<small>${esc(p.unit)}</small>`:""}`;
   const st = $("#dStatus"); st.className = "status " + p.status; st.textContent = STATUS[p.status];
   $("#dLaunch").hidden = !p.launch;
   $("#dDesc").textContent = p.desc;
-  $("#dColors").innerHTML = p.colors ? `<h4>Cores</h4><ul>${p.colors.map(k=>`<li><span class="sw" style="background:${C[k][1]}"></span>${C[k][0]}</li>`).join("")}</ul>` : "";
+  $("#dColors").innerHTML = p.colors && p.colors.length ? `<h4>Cores</h4><ul>${p.colors.map(k=>`<li><span class="sw" style="background:${esc(k.hex)}"></span>${esc(k.nome)}</li>`).join("")}</ul>` : "";
   $("#dNote").textContent = p.status==="encomenda"
     ? (p.custom ? "Feito sob encomenda depois que você manda o nome e as cores. Confirme o prazo no WhatsApp."
                 : "Feito sob encomenda: a peça é impressa depois do pedido, na cor que você escolher. Confirme o prazo no WhatsApp.")
@@ -417,8 +367,8 @@ function openProduct(id, setHash){
   const url = (SITE_URL || "") + "#" + p.id.toLowerCase();
   const shareMsg = `Olha esse produto da StudioPrint: ${p.name}, ${brl(p.price)}${p.unit?" "+p.unit:""}.${SITE_URL?" "+url:""}`;
   $("#dShare").href = "https://wa.me/?text=" + encodeURIComponent(shareMsg);
-  slides.innerHTML = p.imgs.map((n,i) => `<figure><img src="fotos/${n}.webp" alt="${p.name}, foto ${i+1} de ${p.imgs.length}" ${i>0?'loading="lazy"':""}></figure>`).join("");
-  thumbs.innerHTML = p.imgs.length>1 ? p.imgs.map((n,i) => `<button type="button" data-i="${i}" aria-label="Ver foto ${i+1}" aria-current="${i===0}"><img src="miniaturas/${n}.webp" alt=""></button>`).join("") : "";
+  slides.innerHTML = p.imgs.map((n,i) => `<figure><img src="${foto(n)}" alt="${esc(p.name)}, foto ${i+1} de ${p.imgs.length}" ${i>0?'loading="lazy"':""}></figure>`).join("");
+  thumbs.innerHTML = p.imgs.length>1 ? p.imgs.map((n,i) => `<button type="button" data-i="${i}" aria-label="Ver foto ${i+1}" aria-current="${i===0}"><img src="${foto(n,true)}" alt=""></button>`).join("") : "";
   thumbs.style.display = p.imgs.length>1 ? "" : "none";
   $("#prev").hidden = $("#next").hidden = p.imgs.length<2;
   if(!dlg.open){ try{ dlg.showModal(); }catch(err){ dlg.setAttribute("open",""); } }
@@ -449,9 +399,25 @@ dlg.addEventListener("click", e => { if(e.target===dlg) closeDlg(); });
 dlg.addEventListener("close", () => { cur=null; try{ history.replaceState(null,"",location.pathname+location.search); }catch(err){} });
 dlg.addEventListener("keydown", e => { if(e.key==="ArrowLeft") go(idx-1); if(e.key==="ArrowRight") go(idx+1); });
 
-function fromHash(){ const h = location.hash.replace("#",""); if(/^[a-z]-\d\d$/i.test(h)) openProduct(h,false); }
+function fromHash(){ const h = decodeURIComponent(location.hash.replace("#","")); if(h && P.some(p=>p.id.toLowerCase()===h.toLowerCase())) openProduct(h,false); }
 window.addEventListener("hashchange", fromHash);
-renderChips(); renderGrid(); fromHash();
+async function carregar(){
+  try{
+    const r = await fetch("produtos.json", {cache:"no-store"});
+    if(!r.ok) throw new Error(r.status);
+    const dados = await r.json();
+    P = dados.map(o => ({id:o.id, name:o.nome, cat:o.categoria, price:o.preco, unit:o.unidade||"", status:o.status||"encomenda",
+      custom:!!o.personalizado, launch:!!o.lancamento, desc:o.descricao||"", imgs:(o.fotos&&o.fotos.length?o.fotos:["45"]),
+      fit:o.fotoInteira?"contain":"", colors:o.cores||[]}));
+    const cats = [...new Set(P.map(p=>p.cat))];
+    cats.sort((a,b)=>{const ia=ORDEM_CATS.indexOf(a), ib=ORDEM_CATS.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib);});
+    CATS = ["Todos", ...cats];
+    renderChips(); renderGrid(); fromHash();
+  }catch(err){
+    $("#grid").innerHTML = `<div class="empty">Não foi possível carregar os produtos agora. Atualize a página em alguns segundos.</div>`;
+  }
+}
+carregar();
 </script>
 </body>
 </html>

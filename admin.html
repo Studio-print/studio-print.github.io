@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel StudioPrint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap" rel="stylesheet">
+<style>
+/* Painel de uso diário: lista de produtos à esquerda do fluxo, editor em janela, barra fixa de publicação embaixo. */
+:root{
+  --paper:#ECEEF2; --card:#FFFFFF; --ink:#15181E; --muted:#5B6472; --line:#D5D9E0;
+  --accent:#2B3BEB; --wa:#178F4A; --danger:#B42318;
+  --body:"Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;padding-bottom:96px}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px}
+[hidden]{display:none !important}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:10px;padding:10px 16px;font-weight:650;font-size:15px;border:1px solid var(--line);background:var(--card);cursor:pointer;text-decoration:none;white-space:nowrap}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.primary:hover{background:#2A2F39}
+.btn.danger{color:var(--danger)}
+.btn.danger:hover{border-color:var(--danger)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.icon{width:36px;height:36px;padding:0;border-radius:8px}
+.icon svg{width:18px;height:18px}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0}
+.brand{display:flex;align-items:center;gap:10px}
+.mark{width:32px;height:32px;border-radius:8px;background:var(--ink);display:grid;place-items:center}
+.mark span{display:block;width:16px;height:16px;background:repeating-linear-gradient(to bottom,#fff 0 2px,transparent 2px 4px);border-radius:3px}
+.brand b{font-variation-settings:"wdth" 125;font-weight:850;font-size:18px}
+.brand small{display:block;color:var(--muted);font-size:13px;font-weight:500;margin-top:-2px}
+.top nav{display:flex;gap:8px}
+
+/* Entrada */
+.login{max-width:560px;margin:24px auto;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+.login h1{font-variation-settings:"wdth" 115;font-weight:850;font-size:26px;margin:0 0 8px;letter-spacing:-.01em}
+.login p{color:var(--muted);margin:0 0 16px}
+label.f{display:block;font-weight:600;font-size:14px;margin:0 0 6px}
+.in{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff}
+.in:focus{border-color:var(--ink);outline:none}
+textarea.in{min-height:96px;resize:vertical}
+.check{display:flex;align-items:center;gap:8px;font-size:15px;margin:12px 0}
+.check input{width:18px;height:18px}
+.err{color:var(--danger);font-size:14px;margin:10px 0 0;font-weight:600}
+details.help{margin-top:20px;border-top:1px solid var(--line);padding-top:14px}
+details.help summary{cursor:pointer;font-weight:650}
+details.help ol{padding-left:20px;margin:10px 0 0;color:#353B46}
+details.help li{margin-bottom:6px}
+.note{font-size:13px;color:var(--muted);margin-top:14px}
+
+/* Lista */
+.tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0 16px}
+.tools .in{flex:1 1 220px;width:auto;border-radius:999px}
+.count{color:var(--muted);font-size:14px}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.row{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px}
+.row img{width:64px;height:64px;object-fit:cover;border-radius:8px;background:#E4E7EC}
+.row .t{min-width:0}
+.row .t b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .t span{display:block;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .t .changed{color:var(--ink);font-weight:600}
+.row .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.cat-head{margin:18px 0 6px;font-size:14px;color:var(--muted);font-weight:650}
+
+/* Barra de publicação */
+.pub{position:fixed;left:0;right:0;bottom:0;background:var(--ink);color:#fff;z-index:20}
+.pub .wrap{display:flex;align-items:center;gap:12px;justify-content:space-between;padding-top:12px;padding-bottom:12px;flex-wrap:wrap}
+.pub span{font-weight:600}
+.pub .btn{border-color:#3A404B;background:#22262E;color:#fff}
+.pub .btn.primary{background:#fff;color:var(--ink);border-color:#fff}
+
+/* Editor */
+dialog{border:0;padding:0;border-radius:16px;width:min(720px,calc(100vw - 24px));max-width:none;max-height:calc(100vh - 24px);background:var(--card);color:var(--ink);box-shadow:0 30px 80px -20px rgba(0,0,0,.5)}
+dialog::backdrop{background:rgba(15,17,22,.6)}
+.ed{display:flex;flex-direction:column;max-height:calc(100vh - 24px)}
+.ed header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+.ed header h2{margin:0;font-size:20px;font-variation-settings:"wdth" 112;font-weight:800}
+.ed .body{padding:16px 20px;overflow-y:auto;display:grid;gap:14px}
+.ed footer{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--line)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:120px 1fr 1fr;gap:12px}
+.hint{font-size:13px;color:var(--muted);margin-top:4px}
+fieldset{border:1px solid var(--line);border-radius:12px;padding:12px;margin:0}
+legend{font-weight:650;font-size:14px;padding:0 6px}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-bottom:10px}
+.ph{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#E4E7EC}
+.ph img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
+.ph .cap{position:absolute;left:6px;top:6px;background:rgba(21,24,30,.85);color:#fff;font-size:11px;font-weight:700;padding:2px 6px;border-radius:5px}
+.ph .pa{display:flex;justify-content:space-between;padding:4px;background:#fff}
+.ph .pa button{width:30px;height:28px;border:1px solid var(--line);border-radius:6px;background:#fff;cursor:pointer;padding:0;display:grid;place-items:center}
+.ph .pa svg{width:14px;height:14px}
+.upload{display:inline-flex}
+.upload input{position:absolute;opacity:0;width:1px;height:1px}
+.pal{display:flex;flex-wrap:wrap;gap:6px}
+.cor{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 6px;font-size:14px;background:#fff;cursor:pointer}
+.cor[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink);font-weight:650}
+.sw{width:16px;height:16px;border-radius:50%;border:1px solid rgba(21,24,30,.2);flex:none}
+.custom{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.custom .in{width:auto;flex:1 1 140px}
+.custom input[type=color]{width:44px;height:40px;border:1px solid var(--line);border-radius:8px;padding:2px;background:#fff}
+
+.toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;z-index:50;max-width:calc(100vw - 32px);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.toast.bad{background:var(--danger)}
+.conf p{margin:0;padding:20px;color:#353B46}
+.busy{display:flex;align-items:center;gap:10px}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:r .8s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+
+@media (max-width:640px){
+  .row{grid-template-columns:56px minmax(0,1fr)}
+  .row img{width:56px;height:56px}
+  .row .acts{grid-column:1/-1;justify-content:flex-start;flex-wrap:nowrap;gap:6px}
+  .row .acts .btn{padding:8px 10px;font-size:14px}
+  .row .acts .icon{width:34px;height:34px;padding:0}
+  .g2,.g3{grid-template-columns:1fr}
+  dialog{width:100%;height:100%;max-height:none;margin:0;inset:0;border-radius:0}
+  .ed{max-height:100vh;height:100%}
+  .top nav .btn span{display:none}
+}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-up" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m6 14 6-6 6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m6 10 6 6 6-6"/></symbol>
+  <symbol id="i-l" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m15 5-7 7 7 7"/></symbol>
+  <symbol id="i-r" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+</svg>
+
+<header class="wrap top">
+  <div class="brand"><span class="mark"><span></span></span><div><b>StudioPrint</b><small>Painel do catálogo</small></div></div>
+  <nav id="topNav" hidden>
+    <a class="btn" href="./" target="_blank" rel="noopener"><svg width="16" height="16"><use href="#i-ext"/></svg><span>Ver catálogo</span></a>
+    <button class="btn" type="button" id="sair">Sair</button>
+  </nav>
+</header>
+
+<!-- Entrada -->
+<section class="wrap" id="vLogin">
+  <form class="login" id="fLogin">
+    <h1>Entrar no painel</h1>
+    <p>Cole o código de acesso (token) do GitHub para editar os produtos do catálogo.</p>
+    <label class="f" for="token">Token do GitHub</label>
+    <input class="in" id="token" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_..." required>
+    <label class="check"><input type="checkbox" id="lembrar" checked> Lembrar neste aparelho</label>
+    <button class="btn primary" type="submit" id="bEntrar">Entrar</button>
+    <div class="err" id="loginErr" role="alert"></div>
+    <details class="help">
+      <summary>Como gerar o token (uma vez só)</summary>
+      <ol>
+        <li>No GitHub, clique na sua foto no canto de cima e depois em <b>Settings</b>.</li>
+        <li>No fim do menu da esquerda, clique em <b>Developer settings</b>, depois <b>Personal access tokens</b> e <b>Fine-grained tokens</b>.</li>
+        <li>Clique em <b>Generate new token</b>. Dê um nome (por exemplo, "Painel StudioPrint") e escolha a validade (por exemplo, 1 ano).</li>
+        <li>Em <b>Repository access</b>, escolha <b>Only select repositories</b> e marque <b>studio-print.github.io</b>.</li>
+        <li>Em <b>Permissions</b>, adicione <b>Contents</b> com acesso <b>Read and write</b>.</li>
+        <li>Clique em <b>Generate token</b>, copie o código (começa com github_pat_) e cole aqui.</li>
+      </ol>
+    </details>
+    <p class="note">O token fica guardado só neste aparelho. Ele dá acesso apenas ao repositório do catálogo. Não mande para ninguém: quem tiver o token consegue mudar o site.</p>
+  </form>
+</section>
+
+<!-- Painel -->
+<main class="wrap" id="vApp" hidden>
+  <div class="tools">
+    <button class="btn primary" type="button" id="bNovo">Novo produto</button>
+    <input class="in" type="search" id="busca" placeholder="Buscar por nome ou código" aria-label="Buscar por nome ou código">
+    <span class="count" id="contagem"></span>
+  </div>
+  <div id="lista"></div>
+</main>
+
+<div class="pub" id="pubBar" hidden>
+  <div class="wrap">
+    <span id="pubTxt">Alterações não publicadas</span>
+    <div style="display:flex;gap:8px">
+      <button class="btn" type="button" id="bDescartar">Descartar</button>
+      <button class="btn primary" type="button" id="bPublicar">Publicar no site</button>
+    </div>
+  </div>
+</div>
+
+<!-- Editor -->
+<dialog id="dEd" aria-labelledby="edTitulo">
+  <form class="ed" id="fEd" novalidate>
+    <header><h2 id="edTitulo">Editar produto</h2><button class="btn icon" type="button" data-close aria-label="Fechar"><svg><use href="#i-x"/></svg></button></header>
+    <div class="body">
+      <div class="g3">
+        <div><label class="f" for="eId">Código</label><input class="in" id="eId" required></div>
+        <div style="grid-column:span 2"><label class="f" for="eNome">Nome do produto</label><input class="in" id="eNome" required></div>
+      </div>
+      <div class="g2">
+        <div><label class="f" for="eCat">Categoria</label><input class="in" id="eCat" list="cats" required><datalist id="cats"></datalist><div class="hint">Escolha uma da lista ou digite uma nova.</div></div>
+        <div><label class="f" for="eStatus">Situação</label>
+          <select class="in" id="eStatus"><option value="encomenda">Sob encomenda</option><option value="disponivel">Pronta entrega</option><option value="esgotado">Esgotado</option></select></div>
+      </div>
+      <div class="g2">
+        <div><label class="f" for="ePreco">Preço (R$)</label><input class="in" id="ePreco" inputmode="decimal" placeholder="39,90" required></div>
+        <div><label class="f" for="eUn">Texto depois do preço (opcional)</label><input class="in" id="eUn" placeholder="cada, o kit, a dupla"></div>
+      </div>
+      <div>
+        <label class="check"><input type="checkbox" id="eLanc"> Mostrar "Preço de lançamento"</label>
+        <label class="check"><input type="checkbox" id="ePers"> Personalizado com nome</label>
+      </div>
+      <div><label class="f" for="eDesc">Descrição</label><textarea class="in" id="eDesc" placeholder="O que é, cores, detalhes, para quem é um bom presente."></textarea></div>
+      <fieldset>
+        <legend>Fotos</legend>
+        <div class="photos" id="eFotos"></div>
+        <label class="btn upload" id="addFotoLbl">Adicionar fotos<input type="file" id="eArq" accept="image/*" multiple></label>
+        <div class="hint">A primeira foto é a capa. Use as setas para mudar a ordem.</div>
+        <label class="check"><input type="checkbox" id="eInteira"> Mostrar a capa inteira no card (para fotos bem largas)</label>
+      </fieldset>
+      <fieldset>
+        <legend>Cores disponíveis (opcional)</legend>
+        <div class="pal" id="ePal"></div>
+        <div class="custom">
+          <input class="in" id="cNome" placeholder="Outra cor, ex.: Lilás" aria-label="Nome da cor">
+          <input type="color" id="cHex" value="#9b7fd4" aria-label="Escolher a cor">
+          <button class="btn" type="button" id="cAdd">Adicionar cor</button>
+        </div>
+      </fieldset>
+      <div class="err" id="edErr" role="alert"></div>
+    </div>
+    <footer><button class="btn" type="button" data-close>Cancelar</button><button class="btn primary" type="submit">Salvar produto</button></footer>
+  </form>
+</dialog>
+
+<!-- Confirmação -->
+<dialog id="dConf" class="conf" aria-labelledby="confTit">
+  <div class="ed">
+    <header><h2 id="confTit"></h2></header>
+    <p id="confTxt"></p>
+    <footer><button class="btn" type="button" id="confNao">Cancelar</button><button class="btn primary" type="button" id="confSim">Confirmar</button></footer>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+const CFG = {owner:"Studio-print", repo:"studio-print.github.io", branch:"main", arquivo:"produtos.json", api:"https://api.github.com"};
+const REPO = `/repos/${CFG.owner}/${CFG.repo}`;
+const STATUS = {encomenda:"Sob encomenda", disponivel:"Pronta entrega", esgotado:"Esgotado"};
+const ORDEM_CATS = ["Natal","Personagens","Bonecos de pose","Decoração"];
+const PREFIXO = {"Natal":"N","Personagens":"P","Bonecos de pose":"A","Decoração":"D"};
+const PALETA = [["Vermelho","#D7262E"],["Azul","#3B6FC4"],["Azul-claro","#7EC8F2"],["Verde","#2FA84F"],["Verde-escuro","#1F7A3A"],["Amarelo","#F4C51C"],["Laranja","#F07A1A"],["Rosa","#F08FC0"],["Roxo","#6B5BD6"],["Branco","#F4F4F4"],["Preto","#2A2A2A"],["Cinza","#8C9196"],["Prata","#C0C4CA"],["Dourado","#D4A62A"],["Marrom","#8B5A2B"],["Bege","#E8D9BF"]];
+
+const $ = s => document.querySelector(s);
+const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const brl = n => "R$ " + Number(n).toLocaleString("pt-BR",{minimumFractionDigits: Number(n)%1 ? 2 : 0, maximumFractionDigits:2});
+const foto = (n, mini) => (mini ? "miniaturas/" : "fotos/") + (n.includes(".") ? n : n + ".webp");
+
+let token = "", produtos = [], original = "[]", origMap = {}, shaJson = null;
+const pendentes = new Map(); // nome -> {grande, mini, url}
+
+/* ---------- utilidades ---------- */
+let toastT;
+function aviso(msg, ruim){
+  const t = $("#toast"); t.textContent = msg; t.className = "toast" + (ruim ? " bad" : ""); t.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, ruim ? 7000 : 4000);
+}
+function confirmar(titulo, texto, sim = "Confirmar"){
+  return new Promise(res => {
+    const d = $("#dConf"); $("#confTit").textContent = titulo; $("#confTxt").textContent = texto; $("#confSim").textContent = sim;
+    const fim = v => { d.close(); $("#confSim").onclick = $("#confNao").onclick = null; res(v); };
+    $("#confSim").onclick = () => fim(true); $("#confNao").onclick = () => fim(false);
+    d.oncancel = e => { e.preventDefault(); fim(false); };
+    d.showModal();
+  });
+}
+async function api(path, opts = {}){
+  const r = await fetch(CFG.api + path, {...opts, cache:"no-store", headers:{
+    "Authorization": "Bearer " + token, "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28",
+    ...(opts.body ? {"Content-Type":"application/json"} : {})}});
+  if(!r.ok){
+    let m = ""; try{ m = (await r.json()).message || ""; }catch(e){}
+    const err = new Error(m || ("Erro " + r.status)); err.status = r.status; throw err;
+  }
+  return r.status === 204 ? null : r.json();
+}
+function erroAmigavel(e){
+  if(e.status === 401) return "Token inválido ou vencido. Gere um novo token no GitHub e entre de novo.";
+  if(e.status === 403) return "Esse token não tem permissão para alterar o catálogo. Confira se ele tem Contents: Read and write.";
+  if(e.status === 404) return "Não encontrei o repositório studio-print.github.io com esse token. Confira se ele foi marcado ao criar o token.";
+  if(e.status === 409 || e.status === 422) return "O site mudou enquanto você publicava. Toque em Publicar de novo.";
+  if(!navigator.onLine || e instanceof TypeError) return "Sem conexão com a internet. Tente de novo quando a conexão voltar.";
+  return "Algo deu errado: " + e.message;
+}
+function b64Texto(s){ const bytes = new TextEncoder().encode(s); let bin = ""; bytes.forEach(b => bin += String.fromCharCode(b)); return btoa(bin); }
+function textoDeB64(b){ const bin = atob(b.replace(/\n/g,"")); return new TextDecoder().decode(Uint8Array.from(bin, c => c.charCodeAt(0))); }
+function blobB64(blob){ return new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(",")[1]); fr.onerror = rej; fr.readAsDataURL(blob); }); }
+function precoDe(v){
+  let s = String(v).trim().replace(/[R$\s]/g,"");
+  if(s.includes(",")) s = s.replace(/\./g,"").replace(",",".");
+  const n = Number(s); return isFinite(n) && n >= 0 && s !== "" ? Math.round(n*100)/100 : NaN;
+}
+
+/* ---------- entrada ---------- */
+function guardado(){ try{ return localStorage.getItem("sp_token") || sessionStorage.getItem("sp_token") || ""; }catch(e){ return ""; } }
+function guardar(t, lembrar){ try{ (lembrar ? localStorage : sessionStorage).setItem("sp_token", t); }catch(e){} }
+function esquecer(){ try{ localStorage.removeItem("sp_token"); sessionStorage.removeItem("sp_token"); }catch(e){} }
+
+async function entrar(t, lembrar, silencioso){
+  token = t.trim(); $("#loginErr").textContent = "";
+  const b = $("#bEntrar"); b.disabled = true; b.innerHTML = '<span class="busy"><span class="spin"></span>Entrando…</span>';
+  try{
+    const repo = await api(REPO);
+    if(repo.permissions && repo.permissions.push === false) throw Object.assign(new Error("sem escrita"), {status:403});
+    await carregar();
+    if(lembrar !== null) guardar(token, lembrar);
+    $("#vLogin").hidden = true; $("#vApp").hidden = false; $("#topNav").hidden = false;
+  }catch(e){
+    token = ""; if(silencioso) esquecer();
+    $("#loginErr").textContent = silencioso ? "Sua sessão expirou. Cole o token de novo." : erroAmigavel(e);
+  }finally{ b.disabled = false; b.textContent = "Entrar"; }
+}
+$("#fLogin").addEventListener("submit", e => { e.preventDefault(); entrar($("#token").value, $("#lembrar").checked); });
+$("#sair").addEventListener("click", async () => {
+  if(mudou() && !(await confirmar("Sair sem publicar?", "Você tem alterações que ainda não foram para o site. Se sair agora, elas se perdem.", "Sair mesmo assim"))) return;
+  esquecer(); pendentes.clear(); location.reload();
+});
+
+/* ---------- dados ---------- */
+async function carregar(){
+  const c = await api(`${REPO}/contents/${CFG.arquivo}?ref=${CFG.branch}`);
+  shaJson = c.sha;
+  produtos = JSON.parse(textoDeB64(c.content));
+  marcarOriginal(); render();
+}
+function marcarOriginal(){ original = JSON.stringify(produtos); origMap = Object.fromEntries(produtos.map(p => [p.id, JSON.stringify(p)])); }
+function mudou(){ return JSON.stringify(produtos) !== original; }
+function contarMudancas(){
+  let n = 0; const ids = new Set();
+  produtos.forEach(p => { ids.add(p.id); if(origMap[p.id] !== JSON.stringify(p)) n++; });
+  Object.keys(origMap).forEach(id => { if(!ids.has(id)) n++; });
+  if(n === 0 && mudou()) n = 1;
+  return n;
+}
+function categorias(){
+  const cs = [...new Set(produtos.map(p => p.categoria))];
+  return cs.sort((a,b) => { const ia = ORDEM_CATS.indexOf(a), ib = ORDEM_CATS.indexOf(b); return (ia<0?99:ia) - (ib<0?99:ib); });
+}
+
+/* ---------- lista ---------- */
+function thumb(n){ return n ? (pendentes.get(n)?.url || foto(n, true)) : ""; }
+function render(){
+  const q = $("#busca").value.trim().toLowerCase();
+  const lista = produtos.map((p,i) => ({p,i})).filter(({p}) => !q || (p.nome + " " + p.id + " " + p.categoria).toLowerCase().includes(q));
+  $("#contagem").textContent = `${lista.length} de ${produtos.length} produtos`;
+  let html = "";
+  categorias().forEach(cat => {
+    const itens = lista.filter(x => x.p.categoria === cat); if(!itens.length) return;
+    html += `<div class="cat-head">${esc(cat)} (${itens.length})</div><ul class="list">`;
+    itens.forEach(({p,i}) => {
+      const pos = produtos.filter(x => x.categoria === cat); const k = pos.indexOf(p);
+      const alterado = origMap[p.id] !== JSON.stringify(p);
+      html += `<li class="row">
+        <img src="${esc(thumb(p.fotos[0]))}" alt="">
+        <div class="t"><b>${esc(p.nome)}</b>
+          <span>${esc(p.id)} | ${brl(p.preco)}${p.unidade ? " " + esc(p.unidade) : ""} | ${STATUS[p.status] || p.status}${p.lancamento ? " | Lançamento" : ""}${alterado ? ' | <span class="changed">' + (origMap[p.id] ? "Editado" : "Novo") + "</span>" : ""}</span></div>
+        <div class="acts">
+          <button class="btn icon" type="button" data-up="${i}" aria-label="Subir ${esc(p.nome)}" ${k===0||q?"disabled":""}><svg><use href="#i-up"/></svg></button>
+          <button class="btn icon" type="button" data-down="${i}" aria-label="Descer ${esc(p.nome)}" ${k===pos.length-1||q?"disabled":""}><svg><use href="#i-down"/></svg></button>
+          <button class="btn" type="button" data-edit="${i}">Editar</button>
+          <button class="btn" type="button" data-dup="${i}">Duplicar</button>
+          <button class="btn danger" type="button" data-del="${i}">Excluir</button>
+        </div></li>`;
+    });
+    html += "</ul>";
+  });
+  $("#lista").innerHTML = html || `<p class="count">Nenhum produto encontrado.</p>`;
+  const n = contarMudancas();
+  $("#pubBar").hidden = n === 0;
+  $("#pubTxt").textContent = n === 1 ? "1 alteração não publicada" : `${n} alterações não publicadas`;
+}
+$("#busca").addEventListener("input", render);
+function moverNaCategoria(i, dir){
+  const p = produtos[i]; const mesmos = produtos.map((x,j) => [x,j]).filter(([x]) => x.categoria === p.categoria);
+  const k = mesmos.findIndex(([,j]) => j === i); const alvo = mesmos[k + dir]; if(!alvo) return;
+  const j = alvo[1]; [produtos[i], produtos[j]] = [produtos[j], produtos[i]]; render();
+}
+$("#lista").addEventListener("click", async e => {
+  const b = e.target.closest("button"); if(!b) return;
+  if(b.dataset.up) moverNaCategoria(+b.dataset.up, -1);
+  else if(b.dataset.down) moverNaCategoria(+b.dataset.down, 1);
+  else if(b.dataset.edit) abrirEditor(+b.dataset.edit);
+  else if(b.dataset.dup){ const p = JSON.parse(JSON.stringify(produtos[+b.dataset.dup])); p.id = proximoCodigo(p.categoria); p.nome += " (cópia)"; abrirEditor(-1, p, +b.dataset.dup + 1); }
+  else if(b.dataset.del){
+    const p = produtos[+b.dataset.del];
+    if(await confirmar(`Excluir "${p.nome}"?`, "O produto sai do catálogo quando você tocar em Publicar no site. Até lá, dá para desfazer em Descartar.", "Excluir")){
+      produtos.splice(+b.dataset.del, 1); render();
+    }
+  }
+});
+$("#bNovo").addEventListener("click", () => abrirEditor(-1));
+
+/* ---------- editor ---------- */
+let edIdx = -1, edInsert = null, edFotos = [], edCores = [];
+function proximoCodigo(cat){
+  const pre = PREFIXO[cat] || (cat || "X").normalize("NFD").replace(/[^A-Za-z]/g,"").charAt(0).toUpperCase() || "X";
+  const usados = produtos.map(p => p.id).filter(id => id.startsWith(pre + "-")).map(id => parseInt(id.slice(pre.length+1), 10)).filter(n => !isNaN(n));
+  return pre + "-" + String((usados.length ? Math.max(...usados) : 0) + 1).padStart(2, "0");
+}
+function abrirEditor(i, modelo, posInsert){
+  edIdx = i; edInsert = posInsert ?? null;
+  const novo = i < 0;
+  const p = modelo || (novo ? {id:proximoCodigo("Personagens"), nome:"", categoria:"Personagens", preco:"", unidade:"", status:"encomenda", personalizado:false, lancamento:false, descricao:"", fotos:[], cores:[]} : produtos[i]);
+  $("#edTitulo").textContent = novo ? (modelo ? "Duplicar produto" : "Novo produto") : "Editar produto";
+  $("#eId").value = p.id; $("#eNome").value = p.nome; $("#eCat").value = p.categoria;
+  $("#ePreco").value = p.preco === "" ? "" : String(p.preco).replace(".", ",");
+  $("#eUn").value = p.unidade || ""; $("#eStatus").value = p.status || "encomenda";
+  $("#eLanc").checked = !!p.lancamento; $("#ePers").checked = !!p.personalizado; $("#eInteira").checked = !!p.fotoInteira;
+  $("#eDesc").value = p.descricao || "";
+  edFotos = [...(p.fotos || [])]; edCores = (p.cores || []).map(c => ({...c}));
+  $("#cats").innerHTML = categorias().map(c => `<option value="${esc(c)}">`).join("");
+  $("#edErr").textContent = "";
+  desenharFotos(); desenharCores();
+  $("#dEd").showModal();
+  if(novo) setTimeout(() => $("#eNome").focus(), 50);
+}
+$("#eCat").addEventListener("change", () => { if(edIdx < 0 && !edInsert) $("#eId").value = proximoCodigo($("#eCat").value.trim()); });
+document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => $("#dEd").close()));
+
+function desenharFotos(){
+  $("#eFotos").innerHTML = edFotos.map((n,k) => `<div class="ph">
+    ${k===0 ? '<span class="cap">Capa</span>' : ""}<img src="${esc(thumb(n))}" alt="Foto ${k+1}">
+    <div class="pa">
+      <button type="button" data-fl="${k}" aria-label="Mover foto para a esquerda" ${k===0?"disabled":""}><svg><use href="#i-l"/></svg></button>
+      <button type="button" data-fx="${k}" aria-label="Remover foto"><svg><use href="#i-x"/></svg></button>
+      <button type="button" data-fr="${k}" aria-label="Mover foto para a direita" ${k===edFotos.length-1?"disabled":""}><svg><use href="#i-r"/></svg></button>
+    </div></div>`).join("");
+}
+$("#eFotos").addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b) return;
+  if(b.dataset.fx !== undefined) edFotos.splice(+b.dataset.fx, 1);
+  if(b.dataset.fl !== undefined){ const k = +b.dataset.fl; [edFotos[k-1], edFotos[k]] = [edFotos[k], edFotos[k-1]]; }
+  if(b.dataset.fr !== undefined){ const k = +b.dataset.fr; [edFotos[k+1], edFotos[k]] = [edFotos[k], edFotos[k+1]]; }
+  desenharFotos();
+});
+
+async function redimensionar(bmp, max, q){
+  const s = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  const c = document.createElement("canvas"); c.width = Math.round(bmp.width*s); c.height = Math.round(bmp.height*s);
+  c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+  const tentar = tipo => new Promise(r => c.toBlob(r, tipo, q));
+  let b = await tentar("image/webp");
+  if(!b || b.type !== "image/webp") b = await tentar("image/jpeg");
+  return b;
+}
+$("#eArq").addEventListener("change", async e => {
+  const arqs = [...e.target.files]; e.target.value = "";
+  const lbl = $("#addFotoLbl"); const txt = lbl.firstChild;
+  for(let k = 0; k < arqs.length; k++){
+    txt.textContent = `Preparando foto ${k+1} de ${arqs.length}…`;
+    try{
+      let bmp; try{ bmp = await createImageBitmap(arqs[k], {imageOrientation:"from-image"}); }catch(_){ bmp = await createImageBitmap(arqs[k]); }
+      const grande = await redimensionar(bmp, 1400, 0.8), mini = await redimensionar(bmp, 640, 0.74);
+      const base = "f" + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+      const nome = grande.type === "image/webp" ? base : base + ".jpg";
+      pendentes.set(nome, {grande, mini, url: URL.createObjectURL(mini)});
+      edFotos.push(nome); desenharFotos();
+    }catch(err){ aviso(`Não consegui ler a foto "${arqs[k].name}". Use fotos JPG, PNG ou WEBP.`, true); }
+  }
+  txt.textContent = "Adicionar fotos";
+});
+
+function desenharCores(){
+  const sel = new Set(edCores.map(c => c.nome.toLowerCase()));
+  const extras = edCores.filter(c => !PALETA.some(([n]) => n.toLowerCase() === c.nome.toLowerCase())).map(c => [c.nome, c.hex]);
+  $("#ePal").innerHTML = [...PALETA, ...extras].map(([n,h]) =>
+    `<button type="button" class="cor" aria-pressed="${sel.has(n.toLowerCase())}" data-n="${esc(n)}" data-h="${esc(h)}"><span class="sw" style="background:${esc(h)}"></span>${esc(n)}</button>`).join("");
+}
+$("#ePal").addEventListener("click", e => {
+  const b = e.target.closest(".cor"); if(!b) return;
+  const n = b.dataset.n, k = edCores.findIndex(c => c.nome.toLowerCase() === n.toLowerCase());
+  if(k >= 0) edCores.splice(k, 1); else edCores.push({nome:n, hex:b.dataset.h});
+  desenharCores();
+});
+$("#cAdd").addEventListener("click", () => {
+  const n = $("#cNome").value.trim(); if(!n){ $("#cNome").focus(); return; }
+  if(!edCores.some(c => c.nome.toLowerCase() === n.toLowerCase())) edCores.push({nome:n, hex:$("#cHex").value.toUpperCase()});
+  $("#cNome").value = ""; desenharCores();
+});
+
+$("#fEd").addEventListener("submit", e => {
+  e.preventDefault();
+  const id = $("#eId").value.trim().toUpperCase().replace(/\s+/g,"-");
+  const nome = $("#eNome").value.trim(), cat = $("#eCat").value.trim(), preco = precoDe($("#ePreco").value);
+  const erro = !id ? "Preencha o código." : !/^[A-Z0-9-]+$/.test(id) ? "O código só pode ter letras, números e hífen (ex.: P-10)."
+    : produtos.some((p,k) => p.id === id && k !== edIdx) ? `Já existe um produto com o código ${id}.`
+    : !nome ? "Preencha o nome do produto." : !cat ? "Escolha ou digite a categoria."
+    : isNaN(preco) ? "Digite o preço só com números, por exemplo 39 ou 39,90." : !edFotos.length ? "Adicione pelo menos uma foto." : "";
+  if(erro){ $("#edErr").textContent = erro; return; }
+  const p = {id, nome, categoria:cat, preco};
+  const un = $("#eUn").value.trim(); if(un) p.unidade = un;
+  p.status = $("#eStatus").value; p.personalizado = $("#ePers").checked; p.lancamento = $("#eLanc").checked;
+  p.descricao = $("#eDesc").value.trim(); p.fotos = [...edFotos];
+  if($("#eInteira").checked) p.fotoInteira = true;
+  p.cores = edCores;
+  if(edIdx >= 0) produtos[edIdx] = p;
+  else if(edInsert !== null) produtos.splice(edInsert, 0, p);
+  else produtos.push(p);
+  $("#dEd").close(); render();
+  aviso("Produto salvo. Toque em Publicar no site para ele aparecer no catálogo.");
+});
+
+/* ---------- publicar ---------- */
+$("#bDescartar").addEventListener("click", async () => {
+  if(!(await confirmar("Descartar as alterações?", "Tudo o que você mudou desde a última publicação volta a ser como está no site.", "Descartar"))) return;
+  pendentes.clear();
+  try{ await carregar(); aviso("Alterações descartadas."); }catch(e){ aviso(erroAmigavel(e), true); }
+});
+$("#bPublicar").addEventListener("click", publicar);
+async function publicar(){
+  const b = $("#bPublicar"); const etapa = t => b.innerHTML = `<span class="busy"><span class="spin"></span>${t}</span>`;
+  b.disabled = true; $("#bDescartar").disabled = true;
+  try{
+    etapa("Conferindo…");
+    const atual = await api(`${REPO}/contents/${CFG.arquivo}?ref=${CFG.branch}`);
+    if(atual.sha !== shaJson){
+      const ok = await confirmar("O catálogo foi alterado por outra pessoa", "Alguém publicou mudanças depois que você abriu o painel. Se publicar agora, as suas mudanças substituem as dela. Para manter as duas, toque em Cancelar, depois em Descartar, e refaça as suas mudanças.", "Publicar mesmo assim");
+      if(!ok) return;
+    }
+    const ref = await api(`${REPO}/git/ref/heads/${CFG.branch}`);
+    const base = ref.object.sha;
+    const commitBase = await api(`${REPO}/git/commits/${base}`);
+    const usados = new Set(produtos.flatMap(p => p.fotos));
+    const novas = [...pendentes.entries()].filter(([n]) => usados.has(n));
+    const arvore = [];
+    for(let k = 0; k < novas.length; k++){
+      etapa(`Enviando foto ${k+1} de ${novas.length}…`);
+      const [n, f] = novas[k];
+      for(const [blob, mini] of [[f.grande,false],[f.mini,true]]){
+        const r = await api(`${REPO}/git/blobs`, {method:"POST", body:JSON.stringify({content: await blobB64(blob), encoding:"base64"})});
+        arvore.push({path: foto(n, mini), mode:"100644", type:"blob", sha:r.sha});
+      }
+    }
+    etapa("Publicando…");
+    const j = await api(`${REPO}/git/blobs`, {method:"POST", body:JSON.stringify({content: b64Texto(JSON.stringify(produtos, null, 2) + "\n"), encoding:"base64"})});
+    arvore.push({path: CFG.arquivo, mode:"100644", type:"blob", sha:j.sha});
+    const tree = await api(`${REPO}/git/trees`, {method:"POST", body:JSON.stringify({base_tree: commitBase.tree.sha, tree: arvore})});
+    const commit = await api(`${REPO}/git/commits`, {method:"POST", body:JSON.stringify({message:`Atualiza o catálogo pelo painel (${contarMudancas()} alterações)`, tree: tree.sha, parents:[base]})});
+    await api(`${REPO}/git/refs/heads/${CFG.branch}`, {method:"PATCH", body:JSON.stringify({sha: commit.sha})});
+    novas.forEach(([n]) => pendentes.delete(n));
+    shaJson = j.sha; marcarOriginal(); render();
+    aviso("Publicado! O catálogo atualiza em 1 a 2 minutos.");
+  }catch(e){ aviso(erroAmigavel(e), true); }
+  finally{ b.disabled = false; $("#bDescartar").disabled = false; b.textContent = "Publicar no site"; }
+}
+window.addEventListener("beforeunload", e => { if(token && mudou()){ e.preventDefault(); e.returnValue = ""; } });
+
+/* ---------- início ---------- */
+const salvo = guardado();
+if(salvo) entrar(salvo, null, true);
+</script>
+</body>
+</html>

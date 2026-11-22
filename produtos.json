@@ -1,0 +1,448 @@
+[
+  {
+    "id": "N-01",
+    "nome": "Stitch e Angel com gorro de Noel",
+    "categoria": "Natal",
+    "preco": 39,
+    "unidade": "cada",
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": false,
+    "descricao": "Cabeças do Stitch e da Angel com gorro de Papai Noel. Ficam lindos pendurados na árvore ou enfeitando a mesa de Natal. Vendidos separados.",
+    "fotos": [
+      "29",
+      "27",
+      "28",
+      "30",
+      "31"
+    ],
+    "cores": []
+  },
+  {
+    "id": "N-02",
+    "nome": "Grinch sentado",
+    "categoria": "Natal",
+    "preco": 69,
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": false,
+    "descricao": "Grinch de gorro e cachecol, sentado com as pernas para fora. Feito para a beira da estante, da lareira ou da mesa.",
+    "fotos": [
+      "40",
+      "34"
+    ],
+    "cores": []
+  },
+  {
+    "id": "N-03",
+    "nome": "Rena geométrica",
+    "categoria": "Natal",
+    "preco": 49,
+    "unidade": "cada",
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": false,
+    "descricao": "Rena em estilo geométrico, de facetas retas. Monte a coleção em várias cores ou use na lareira para segurar a meia de Natal.",
+    "fotos": [
+      "33",
+      "38"
+    ],
+    "cores": [
+      {
+        "nome": "Vermelho",
+        "hex": "#D7262E"
+      },
+      {
+        "nome": "Verde-escuro",
+        "hex": "#1F7A3A"
+      },
+      {
+        "nome": "Branco",
+        "hex": "#F4F4F4"
+      },
+      {
+        "nome": "Dourado",
+        "hex": "#D4A62A"
+      }
+    ]
+  },
+  {
+    "id": "N-04",
+    "nome": "Turminha de Natal com bandeja",
+    "categoria": "Natal",
+    "preco": 169,
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": false,
+    "descricao": "Árvore, biscoito de gengibre, Papai Noel, rena, urso polar, boneco de neve e pinguim, todos com textura de tricô, sobre uma bandeja.",
+    "fotos": [
+      "39"
+    ],
+    "fotoInteira": true,
+    "cores": []
+  },
+  {
+    "id": "N-05",
+    "nome": "Bola de Natal com nome e flocos",
+    "categoria": "Natal",
+    "preco": 29,
+    "status": "encomenda",
+    "personalizado": true,
+    "lancamento": false,
+    "descricao": "Bola vazada com o nome que você escolher e flocos de neve. Você escolhe a cor do aro, do nome e dos detalhes.",
+    "fotos": [
+      "42",
+      "24"
+    ],
+    "cores": []
+  },
+  {
+    "id": "N-06",
+    "nome": "Enfeite suéter com nome",
+    "categoria": "Natal",
+    "preco": 29,
+    "status": "encomenda",
+    "personalizado": true,
+    "lancamento": false,
+    "descricao": "Suéter natalino com o nome em relevo e desenhos de renas e flocos. Dá para fazer um para cada pessoa da família.",
+    "fotos": [
+      "32"
+    ],
+    "cores": []
+  },
+  {
+    "id": "N-07",
+    "nome": "Bola vilarejo com nome",
+    "categoria": "Natal",
+    "preco": 34,
+    "status": "encomenda",
+    "personalizado": true,
+    "lancamento": false,
+    "descricao": "Bola com casinha, pinheiros e o nome em destaque. Em vermelho com branco ou verde com branco.",
+    "fotos": [
+      "41",
+      "36"
+    ],
+    "cores": []
+  },
+  {
+    "id": "N-08",
+    "nome": "Bola com laço e nome",
+    "categoria": "Natal",
+    "preco": 32,
+    "status": "encomenda",
+    "personalizado": true,
+    "lancamento": false,
+    "descricao": "Bola com laço, ramos de azevinho e o nome em letra cursiva, em duas cores.",
+    "fotos": [
+      "37"
+    ],
+    "cores": []
+  },
+  {
+    "id": "N-09",
+    "nome": "Floco de neve com nome",
+    "categoria": "Natal",
+    "preco": 25,
+    "status": "encomenda",
+    "personalizado": true,
+    "lancamento": false,
+    "descricao": "Floco de neve rendado com o nome no centro, em uma cor só. Delicado e leve para a árvore.",
+    "fotos": [
+      "26"
+    ],
+    "cores": []
+  },
+  {
+    "id": "N-10",
+    "nome": "Placa natalina com nome",
+    "categoria": "Natal",
+    "preco": 49,
+    "status": "encomenda",
+    "personalizado": true,
+    "lancamento": false,
+    "descricao": "Placa redonda com nome, flocos de neve, pinheiros e boneco de neve. Para a porta, a árvore ou para dar de presente.",
+    "fotos": [
+      "23"
+    ],
+    "fotoInteira": true,
+    "cores": []
+  },
+  {
+    "id": "N-11",
+    "nome": "Bolas de Natal geek (kit com 5)",
+    "categoria": "Natal",
+    "preco": 89,
+    "unidade": "o kit",
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": false,
+    "descricao": "Cinco bolas de Natal com símbolos de heróis dos quadrinhos, em duas cores cada. Para a árvore de quem é fã.",
+    "fotos": [
+      "25"
+    ],
+    "cores": []
+  },
+  {
+    "id": "P-01",
+    "nome": "Deadpool articulado",
+    "categoria": "Personagens",
+    "preco": 39,
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": true,
+    "descricao": "Boneco com todas as juntas articuladas, katanas nas costas e pistolas. Faz poses de ação e fica em pé sozinho.",
+    "fotos": [
+      "06",
+      "05",
+      "04"
+    ],
+    "cores": []
+  },
+  {
+    "id": "P-02",
+    "nome": "Capitão América articulado",
+    "categoria": "Personagens",
+    "preco": 39,
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": true,
+    "descricao": "Boneco articulado com escudo e martelo, pronto para a pose de batalha.",
+    "fotos": [
+      "02",
+      "03"
+    ],
+    "cores": []
+  },
+  {
+    "id": "P-03",
+    "nome": "Homem de Ferro articulado",
+    "categoria": "Personagens",
+    "preco": 39,
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": true,
+    "descricao": "Armadura em vermelho e dourado, com todas as juntas móveis.",
+    "fotos": [
+      "18",
+      "19",
+      "17"
+    ],
+    "cores": []
+  },
+  {
+    "id": "P-04",
+    "nome": "Hulk articulado",
+    "categoria": "Personagens",
+    "preco": 39,
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": true,
+    "descricao": "Hulk de punhos grandes e calção roxo, com braços, pernas e cabeça articulados.",
+    "fotos": [
+      "16",
+      "15"
+    ],
+    "cores": []
+  },
+  {
+    "id": "P-05",
+    "nome": "Superman articulado",
+    "categoria": "Personagens",
+    "preco": 39,
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": true,
+    "descricao": "Boneco articulado com o uniforme clássico e capa vermelha.",
+    "fotos": [
+      "49",
+      "48",
+      "50"
+    ],
+    "cores": []
+  },
+  {
+    "id": "P-06",
+    "nome": "Mandaloriano articulado",
+    "categoria": "Personagens",
+    "preco": 39,
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": true,
+    "descricao": "Armadura cinza com detalhes em vermelho e juntas móveis para montar poses.",
+    "fotos": [
+      "20",
+      "21",
+      "22"
+    ],
+    "cores": []
+  },
+  {
+    "id": "P-07",
+    "nome": "Stormtrooper articulado",
+    "categoria": "Personagens",
+    "preco": 39,
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": true,
+    "descricao": "Soldado articulado com blaster. Escolha a cor da armadura ou monte o esquadrão completo.",
+    "fotos": [
+      "45",
+      "43",
+      "44",
+      "46",
+      "47"
+    ],
+    "cores": [
+      {
+        "nome": "Branco",
+        "hex": "#F4F4F4"
+      },
+      {
+        "nome": "Preto",
+        "hex": "#2A2A2A"
+      },
+      {
+        "nome": "Vermelho",
+        "hex": "#D7262E"
+      },
+      {
+        "nome": "Azul",
+        "hex": "#3B6FC4"
+      },
+      {
+        "nome": "Dourado",
+        "hex": "#D4A62A"
+      }
+    ]
+  },
+  {
+    "id": "P-09",
+    "nome": "Homem-Aranha articulado",
+    "categoria": "Personagens",
+    "preco": 39,
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": true,
+    "descricao": "Homem-Aranha com textura de teia em relevo, aranha branca no peito e mãos na pose de soltar teia. Todas as juntas são móveis, então ele agacha, se estica e faz as poses clássicas.",
+    "fotos": [
+      "51",
+      "52",
+      "53",
+      "54"
+    ],
+    "cores": [
+      {
+        "nome": "Vermelho",
+        "hex": "#D7262E"
+      },
+      {
+        "nome": "Azul",
+        "hex": "#3B6FC4"
+      }
+    ]
+  },
+  {
+    "id": "P-08",
+    "nome": "Dupla de bananas articuladas",
+    "categoria": "Personagens",
+    "preco": 69,
+    "unidade": "a dupla",
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": true,
+    "descricao": "Uma banana amarela e uma azul, articuladas, para fazer passos de dança na estante.",
+    "fotos": [
+      "01",
+      "00"
+    ],
+    "cores": [
+      {
+        "nome": "Amarelo",
+        "hex": "#F4C51C"
+      },
+      {
+        "nome": "Azul",
+        "hex": "#3B6FC4"
+      }
+    ]
+  },
+  {
+    "id": "A-01",
+    "nome": "Boneco articulado de pose",
+    "categoria": "Bonecos de pose",
+    "preco": 35,
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": true,
+    "descricao": "O boneco de 13 juntas que faz qualquer pose. Bom para desenhar, fotografar, decorar a mesa ou brincar. Escolha a cor.",
+    "fotos": [
+      "11",
+      "07",
+      "08",
+      "09",
+      "10"
+    ],
+    "cores": [
+      {
+        "nome": "Verde",
+        "hex": "#2FA84F"
+      },
+      {
+        "nome": "Laranja",
+        "hex": "#F07A1A"
+      },
+      {
+        "nome": "Vermelho",
+        "hex": "#D7262E"
+      },
+      {
+        "nome": "Roxo",
+        "hex": "#6B5BD6"
+      },
+      {
+        "nome": "Cinza",
+        "hex": "#8C9196"
+      }
+    ]
+  },
+  {
+    "id": "A-02",
+    "nome": "Casal de bonecos articulados",
+    "categoria": "Bonecos de pose",
+    "preco": 65,
+    "unidade": "o casal",
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": true,
+    "descricao": "Dois bonecos articulados, um rosa e um branco, para dar de presente a dois.",
+    "fotos": [
+      "12"
+    ],
+    "cores": [
+      {
+        "nome": "Rosa",
+        "hex": "#F08FC0"
+      },
+      {
+        "nome": "Branco",
+        "hex": "#F4F4F4"
+      }
+    ]
+  },
+  {
+    "id": "D-01",
+    "nome": "Fita cassete GTA VI decorativa",
+    "categoria": "Decoração",
+    "preco": 89,
+    "status": "encomenda",
+    "personalizado": false,
+    "lancamento": false,
+    "descricao": "Peça decorativa em formato de fita cassete com o logo do GTA VI, nas cores rosa, azul-piscina e preto. Fica de pé na mesa ou na estante.",
+    "fotos": [
+      "14",
+      "13"
+    ],
+    "cores": []
+  }
+]
