@@ -73,24 +73,37 @@ details.help li{margin-bottom:6px}
 .tools .in{flex:1 1 220px;width:auto;border-radius:999px}
 .count{color:var(--muted);font-size:14px}
 .list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-.row{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px}
-.row img{width:64px;height:64px;object-fit:cover;border-radius:8px;background:#E4E7EC}
+.list{gap:6px}
+.row{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 8px}
+.row img{width:48px;height:48px;object-fit:cover;border-radius:7px;background:#E4E7EC}
+.ib{width:34px;height:34px;display:inline-grid;place-items:center;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);cursor:pointer;flex:none}
+.ib svg{width:18px;height:18px}.ib:hover:not(:disabled){background:var(--paper)}.ib:disabled{opacity:.3;cursor:default}
+.ib.del{color:var(--danger)}.ib.on{color:#2338B8;border-color:#AFC0F5;background:#EEF2FF}
+.row .acts .ord{display:inline-flex;gap:4px;margin-right:8px;padding-right:8px;border-right:1px solid var(--line)}
+.tools .filtro-p{flex:0 0 180px;width:180px;min-width:0;border-radius:10px}
+#lista.quadros .list{grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.row .t .ts > *{flex:none;max-width:100%}
+#lista.quadros .row{grid-template-columns:1fr;grid-template-rows:auto 1fr auto;padding:0;gap:0;overflow:hidden;align-items:stretch}
+#lista.quadros .row img{width:100%;height:auto;aspect-ratio:1/1;border-radius:0}
+#lista.quadros .row .t{padding:8px 10px 6px;align-content:start}
+#lista.quadros .row .t .tn{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:15px;line-height:1.25}
+#lista.quadros .row .acts{padding:6px 8px 8px;border-top:1px solid var(--line);justify-content:space-between;gap:4px;flex-wrap:nowrap}
+#lista.quadros .row .acts .ord{margin-right:auto;border-right:0;padding-right:0}
 .row .t{min-width:0}
-.row .t{display:grid;gap:3px}
-.row .t .tn{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .t{display:grid;gap:2px}
+.row .t .tn{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .row .t .ts{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;font-size:13px;color:var(--muted)}
 .row .t .ts .cod{font-weight:650;letter-spacing:.02em}
 .row .t .ts .pr{color:var(--ink);font-weight:650;font-variant-numeric:tabular-nums}.row .t .ts .pr small{font-weight:500;color:var(--muted);font-size:12px}
 .row .t .ts .st::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#9AA3AF;margin-right:5px;vertical-align:1px}
 .row .t .ts .st-disponivel::before{background:#1F9D55}.row .t .ts .st-esgotado::before{background:var(--danger)}
-.row .t .tg{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.row .t .tg{display:inline-flex;flex-wrap:wrap;gap:4px}
 .row .t .tg-i,.row .t .tg .badge-m{display:inline-block;font-size:12px;font-weight:600;line-height:18px;padding:1px 8px;border-radius:999px;background:var(--paper);color:#3A414C;white-space:nowrap}
 .row .t .tg-i.fora{background:#FDE7E5;color:#B42318}.row .t .tg-i.mud{background:var(--ink);color:#fff}.row .t .tg-i.dest{background:#E7EEFF;color:#2338B8}
 .row .t .tg .badge-m.ruim{background:#FDE7E5;color:#B42318}.row .t .tg .badge-m.baixo{background:#FFF1D6;color:#8A5300}
 .row .t .changed{color:var(--ink);font-weight:600}
 .row .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
-.row .acts [data-vis]{min-width:98px;justify-content:center}
-.row .acts .del .ico{display:none;width:18px;height:18px}
+
 .cat-head{margin:18px 0 6px;font-size:14px;color:var(--muted);font-weight:650}
 
 /* Barra de publicação */
@@ -265,7 +278,9 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .row .t .oculto{color:var(--danger);font-weight:700}
 .row.is-oculto img{opacity:.45}
 .pgformas{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:12px}
-.ajustes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.ajustes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.aj-grupo{grid-column:1/-1;margin:10px 0 -4px;font-size:15px;font-weight:700;color:var(--ink)}.aj-grupo:first-child{margin-top:0}
+.aj-grupo span{font-weight:500;color:var(--muted);font-size:13px}
 .aj{display:grid;gap:10px;align-content:start}
 .aj h3{margin:0;font-size:17px}
 .aj p{margin:0;color:#353B46;line-height:1.5}
@@ -399,12 +414,15 @@ dialog .body{overscroll-behavior:contain}
 @keyframes r{to{transform:rotate(360deg)}}
 
 @media (max-width:640px){
-  .row{grid-template-columns:56px minmax(0,1fr)}
-  .row img{width:56px;height:56px}
-  .row .acts{grid-column:1/-1;display:grid;grid-template-columns:34px 34px repeat(3,minmax(0,1fr)) 40px;gap:6px}
-  .row .acts .btn:not(.icon){justify-content:center;padding:8px 4px;font-size:13.5px;min-width:0}
-  .row .acts [data-vis]{min-width:0}
-  .row .acts .del{padding:0;height:34px}.row .acts .del .ico{display:block;margin:auto}.row .acts .del .lbl{display:none}
+  .row{grid-template-columns:48px minmax(0,1fr)}
+  .row .acts{grid-column:1/-1;justify-content:flex-end;gap:6px;flex-wrap:nowrap}
+  .row .acts .ord{margin-right:auto}
+  #lista.quadros .list{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  #lista.quadros .row .acts{flex-wrap:wrap;justify-content:center}
+  #lista.quadros .row .acts .ord{width:100%;justify-content:center;margin:0 0 2px}
+  .tools .filtro-p{grid-column:1/2;width:100%}
+  #tProdutos .tools .viewsw{grid-column:2/3}
+  #tProdutos .tools .viewsw button{padding:10px 6px}
   .tools{grid-template-columns:repeat(2,minmax(0,1fr))}
   .tools > *{min-width:0}
   .tools .btn{white-space:normal;text-align:center;line-height:1.2}
@@ -433,6 +451,10 @@ dialog .body{overscroll-behavior:contain}
   <symbol id="i-down" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m6 10 6 6 6-6"/></symbol>
   <symbol id="i-l" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m15 5-7 7 7 7"/></symbol>
   <symbol id="i-r" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7"/></symbol>
+  <symbol id="i-lapis" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"/></symbol>
+  <symbol id="i-olho" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 1 0 0-6z"/></symbol>
+  <symbol id="i-olho-x" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 12s3.6-7 10-7c2 0 3.7.7 5.1 1.6M22 12s-3.6 7-10 7c-2 0-3.7-.7-5.1-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2M3 3l18 18"/></symbol>
+  <symbol id="i-copia" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 9h11v11H9zM5 15H4V4h11v1"/></symbol>
   <symbol id="i-lixo" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-ext" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
@@ -486,8 +508,8 @@ dialog .body{overscroll-behavior:contain}
 <main class="wrap" id="vApp" hidden>
   <div class="tabs" role="tablist">
     <button type="button" role="tab" aria-selected="true" data-tab="tPedidos">Pedidos</button>
-    <button type="button" role="tab" aria-selected="false" data-tab="tFilamento">Filamento</button>
     <button type="button" role="tab" aria-selected="false" data-tab="tProdutos">Produtos</button>
+    <button type="button" role="tab" aria-selected="false" data-tab="tFilamento">Filamento</button>
     <button type="button" role="tab" aria-selected="false" data-tab="tSite">Site<span class="lg"> e avisos</span></button>
     <button type="button" role="tab" aria-selected="false" data-tab="tAjustes">Ajustes</button>
   </div>
@@ -537,6 +559,10 @@ dialog .body{overscroll-behavior:contain}
   <div class="tools">
     <button class="btn primary" type="button" id="bNovo">Novo produto</button>
     <input class="in" type="search" id="busca" placeholder="Buscar por nome ou código" aria-label="Buscar por nome ou código">
+    <select class="in filtro-p" id="filtroProd" aria-label="Mostrar produtos">
+      <option value="">Mostrar: todos</option><option value="mudou">Não publicados</option><option value="fora">Fora do site</option><option value="pronta">Pronta entrega</option><option value="margem">Lucro baixo</option><option value="destaque">Em destaque</option>
+    </select>
+    <div class="viewsw" role="group" aria-label="Modo de ver os produtos"><button type="button" data-pview="lista">Lista</button><button type="button" data-pview="quadros">Quadros</button></div>
     <span class="count" id="contagem"></span>
     <span style="flex:1"></span>
     <button class="btn" type="button" id="bPlanBaixar">Baixar planilha do catálogo</button>
@@ -547,15 +573,15 @@ dialog .body{overscroll-behavior:contain}
 
   <section id="tSite" hidden>
     <div class="subtabs" role="tablist" aria-label="Partes do site">
-      <button type="button" role="tab" aria-selected="true" data-sub="inicio">Início</button>
-      <button type="button" role="tab" aria-selected="false" data-sub="faixa">Faixa de destaque</button>
-      <button type="button" role="tab" aria-selected="false" data-sub="cores">Cores de filamento</button>
+      <button type="button" role="tab" aria-selected="true" data-sub="cores">Cores de filamento</button>
       <button type="button" role="tab" aria-selected="false" data-sub="avisos">Avisos</button>
+      <button type="button" role="tab" aria-selected="false" data-sub="faixa">Faixa de destaque</button>
       <button type="button" role="tab" aria-selected="false" data-sub="fretes">Fretes</button>
       <button type="button" role="tab" aria-selected="false" data-sub="pagamento">Pagamento</button>
+      <button type="button" role="tab" aria-selected="false" data-sub="inicio">Início</button>
       <button type="button" role="tab" aria-selected="false" data-sub="contatos">Contatos e rodapé</button>
     </div>
-    <div class="card" data-painel="inicio">
+    <div class="card" data-painel="inicio" hidden>
       <h3>Início do site</h3>
       <div><label class="f" for="sTitulo">Título grande</label><input class="in" id="sTitulo" data-bind="inicio.titulo"></div>
       <div><label class="f" for="sTexto">Texto de apresentação</label><textarea class="in" id="sTexto" data-bind="inicio.texto"></textarea></div>
@@ -569,7 +595,7 @@ dialog .body{overscroll-behavior:contain}
       <div><label class="f" for="sFaixaTxt">Texto</label><input class="in" id="sFaixaTxt" data-bind="faixa.texto"></div>
       <div><label class="f" for="sFaixaCat">Ao tocar, abre a categoria</label><select class="in" id="sFaixaCat"></select></div>
     </div>
-    <div class="card" data-painel="cores" hidden>
+    <div class="card" data-painel="cores">
       <h3>Cores de filamento</h3>
       <p class="hint">Desmarque "Disponível" quando um filamento acabar: a cor some do catálogo em todos os produtos até você marcar de novo. Mudar o nome ou o tom aqui muda em todos os produtos.</p>
       <div id="sFil" style="display:grid;gap:8px"></div>
@@ -612,15 +638,16 @@ dialog .body{overscroll-behavior:contain}
   </section>
   <section id="tAjustes" hidden>
     <div class="ajustes">
-      <div class="card aj">
-        <h3>Acesso ao painel</h3>
-        <p>Troque a senha que vocês usam para entrar no painel. Ela vale para todos os aparelhos.</p>
-        <div class="aj-acts"><button class="btn" type="button" id="bSenha">Trocar senha</button><button class="btn" type="button" id="sair2">Sair deste aparelho</button></div>
-      </div>
+      <h2 class="aj-grupo">Do dia a dia e do mês</h2>
       <div class="card aj">
         <h3>Relatório de vendas</h3>
         <p>Planilha do Excel com os pedidos <b>Entregues</b>: vendas por mês, lucro, produtos mais vendidos e o limite anual do MEI.</p>
         <div class="aj-acts" style="align-items:center"><label class="f" for="relAno" style="margin:0">Ano</label><select class="in" id="relAno" style="width:auto"></select><button class="btn primary" type="button" id="bRelatorio">Baixar relatório de vendas</button></div>
+      </div>
+      <div class="card aj">
+        <h3>Cópias de segurança</h3>
+        <p>Baixe uma cópia uma vez por mês e guarde em <b>04 Comprovantes e notas</b>, no seu computador.</p>
+        <div class="aj-acts"><button class="btn" type="button" id="bBkPed">Pedidos em planilha</button><button class="btn" type="button" id="bBkPedJson">Pedidos (cópia completa)</button><button class="btn" type="button" id="bBkCat">Catálogo e site</button></div>
       </div>
       <div class="card aj">
         <h3>Custos dos produtos</h3>
@@ -631,6 +658,25 @@ dialog .body{overscroll-behavior:contain}
         <p class="hint" style="margin:0">Usada na fila de impressão da tela de pedidos para prever quando cada pedido fica pronto.</p>
         <div class="g2" style="max-width:420px;align-items:end"><div><label class="f" for="capImp">Impressoras</label><input class="in" id="capImp" inputmode="numeric"></div><div><label class="f" for="capHoras">Horas de impressão por dia</label><input class="in" id="capHoras" inputmode="decimal"></div></div>
         <div class="aj-acts"><button class="btn" type="button" id="bCap">Salvar capacidade</button></div>
+      </div>
+      <div class="card aj">
+        <h3>Atalhos</h3>
+        <ul class="aj-lista">
+          <li><b>Ctrl + Enter</b> salva o pedido aberto.</li>
+          <li><b>Enter</b> na busca de produto do pedido adiciona o primeiro da lista.</li>
+          <li><b>Colar pedido do WhatsApp</b> monta o pedido sozinho a partir da mensagem do cliente.</li>
+          <li>Nada vai para o site antes de você tocar em <b>Publicar no site</b>.</li>
+        </ul>
+      </div>
+      <h2 class="aj-grupo">Configuração e segurança <span>(quase nunca precisa mexer)</span></h2>
+      <div class="card aj">
+        <h3>Painel no celular</h3>
+        <p>Coloque o painel na tela inicial do celular. Ele abre como um aplicativo, sem a barra do navegador.</p>
+        <ul class="aj-lista">
+          <li><b>Android (Chrome):</b> abra o painel, toque em <b>⋮</b> e em <b>Adicionar à tela inicial</b> (ou <b>Instalar app</b>).</li>
+          <li><b>iPhone (Safari):</b> abra o painel, toque em <b>Compartilhar</b> e em <b>Adicionar à Tela de Início</b>.</li>
+          <li>Na primeira vez, entre com a senha do painel. Depois ele lembra neste aparelho.</li>
+        </ul>
       </div>
       <div class="card aj">
         <h3>Contador de visitas</h3>
@@ -652,27 +698,9 @@ dialog .body{overscroll-behavior:contain}
         <div class="aj-acts"><button class="btn" type="button" id="bVersoes">Ver versões anteriores</button></div>
       </div>
       <div class="card aj">
-        <h3>Cópias de segurança</h3>
-        <p>Baixe uma cópia uma vez por mês e guarde em <b>04 Comprovantes e notas</b>, no seu computador.</p>
-        <div class="aj-acts"><button class="btn" type="button" id="bBkPed">Pedidos em planilha</button><button class="btn" type="button" id="bBkPedJson">Pedidos (cópia completa)</button><button class="btn" type="button" id="bBkCat">Catálogo e site</button></div>
-      </div>
-      <div class="card aj">
-        <h3>Painel no celular</h3>
-        <p>Coloque o painel na tela inicial do celular. Ele abre como um aplicativo, sem a barra do navegador.</p>
-        <ul class="aj-lista">
-          <li><b>Android (Chrome):</b> abra o painel, toque em <b>⋮</b> e em <b>Adicionar à tela inicial</b> (ou <b>Instalar app</b>).</li>
-          <li><b>iPhone (Safari):</b> abra o painel, toque em <b>Compartilhar</b> e em <b>Adicionar à Tela de Início</b>.</li>
-          <li>Na primeira vez, entre com a senha do painel. Depois ele lembra neste aparelho.</li>
-        </ul>
-      </div>
-      <div class="card aj">
-        <h3>Atalhos</h3>
-        <ul class="aj-lista">
-          <li><b>Ctrl + Enter</b> salva o pedido aberto.</li>
-          <li><b>Enter</b> na busca de produto do pedido adiciona o primeiro da lista.</li>
-          <li><b>Colar pedido do WhatsApp</b> monta o pedido sozinho a partir da mensagem do cliente.</li>
-          <li>Nada vai para o site antes de você tocar em <b>Publicar no site</b>.</li>
-        </ul>
+        <h3>Acesso ao painel</h3>
+        <p>Troque a senha que vocês usam para entrar no painel. Ela vale para todos os aparelhos.</p>
+        <div class="aj-acts"><button class="btn" type="button" id="bSenha">Trocar senha</button><button class="btn" type="button" id="sair2">Sair deste aparelho</button></div>
       </div>
     </div>
   </section>
@@ -1132,8 +1160,15 @@ function categorias(){
 function thumb(n){ return n ? (pendentes.get(n)?.url || foto(n, true)) : ""; }
 function render(){
   const q = $("#busca").value.trim().toLowerCase();
-  const lista = produtos.map((p,i) => ({p,i})).filter(({p}) => !q || (p.nome + " " + p.id + " " + p.categoria).toLowerCase().includes(q));
+  const fil = $("#filtroProd").value, modo = lembrar("sp_vprod") || "lista";
+  const passa = p => !fil || (fil === "mudou" ? origMap[p.id] !== JSON.stringify(p) : fil === "fora" ? !!p.oculto : fil === "pronta" ? p.estoque > 0
+    : fil === "margem" ? !!badgeMargem(p) : fil === "destaque" ? !!p.destaque : true);
+  const lista = produtos.map((p,i) => ({p,i})).filter(({p}) => (!q || (p.nome + " " + p.id + " " + p.categoria).toLowerCase().includes(q)) && passa(p));
+  const travar = !!(q || fil);
   $("#contagem").textContent = `${lista.length} de ${produtos.length} produtos`;
+  document.querySelectorAll("[data-pview]").forEach(b => b.setAttribute("aria-pressed", b.dataset.pview === modo));
+  $("#lista").classList.toggle("quadros", modo === "quadros");
+  const [iA, iB, tA, tB] = modo === "quadros" ? ["#i-l", "#i-r", "Mover para a esquerda", "Mover para a direita"] : ["#i-up", "#i-down", "Subir", "Descer"];
   let html = "";
   categorias().forEach(cat => {
     const itens = lista.filter(x => x.p.categoria === cat); if(!itens.length) return;
@@ -1145,7 +1180,7 @@ function render(){
         <img src="${esc(thumb(p.fotos[0]))}" alt="">
         <div class="t" data-edit="${i}" style="cursor:pointer">
           <b class="tn">${esc(p.nome)}</b>
-          <div class="ts"><span class="cod">${esc(p.id)}</span><span class="pr">${brl(p.preco)}${p.unidade ? ` <small>${esc(p.unidade)}</small>` : ""}</span><span class="st st-${esc(p.status)}">${STATUS[p.status] || p.status}${p.estoque > 0 ? ` (${p.estoque} un.)` : ""}</span></div>
+          <div class="ts"><span class="cod">${esc(p.id)}</span><span class="pr">${brl(p.preco)}${p.unidade ? ` <small>${esc(p.unidade)}</small>` : ""}</span><span class="st st-${esc(p.status)}">${STATUS[p.status] || p.status}${p.estoque > 0 ? ` (${p.estoque} un.)` : ""}</span>
           ${(() => { const tg = [
             alterado ? `<span class="tg-i mud">${origMap[p.id] ? "Editado" : "Novo"}, falta publicar</span>` : "",
             p.oculto ? `<span class="tg-i fora">Fora do site</span>` : "",
@@ -1154,15 +1189,14 @@ function render(){
             p.lancamento ? `<span class="tg-i">Preço de lançamento</span>` : "",
             p.montagem ? `<span class="tg-i">${p.montagem.extra ? `Para montar ou montado (+${brl(p.montagem.extra)})` : "Para montar"}</span>` : "",
             p.personalizado ? `<span class="tg-i">Personalizado</span>` : ""].filter(Boolean);
-            return tg.length ? `<div class="tg">${tg.join("")}</div>` : ""; })()}
+            return tg.length ? `<span class="tg">${tg.join("")}</span>` : ""; })()}</div>
         </div>
         <div class="acts">
-          <button class="btn icon" type="button" data-up="${i}" aria-label="Subir ${esc(p.nome)}" ${k===0||q?"disabled":""}><svg><use href="#i-up"/></svg></button>
-          <button class="btn icon" type="button" data-down="${i}" aria-label="Descer ${esc(p.nome)}" ${k===pos.length-1||q?"disabled":""}><svg><use href="#i-down"/></svg></button>
-          <button class="btn" type="button" data-edit="${i}">Editar</button>
-          <button class="btn" type="button" data-vis="${i}" title="${p.oculto ? "Voltar a mostrar no site" : "Tirar do site sem apagar"}">${p.oculto ? "Mostrar" : "Ocultar"}</button>
-          <button class="btn" type="button" data-dup="${i}">Duplicar</button>
-          <button class="btn danger del" type="button" data-del="${i}" aria-label="Excluir ${esc(p.nome)}"><svg class="ico" aria-hidden="true"><use href="#i-lixo"/></svg><span class="lbl">Excluir</span></button>
+          <span class="ord"><button class="ib" type="button" data-up="${i}" title="${tA}" aria-label="${tA}: ${esc(p.nome)}" ${k===0||travar?"disabled":""}><svg aria-hidden="true"><use href="${iA}"/></svg></button><button class="ib" type="button" data-down="${i}" title="${tB}" aria-label="${tB}: ${esc(p.nome)}" ${k===pos.length-1||travar?"disabled":""}><svg aria-hidden="true"><use href="${iB}"/></svg></button></span>
+          <button class="ib" type="button" data-edit="${i}" title="Editar" aria-label="Editar ${esc(p.nome)}"><svg aria-hidden="true"><use href="#i-lapis"/></svg></button>
+          <button class="ib${p.oculto ? " on" : ""}" type="button" data-vis="${i}" title="${p.oculto ? "Mostrar no site" : "Ocultar do site (sem apagar)"}" aria-label="${p.oculto ? "Mostrar no site" : "Ocultar do site"}: ${esc(p.nome)}"><svg aria-hidden="true"><use href="${p.oculto ? "#i-olho" : "#i-olho-x"}"/></svg></button>
+          <button class="ib" type="button" data-dup="${i}" title="Duplicar" aria-label="Duplicar ${esc(p.nome)}"><svg aria-hidden="true"><use href="#i-copia"/></svg></button>
+          <button class="ib del" type="button" data-del="${i}" title="Excluir" aria-label="Excluir ${esc(p.nome)}"><svg aria-hidden="true"><use href="#i-lixo"/></svg></button>
         </div></li>`;
     });
     html += "</ul>";
@@ -1176,6 +1210,8 @@ function barra(){
   $("#pubTxt").textContent = n === 1 ? "1 alteração não publicada" : `${n} alterações não publicadas`;
 }
 $("#busca").addEventListener("input", render);
+$("#filtroProd").addEventListener("change", render);
+document.querySelectorAll("[data-pview]").forEach(b => b.addEventListener("click", () => { lembrar("sp_vprod", b.dataset.pview); render(); }));
 function moverNaCategoria(i, dir){
   const p = produtos[i]; const mesmos = produtos.map((x,j) => [x,j]).filter(([x]) => x.categoria === p.categoria);
   const k = mesmos.findIndex(([,j]) => j === i); const alvo = mesmos[k + dir]; if(!alvo) return;
@@ -1912,6 +1948,8 @@ function renderFil(){
     + `<p class="hint" style="margin:0">O saldo de cada cor desconta o peso das peças (com as perdas) quando o pedido entra em produção. Peças de várias cores descontam tudo da cor escolhida no pedido. De vez em quando, pese os rolos e use "Pesei o rolo" para acertar.</p>`
     + (sc.filter(([n]) => n !== "sem cor").length ? `<p class="warn">Cores dos pedidos sem rolo cadastrado: ${sc.filter(([n]) => n !== "sem cor").map(([n, g]) => `${esc(n)} (${fmtG(g)})`).join(", ")}. Adicione a cor com o mesmo nome usado no pedido.</p>` : "")
     + (semCor["sem cor"] ? `<p class="hint" style="margin:0">Itens na fila sem cor escolhida no pedido: ${fmtG(semCor["sem cor"])} fora da conta.</p>` : "");
+  const urg = e => e.fila - Math.max(0, e.saldo) > 0 ? 0 : e.saldo > 0 && e.saldo < alerta ? 1 : e.saldo > 0 ? 2 : 3;
+  lista.sort((a, b) => urg(a) - urg(b));
   $("#filLista").innerHTML = lista.length ? `<div class="fil-grid">${lista.map(e => {
       const falta = e.fila - Math.max(0, e.saldo), cls = falta > 0 ? "falta" : e.saldo <= 0 ? "zero" : e.saldo < alerta ? "baixo" : "";
       const tag = falta > 0 ? "Falta para a fila" : e.saldo <= 0 ? "Sem saldo" : "Acabando";
