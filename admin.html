@@ -137,6 +137,30 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .picker img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
 .cor.off{opacity:.55;text-decoration:line-through}
 @media (max-width:640px){.slots{grid-template-columns:repeat(3,minmax(0,1fr))}.fil{grid-template-columns:44px minmax(0,1fr) auto}.fil .rm{grid-column:3}.ct{grid-template-columns:1fr 80px}.ct .tel{grid-column:1/2}}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.kpis div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.kpis b{display:block;font-size:22px;font-variation-settings:"wdth" 110;font-weight:800;font-variant-numeric:tabular-nums}
+.kpis span{color:var(--muted);font-size:13px}
+.kpis .alerta{border-color:var(--danger)}
+.kpis .alerta b{color:var(--danger)}
+.pchips{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px}
+.pchips .chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 12px;font-weight:600;font-size:14px;cursor:pointer}
+.pchips .chip span{color:var(--muted);font-weight:500;margin-left:4px}
+.pchips .chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.pchips .chip[aria-pressed="true"] span{color:#AEB5C2}
+.prow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.prow.late{border-left:4px solid var(--danger)}
+.prow .t{min-width:0}.prow .t b{display:block}
+.prow .t span{display:block;color:var(--muted);font-size:13px}
+.late-txt{color:var(--danger)}
+.prow .acts{display:flex;gap:6px;align-items:center}
+.prow .st{width:auto;padding:8px 10px}
+.item{border:1px solid var(--line);border-radius:10px;padding:10px;display:grid;gap:8px}
+.item .btn{justify-self:start}
+.g4{display:grid;grid-template-columns:1fr 1fr 70px 110px;gap:8px}
+#dPed{width:min(860px,calc(100vw - 24px))}
+#dPed footer{flex-wrap:wrap}
+@media (max-width:640px){#dPed{width:100%}.kpis{grid-template-columns:1fr 1fr}.prow{grid-template-columns:1fr}.prow .acts{flex-wrap:wrap}.g4{grid-template-columns:1fr 1fr}}
 .toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;z-index:50;max-width:calc(100vw - 32px);box-shadow:0 10px 30px rgba(0,0,0,.25)}
 .toast.bad{background:var(--danger)}
 .conf p{margin:0;padding:20px;color:#353B46}
@@ -216,10 +240,39 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 <!-- Painel -->
 <main class="wrap" id="vApp" hidden>
   <div class="tabs" role="tablist">
-    <button type="button" role="tab" aria-selected="true" data-tab="tProdutos">Produtos</button>
+    <button type="button" role="tab" aria-selected="true" data-tab="tPedidos">Pedidos</button>
+    <button type="button" role="tab" aria-selected="false" data-tab="tProdutos">Produtos</button>
     <button type="button" role="tab" aria-selected="false" data-tab="tSite">Site e avisos</button>
   </div>
-  <section id="tProdutos">
+  <section id="tPedidos">
+    <div class="card" id="pedSetup" hidden>
+      <h3>Falta um passo para usar os pedidos</h3>
+      <p style="margin:0;color:#353B46">Os pedidos têm nome, telefone e endereço dos clientes, então eles ficam num repositório <b>privado</b>, separado do site, que só vocês veem.</p>
+      <ol style="margin:0;padding-left:20px;display:grid;gap:6px">
+        <li>No GitHub (conta Studio-print), clique em <b>+</b> no canto de cima e em <b>New repository</b>.</li>
+        <li>Nome: <b>studioprint-pedidos</b>. Marque <b>Private</b> e também <b>Add a README file</b>. Clique em <b>Create repository</b>.</li>
+        <li>Vá em <b>Settings &gt; Developer settings &gt; Personal access tokens &gt; Fine-grained tokens</b> e abra o token do painel.</li>
+        <li>Clique em <b>Edit</b>. Em <b>Repository access</b>, adicione <b>studioprint-pedidos</b> (deixe o studio-print.github.io marcado também) e salve. A permissão <b>Contents: Read and write</b> vale para os dois.</li>
+        <li>Volte aqui e toque no botão abaixo. A senha do painel continua a mesma.</li>
+      </ol>
+      <div><button class="btn primary" type="button" id="pedRetry">Já fiz, carregar os pedidos</button></div>
+      <div class="err" id="pedSetupErr"></div>
+    </div>
+    <div id="pedApp" hidden>
+      <div class="kpis" id="pedKpis"></div>
+      <div class="tools">
+        <button class="btn primary" type="button" id="pedNovo">Novo pedido</button>
+        <input class="in" type="search" id="pedBusca" placeholder="Buscar cliente, número ou produto" aria-label="Buscar pedidos">
+        <button class="btn" type="button" id="pedCsv">Baixar planilha</button>
+        <span class="count" id="pedSalvando" hidden><span class="busy"><span class="spin"></span>Salvando…</span></span>
+      </div>
+      <div class="pchips" id="pedFiltros"></div>
+      <div id="pedLista"></div>
+    </div>
+    <p class="count" id="pedMsg"></p>
+  </section>
+
+  <section id="tProdutos" hidden>
   <div class="tools">
     <button class="btn primary" type="button" id="bNovo">Novo produto</button>
     <input class="in" type="search" id="busca" placeholder="Buscar por nome ou código" aria-label="Buscar por nome ou código">
@@ -323,6 +376,48 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
   </form>
 </dialog>
 
+<!-- Pedido -->
+<dialog id="dPed" aria-labelledby="pdTit">
+  <form class="ed" id="fPed" novalidate>
+    <header><h2 id="pdTit">Pedido</h2><button class="btn icon" type="button" data-pdclose aria-label="Fechar"><svg><use href="#i-x"/></svg></button></header>
+    <div class="body">
+      <fieldset><legend>Cliente</legend>
+        <div class="g2">
+          <div><label class="f" for="pdNome">Nome</label><input class="in" id="pdNome" autocomplete="off"></div>
+          <div><label class="f" for="pdFone">WhatsApp com DDD</label><input class="in" id="pdFone" inputmode="tel" placeholder="11999999999"></div>
+          <div><label class="f" for="pdCidade">Cidade e bairro</label><input class="in" id="pdCidade" placeholder="Santo André, Vila Assunção"></div>
+          <div><label class="f" for="pdEnd">Endereço (se for entregar)</label><input class="in" id="pdEnd"></div>
+        </div>
+      </fieldset>
+      <fieldset><legend>Itens</legend>
+        <div id="pdItens" style="display:grid;gap:10px"></div>
+        <div style="margin-top:10px"><button class="btn" type="button" id="pdAddItem">Adicionar item</button></div>
+      </fieldset>
+      <fieldset><legend>Entrega e pagamento</legend>
+        <div class="g2">
+          <div><label class="f" for="pdEntTipo">Entrega</label><select class="in" id="pdEntTipo"><option value="retirada">Retirada</option><option value="abc">Entrega própria (ABC)</option><option value="correios">Correios</option><option value="app">App de entrega (Uber, 99)</option></select></div>
+          <div><label class="f" for="pdFrete">Valor da entrega (R$)</label><input class="in" id="pdFrete" inputmode="decimal" placeholder="0"></div>
+          <div><label class="f" for="pdRastreio">Código de rastreio</label><input class="in" id="pdRastreio" placeholder="Se for pelos Correios"></div>
+          <div><label class="f" for="pdForma">Forma de pagamento</label><select class="in" id="pdForma"><option>Pix</option><option>Dinheiro</option><option>Cartão de crédito</option><option>Cartão de débito</option><option>Transferência</option></select></div>
+          <div><label class="f" for="pdPago">Já pago (R$), somando sinal e restante</label><input class="in" id="pdPago" inputmode="decimal" placeholder="0"></div>
+        </div>
+        <p class="hint" id="pdTotais" style="margin-top:10px"></p>
+      </fieldset>
+      <fieldset><legend>Andamento</legend>
+        <div class="g2">
+          <div><label class="f" for="pdStatus">Situação</label><select class="in" id="pdStatus"></select></div>
+          <div><label class="f" for="pdResp">Quem atende</label><select class="in" id="pdResp"></select></div>
+          <div><label class="f" for="pdData">Data do pedido</label><input class="in" id="pdData" type="date"></div>
+          <div><label class="f" for="pdPrazo">Prazo de entrega</label><input class="in" id="pdPrazo" type="date"></div>
+        </div>
+        <div style="margin-top:10px"><label class="f" for="pdObs">Observações</label><textarea class="in" id="pdObs" placeholder="Detalhes combinados, fonte do nome, embrulho para presente…"></textarea></div>
+      </fieldset>
+      <div class="err" id="pdErr" role="alert"></div>
+    </div>
+    <footer><button class="btn danger" type="button" id="pdExcluir">Excluir</button><button class="btn" type="button" id="pdWa">Mensagem no WhatsApp</button><span style="flex:1"></span><button class="btn" type="button" data-pdclose>Cancelar</button><button class="btn primary" type="submit" id="pdSalvar">Salvar pedido</button></footer>
+  </form>
+</dialog>
+
 <!-- Escolher foto do início -->
 <dialog id="dFoto" aria-labelledby="pTit">
   <div class="ed">
@@ -361,7 +456,7 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 <div class="toast" id="toast" role="status" hidden></div>
 
 <script>
-const CFG = {owner:"Studio-print", repo:"studio-print.github.io", branch:"main", arquivo:"produtos.json", api:"https://api.github.com"};
+const CFG = {owner:"Studio-print", repo:"studio-print.github.io", pedidosRepo:"studioprint-pedidos", branch:"main", arquivo:"produtos.json", api:"https://api.github.com"};
 const REPO = `/repos/${CFG.owner}/${CFG.repo}`;
 const STATUS = {encomenda:"Sob encomenda", disponivel:"Pronta entrega", esgotado:"Esgotado"};
 const ORDEM_CATS = ["Natal","Personagens","Bonecos de pose","Decoração"];
@@ -512,6 +607,7 @@ async function entrar(t, lembrar, silencioso, origem){
     await carregar();
     if(lembrar !== null) guardar(token, lembrar);
     $("#vLogin").hidden = true; $("#vApp").hidden = false; $("#topNav").hidden = false;
+    carregarPedidos();
   }catch(e){
     token = ""; if(silencioso) esquecer();
     if(origem === "senha"){
@@ -732,8 +828,7 @@ $("#fEd").addEventListener("submit", e => {
 
 /* ---------- aba Site e avisos ---------- */
 document.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => {
-  document.querySelectorAll("[data-tab]").forEach(x => x.setAttribute("aria-selected", x === b));
-  $("#tProdutos").hidden = b.dataset.tab !== "tProdutos"; $("#tSite").hidden = b.dataset.tab !== "tSite";
+  document.querySelectorAll("[data-tab]").forEach(x => { x.setAttribute("aria-selected", x === b); $("#" + x.dataset.tab).hidden = x !== b; });
 }));
 const pegar = (o, c) => c.split(".").reduce((a,k) => (a||{})[k], o);
 function por(o, c, v){ const ks = c.split("."); const ult = ks.pop(); const alvo = ks.reduce((a,k) => (a[k] = a[k] || {}), o); alvo[ult] = v; }
@@ -828,6 +923,249 @@ document.querySelectorAll("[data-pclose]").forEach(b => b.addEventListener("clic
 $("#pArq").addEventListener("change", async e => {
   const f = e.target.files[0]; e.target.value = ""; if(!f) return;
   try{ const n = await prepararFoto(f); usarFoto(n); }catch(err){ aviso(`Não consegui ler a foto "${f.name}". Use fotos JPG, PNG ou WEBP.`, true); }
+});
+
+/* ---------- pedidos (repositório privado) ---------- */
+const PED_REPO = `/repos/${CFG.owner}/${CFG.pedidosRepo}`;
+const ST_PED = [["novo","Aguardando sinal"],["fila","Na fila"],["imprimindo","Imprimindo"],["pronto","Pronto"],["enviado","Enviado"],["entregue","Entregue"],["cancelado","Cancelado"]];
+const ST_LABEL = Object.fromEntries(ST_PED);
+const FECHADOS = ["entregue","cancelado"];
+const SEM_ATRASO = ["enviado","entregue","cancelado"];
+const ENTREGA = {retirada:"Retirada", abc:"Entrega própria", correios:"Correios", app:"App de entrega"};
+let pedidos = [], shaPed = null, pedFiltro = "abertos", pedPronto = false, edPed = null;
+
+const hojeISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+const dataBR = iso => iso ? iso.slice(8,10) + "/" + iso.slice(5,7) + "/" + iso.slice(0,4) : "";
+const dataCurta = iso => iso ? iso.slice(8,10) + "/" + iso.slice(5,7) : "";
+const num = v => { const n = precoDe(v); return isNaN(n) ? 0 : n; };
+function totais(p){
+  const itens = (p.itens||[]).reduce((s,i) => s + (Number(i.qtd)||0) * (Number(i.preco)||0), 0);
+  const frete = Number(p.entrega && p.entrega.valor) || 0;
+  const total = Math.round((itens + frete) * 100) / 100;
+  const pago = Number(p.pagamento && p.pagamento.pago) || 0;
+  return {itens, frete, total, pago, saldo: Math.round((total - pago) * 100) / 100};
+}
+const atrasado = p => p.prazo && p.prazo < hojeISO() && !SEM_ATRASO.includes(p.status);
+const resumoItens = p => (p.itens||[]).map(i => `${i.qtd}x ${i.nome}${i.cor ? " (" + i.cor + ")" : ""}${i.nome_gravado ? ' "' + i.nome_gravado + '"' : ""}`).join(", ");
+
+async function carregarPedidos(){
+  $("#pedMsg").textContent = "Carregando pedidos…"; $("#pedSetup").hidden = true; $("#pedApp").hidden = true;
+  try{
+    await api(PED_REPO);
+  }catch(e){
+    $("#pedMsg").textContent = ""; $("#pedSetup").hidden = false; pedPronto = false;
+    $("#pedSetupErr").textContent = e.status === 404 || e.status === 403 ? "" : erroAmigavel(e);
+    return;
+  }
+  try{
+    const c = await api(`${PED_REPO}/contents/pedidos.json`).catch(e => { if(e.status === 404) return null; throw e; });
+    pedidos = c ? JSON.parse(textoDeB64(c.content)) : []; shaPed = c ? c.sha : null;
+    pedPronto = true; $("#pedMsg").textContent = ""; $("#pedApp").hidden = false; renderPedidos();
+  }catch(e){ $("#pedMsg").textContent = erroAmigavel(e); }
+}
+$("#pedRetry").addEventListener("click", carregarPedidos);
+
+async function gravarPedidos(mudar, msg){
+  const tentar = async (lista, sha) => {
+    const nova = mudar(JSON.parse(JSON.stringify(lista)));
+    const r = await api(`${PED_REPO}/contents/pedidos.json`, {method:"PUT", body:JSON.stringify({
+      message: msg, content: b64Texto(JSON.stringify(nova, null, 2) + "\n"), ...(sha ? {sha} : {})})});
+    pedidos = nova; shaPed = r.content.sha;
+  };
+  $("#pedSalvando").hidden = false;
+  try{
+    try{ await tentar(pedidos, shaPed); }
+    catch(e){
+      if(e.status !== 409 && e.status !== 422) throw e;
+      const c = await api(`${PED_REPO}/contents/pedidos.json`).catch(x => { if(x.status === 404) return null; throw x; });
+      await tentar(c ? JSON.parse(textoDeB64(c.content)) : [], c ? c.sha : null);
+    }
+    renderPedidos(); return true;
+  }catch(e){ aviso(erroAmigavel(e), true); return false; }
+  finally{ $("#pedSalvando").hidden = true; }
+}
+const upsert = ped => lista => { const k = lista.findIndex(x => x.id === ped.id); if(k >= 0) lista[k] = ped; else lista.push(ped); return lista; };
+
+function renderPedidos(){
+  if(!pedPronto) return;
+  const hoje = hojeISO(), mes = hoje.slice(0,7);
+  const abertos = pedidos.filter(p => !FECHADOS.includes(p.status));
+  const atrasados = pedidos.filter(atrasado);
+  const receber = pedidos.filter(p => p.status !== "cancelado").reduce((s,p) => s + Math.max(0, totais(p).saldo), 0);
+  const doMes = pedidos.filter(p => (p.criado||"").slice(0,7) === mes && p.status !== "cancelado");
+  $("#pedKpis").innerHTML = `
+    <div><b>${abertos.length}</b><span>em aberto</span></div>
+    <div class="${atrasados.length ? "alerta" : ""}"><b>${atrasados.length}</b><span>atrasado${atrasados.length===1?"":"s"}</span></div>
+    <div><b>${brl(receber)}</b><span>a receber</span></div>
+    <div><b>${brl(doMes.reduce((s,p) => s + totais(p).total, 0))}</b><span>vendido em ${["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"][+mes.slice(5,7)-1]} (${doMes.length} pedido${doMes.length===1?"":"s"})</span></div>`;
+  const filtros = [["abertos","Em aberto", abertos.length], ["atrasados","Atrasados", atrasados.length], ...ST_PED.map(([k,l]) => [k, l, pedidos.filter(p => p.status === k).length]), ["todos","Todos", pedidos.length]];
+  $("#pedFiltros").innerHTML = filtros.map(([k,l,n]) => `<button type="button" class="chip" aria-pressed="${pedFiltro===k}" data-pf="${k}">${l} <span>${n}</span></button>`).join("");
+  const q = $("#pedBusca").value.trim().toLowerCase();
+  let lista = pedidos.filter(p => pedFiltro === "todos" || (pedFiltro === "abertos" ? !FECHADOS.includes(p.status) : pedFiltro === "atrasados" ? atrasado(p) : p.status === pedFiltro));
+  if(q) lista = lista.filter(p => [p.id, p.cliente && p.cliente.nome, p.cliente && p.cliente.whatsapp, resumoItens(p)].join(" ").toLowerCase().includes(q));
+  lista.sort((a,b) => {
+    const fa = FECHADOS.includes(a.status), fb = FECHADOS.includes(b.status);
+    if(fa !== fb) return fa ? 1 : -1;
+    if(!fa) return (a.prazo || "9999").localeCompare(b.prazo || "9999");
+    return (b.criado || "").localeCompare(a.criado || "");
+  });
+  $("#pedLista").innerHTML = lista.length ? `<ul class="list">${lista.map(p => {
+    const t = totais(p), late = atrasado(p);
+    return `<li class="prow${late ? " late" : ""}">
+      <div class="t">
+        <b>${esc(p.id)} | ${esc(p.cliente && p.cliente.nome || "Sem nome")}</b>
+        <span>${esc(resumoItens(p) || "Sem itens")}</span>
+        <span>${p.prazo ? (late ? '<strong class="late-txt">Atrasado: prazo ' + dataCurta(p.prazo) + "</strong>" : "Prazo " + dataCurta(p.prazo)) : "Sem prazo"} | ${ENTREGA[p.entrega && p.entrega.tipo] || "Entrega a combinar"} | Total ${brl(t.total)} | ${t.saldo > 0 ? "Falta " + brl(t.saldo) : t.total > 0 ? "Pago" : ""}${p.responsavel ? " | " + esc(p.responsavel) : ""}</span>
+      </div>
+      <div class="acts">
+        <select class="in st" data-pst="${esc(p.id)}" aria-label="Situação do pedido ${esc(p.id)}">${ST_PED.map(([k,l]) => `<option value="${k}" ${p.status===k?"selected":""}>${l}</option>`).join("")}</select>
+        ${p.cliente && p.cliente.whatsapp ? `<a class="btn" href="${esc(msgCliente(p))}" target="_blank" rel="noopener">Mensagem</a>` : ""}
+        <button class="btn" type="button" data-ped="${esc(p.id)}">Abrir</button>
+      </div></li>`; }).join("")}</ul>`
+    : `<p class="count">${pedidos.length ? "Nenhum pedido neste filtro." : "Nenhum pedido ainda. Toque em Novo pedido para cadastrar o primeiro."}</p>`;
+}
+$("#pedFiltros").addEventListener("click", e => { const b = e.target.closest("[data-pf]"); if(b){ pedFiltro = b.dataset.pf; renderPedidos(); } });
+$("#pedBusca").addEventListener("input", renderPedidos);
+$("#pedLista").addEventListener("change", async e => {
+  const s = e.target.closest("[data-pst]"); if(!s) return;
+  const p = JSON.parse(JSON.stringify(pedidos.find(x => x.id === s.dataset.pst)));
+  p.status = s.value; p.historico = [...(p.historico||[]), {quando:new Date().toISOString(), status:s.value}];
+  if(await gravarPedidos(upsert(p), `Pedido ${p.id}: ${ST_LABEL[p.status]}`)) aviso(`Pedido ${p.id}: ${ST_LABEL[p.status]}.`);
+});
+$("#pedLista").addEventListener("click", e => { const b = e.target.closest("[data-ped]"); if(b) abrirPedido(b.dataset.ped); });
+
+function foneWa(t){ const d = String(t||"").replace(/\D/g,""); return d ? (d.length <= 11 ? "55" + d : d) : ""; }
+function msgCliente(p){
+  const t = totais(p), nome = (p.cliente && p.cliente.nome || "").split(" ")[0] || "tudo bem";
+  const itens = resumoItens(p), prazo = p.prazo ? dataBR(p.prazo) : "a combinar";
+  const sinal = brl(Math.ceil(t.total / 2));
+  const M = {
+    novo: `Olá, ${nome}! Aqui é da StudioPrint. Anotamos o seu pedido ${p.id}: ${itens}. Total: ${brl(t.total)}. Para começar a produção, o sinal é de ${sinal} (50%). Previsão: ${prazo}.`,
+    fila: `Olá, ${nome}! Recebemos o sinal do pedido ${p.id}. Ele já está na fila de produção, com previsão para ${prazo}.`,
+    imprimindo: `Olá, ${nome}! O seu pedido ${p.id} começou a ser impresso. Previsão: ${prazo}.`,
+    pronto: `Olá, ${nome}! O seu pedido ${p.id} está pronto.${t.saldo > 0 ? " Falta pagar " + brl(t.saldo) + "." : ""} Vamos combinar a entrega?`,
+    enviado: `Olá, ${nome}! O seu pedido ${p.id} saiu para entrega.${p.entrega && p.entrega.rastreio ? " Código de rastreio: " + p.entrega.rastreio + "." : ""}`,
+    entregue: `Olá, ${nome}! Obrigado pela compra na StudioPrint. Se puder, mande uma foto da peça para a gente, vamos adorar ver.`,
+    cancelado: `Olá, ${nome}! Sobre o pedido ${p.id}:`
+  };
+  return `https://wa.me/${foneWa(p.cliente.whatsapp)}?text=${encodeURIComponent(M[p.status] || M.novo)}`;
+}
+
+/* editor de pedido */
+function proximoPedido(){
+  const ano = hojeISO().slice(0,4);
+  const ns = pedidos.map(p => p.id).filter(id => id.startsWith(ano + "-")).map(id => parseInt(id.slice(5), 10)).filter(n => !isNaN(n));
+  return ano + "-" + String((ns.length ? Math.max(...ns) : 0) + 1).padStart(3, "0");
+}
+function abrirPedido(id){
+  const base = id ? pedidos.find(p => p.id === id) : null;
+  edPed = base ? JSON.parse(JSON.stringify(base)) : {id: proximoPedido(), criado: hojeISO(), status:"novo", responsavel:"",
+    cliente:{nome:"", whatsapp:"", cidade:"", endereco:""}, itens:[], entrega:{tipo:"retirada", valor:0, rastreio:""},
+    pagamento:{forma:"Pix", pago:0}, prazo:"", obs:"", historico:[]};
+  edPed.cliente = Object.assign({nome:"", whatsapp:"", cidade:"", endereco:""}, edPed.cliente);
+  edPed.entrega = Object.assign({tipo:"retirada", valor:0, rastreio:""}, edPed.entrega);
+  edPed.pagamento = Object.assign({forma:"Pix", pago:0}, edPed.pagamento);
+  if(!base && !edPed.itens.length) edPed.itens.push({produto:"", nome:"", cor:"", nome_gravado:"", qtd:1, preco:0});
+  $("#pdTit").textContent = base ? `Pedido ${edPed.id}` : `Novo pedido ${edPed.id}`;
+  $("#pdExcluir").hidden = !base;
+  $("#pdResp").innerHTML = `<option value="">(ninguém)</option>` + (site.contatos||[]).map(c => `<option ${edPed.responsavel===c.nome?"selected":""}>${esc(c.nome)}</option>`).join("");
+  $("#pdStatus").innerHTML = ST_PED.map(([k,l]) => `<option value="${k}" ${edPed.status===k?"selected":""}>${l}</option>`).join("");
+  const set = (sel, v) => $(sel).value = v ?? "";
+  set("#pdNome", edPed.cliente.nome); set("#pdFone", edPed.cliente.whatsapp); set("#pdCidade", edPed.cliente.cidade); set("#pdEnd", edPed.cliente.endereco);
+  set("#pdData", edPed.criado); set("#pdPrazo", edPed.prazo);
+  set("#pdEntTipo", edPed.entrega.tipo); set("#pdFrete", edPed.entrega.valor ? String(edPed.entrega.valor).replace(".", ",") : "");
+  set("#pdRastreio", edPed.entrega.rastreio); set("#pdForma", edPed.pagamento.forma);
+  set("#pdPago", edPed.pagamento.pago ? String(edPed.pagamento.pago).replace(".", ",") : ""); set("#pdObs", edPed.obs);
+  $("#pdErr").textContent = "";
+  desenharItens(); atualizarTotais();
+  $("#dPed").showModal();
+  if(!base) setTimeout(() => $("#pdNome").focus(), 50);
+}
+function desenharItens(){
+  const opts = produtos.map(p => `<option value="${esc(p.id)}">${esc(p.id)} | ${esc(p.nome)}</option>`).join("");
+  $("#pdItens").innerHTML = edPed.itens.map((it,k) => {
+    const prod = produtos.find(p => p.id === it.produto);
+    const cores = prod ? (prod.cores||[]).map(c => c.nome) : [];
+    return `<div class="item">
+      <select class="in" data-ik="${k}" data-f="produto" aria-label="Produto"><option value="">Escolha o produto…</option>${opts}<option value="__outro">Outro (digitar)</option></select>
+      ${it.produto === "__outro" ? `<input class="in" data-ik="${k}" data-f="nome" value="${esc(it.nome)}" placeholder="Descrição do item" aria-label="Descrição do item">` : ""}
+      <div class="g4">
+        <div><label class="f">Cor</label><input class="in" data-ik="${k}" data-f="cor" value="${esc(it.cor)}" list="cores${k}" placeholder="Ex.: Vermelho"><datalist id="cores${k}">${cores.map(c => `<option value="${esc(c)}">`).join("")}</datalist></div>
+        <div><label class="f">Nome a gravar</label><input class="in" data-ik="${k}" data-f="nome_gravado" value="${esc(it.nome_gravado)}" placeholder="Se for personalizado"></div>
+        <div><label class="f">Qtd.</label><input class="in" data-ik="${k}" data-f="qtd" value="${esc(it.qtd)}" inputmode="numeric"></div>
+        <div><label class="f">Preço un. (R$)</label><input class="in" data-ik="${k}" data-f="preco" value="${it.preco ? String(it.preco).replace(".", ",") : ""}" inputmode="decimal"></div>
+      </div>
+      <button class="btn danger" type="button" data-irm="${k}">Remover item</button>
+    </div>`; }).join("");
+  edPed.itens.forEach((it,k) => { const s = document.querySelector(`select[data-ik="${k}"]`); if(s) s.value = it.produto || ""; });
+}
+$("#pdItens").addEventListener("change", e => {
+  const el = e.target, k = el.dataset.ik; if(k === undefined) return;
+  const it = edPed.itens[+k];
+  if(el.dataset.f === "produto"){
+    it.produto = el.value;
+    const prod = produtos.find(p => p.id === el.value);
+    if(prod){ it.nome = prod.nome; it.preco = prod.preco; it.cor = ""; } else if(el.value === "__outro"){ it.nome = ""; }
+    desenharItens();
+  }
+  atualizarTotais();
+});
+$("#pdItens").addEventListener("input", e => {
+  const el = e.target, k = el.dataset.ik, f = el.dataset.f; if(k === undefined || f === "produto") return;
+  const it = edPed.itens[+k];
+  if(f === "qtd") it.qtd = Math.max(0, parseInt(el.value, 10) || 0);
+  else if(f === "preco") it.preco = num(el.value);
+  else it[f] = el.value;
+  atualizarTotais();
+});
+$("#pdItens").addEventListener("click", e => { const b = e.target.closest("[data-irm]"); if(b){ edPed.itens.splice(+b.dataset.irm, 1); desenharItens(); atualizarTotais(); } });
+$("#pdAddItem").addEventListener("click", () => { edPed.itens.push({produto:"", nome:"", cor:"", nome_gravado:"", qtd:1, preco:0}); desenharItens(); atualizarTotais(); });
+["#pdFrete","#pdPago"].forEach(s => $(s).addEventListener("input", atualizarTotais));
+function lerFormPedido(){
+  edPed.cliente = {nome:$("#pdNome").value.trim(), whatsapp:$("#pdFone").value.replace(/\D/g,""), cidade:$("#pdCidade").value.trim(), endereco:$("#pdEnd").value.trim()};
+  edPed.criado = $("#pdData").value || hojeISO(); edPed.prazo = $("#pdPrazo").value;
+  edPed.entrega = {tipo:$("#pdEntTipo").value, valor:num($("#pdFrete").value), rastreio:$("#pdRastreio").value.trim()};
+  edPed.pagamento = {forma:$("#pdForma").value, pago:num($("#pdPago").value)};
+  edPed.obs = $("#pdObs").value.trim(); edPed.responsavel = $("#pdResp").value;
+  const st = $("#pdStatus").value;
+  if(st !== edPed.status){ edPed.historico = [...(edPed.historico||[]), {quando:new Date().toISOString(), status:st}]; edPed.status = st; }
+}
+function atualizarTotais(){
+  if(!edPed) return;
+  const tmp = JSON.parse(JSON.stringify(edPed));
+  tmp.entrega = {valor:num($("#pdFrete").value)}; tmp.pagamento = {pago:num($("#pdPago").value)};
+  const t = totais(tmp);
+  $("#pdTotais").innerHTML = `Itens ${brl(t.itens)} + entrega ${brl(t.frete)} = <b>Total ${brl(t.total)}</b> | Pago ${brl(t.pago)} | <b>${t.saldo > 0 ? "Falta " + brl(t.saldo) : t.saldo < 0 ? "Troco/crédito " + brl(-t.saldo) : "Quitado"}</b> | Sinal de 50%: ${brl(Math.ceil(t.total/2))}`;
+}
+$("#fPed").addEventListener("submit", async e => {
+  e.preventDefault(); lerFormPedido();
+  edPed.itens = edPed.itens.filter(i => i.nome || i.produto);
+  const erro = !edPed.cliente.nome ? "Preencha o nome do cliente." : !edPed.itens.length ? "Adicione pelo menos um item."
+    : edPed.itens.some(i => !i.nome) ? "Escolha o produto ou descreva cada item." : edPed.itens.some(i => !(i.qtd > 0)) ? "A quantidade de cada item precisa ser 1 ou mais." : "";
+  if(erro){ $("#pdErr").textContent = erro; if(!edPed.itens.length) edPed.itens.push({produto:"", nome:"", cor:"", nome_gravado:"", qtd:1, preco:0}); desenharItens(); return; }
+  const novo = !pedidos.some(p => p.id === edPed.id);
+  if(novo && !edPed.historico.length) edPed.historico = [{quando:new Date().toISOString(), status:edPed.status}];
+  const b = $("#pdSalvar"); b.disabled = true;
+  const ok = await gravarPedidos(upsert(JSON.parse(JSON.stringify(edPed))), `${novo ? "Novo pedido" : "Atualiza pedido"} ${edPed.id}`);
+  b.disabled = false;
+  if(ok){ $("#dPed").close(); aviso(novo ? `Pedido ${edPed.id} salvo.` : `Pedido ${edPed.id} atualizado.`); }
+});
+$("#pdExcluir").addEventListener("click", async () => {
+  if(!(await confirmar(`Excluir o pedido ${edPed.id}?`, "Ele some da lista para sempre. Se o cliente só desistiu, prefira mudar a situação para Cancelado.", "Excluir"))) return;
+  const id = edPed.id;
+  if(await gravarPedidos(lista => lista.filter(p => p.id !== id), `Exclui pedido ${id}`)){ $("#dPed").close(); aviso(`Pedido ${id} excluído.`); }
+});
+$("#pdWa").addEventListener("click", () => { lerFormPedido(); if(!edPed.cliente.whatsapp){ $("#pdErr").textContent = "Preencha o WhatsApp do cliente."; return; } window.open(msgCliente(edPed), "_blank", "noopener"); });
+document.querySelectorAll("[data-pdclose]").forEach(b => b.addEventListener("click", () => $("#dPed").close()));
+$("#pedNovo").addEventListener("click", () => abrirPedido(null));
+
+$("#pedCsv").addEventListener("click", () => {
+  const n2 = v => Number(v||0).toFixed(2).replace(".", ",");
+  const cab = ["Número","Data","Cliente","WhatsApp","Cidade/bairro","Endereço","Itens","Prazo","Situação","Responsável","Itens (R$)","Entrega","Entrega (R$)","Total (R$)","Pago (R$)","Falta (R$)","Forma de pagamento","Rastreio","Observações"];
+  const linhas = pedidos.map(p => { const t = totais(p); return [p.id, dataBR(p.criado), p.cliente.nome, p.cliente.whatsapp, p.cliente.cidade, p.cliente.endereco, resumoItens(p), dataBR(p.prazo), ST_LABEL[p.status], p.responsavel||"", n2(t.itens), ENTREGA[p.entrega.tipo]||"", n2(t.frete), n2(t.total), n2(t.pago), n2(t.saldo), p.pagamento.forma||"", p.entrega.rastreio||"", p.obs||""]; });
+  const csv = "﻿" + [cab, ...linhas].map(l => l.map(v => `"${String(v ?? "").replace(/"/g,'""')}"`).join(";")).join("\r\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8"}));
+  a.download = `Pedidos StudioPrint ${hojeISO()}.csv`; document.body.appendChild(a); a.click(); a.remove();
 });
 
 /* ---------- publicar ---------- */
