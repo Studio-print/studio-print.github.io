@@ -21,7 +21,7 @@
       "telefone": "11953650406"
     }
   ],
-  "rodape": "Preços em reais, válidos para pagamento à vista. Cada peça é feita sob encomenda, então cores e tamanhos podem variar um pouco de uma peça para outra.",
+  "rodape": "Preços em reais, iguais no Pix, no débito e no crédito à vista. Cada peça é feita sob encomenda, então cores e tamanhos podem variar um pouco de uma peça para outra.",
   "filamentos": [
     {
       "nome": "Vermelho",
@@ -206,6 +206,6 @@
       "Dinheiro"
     ],
     "sinal": 50,
-    "obs": ""
+    "obs": "Crédito à vista sem acréscimo. No parcelado, os juros das parcelas ficam com quem compra."
   }
 }
