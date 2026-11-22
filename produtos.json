@@ -118,7 +118,30 @@
       2,
       3
     ],
-    "medidas": "9 cm de diâmetro e 0,5 cm de espessura (cerca de 10 cm de altura com a argola). Nomes de até 10 letras."
+    "medidas": "9 cm de diâmetro e 0,5 cm de espessura (cerca de 10 cm de altura com a argola). Nomes de até 10 letras.",
+    "kit": [
+      [
+        2,
+        24.95
+      ],
+      [
+        3,
+        21.3
+      ],
+      [
+        4,
+        19.45
+      ],
+      [
+        5,
+        17.98
+      ],
+      [
+        6,
+        16.65
+      ]
+    ],
+    "kitGrupo": "Enfeites com nome"
   },
   {
     "id": "N-06",
@@ -137,7 +160,30 @@
       2,
       3
     ],
-    "medidas": "9 cm de altura e 0,5 cm de espessura (cerca de 10 cm com a argola). Nomes de até 10 letras."
+    "medidas": "9 cm de altura e 0,5 cm de espessura (cerca de 10 cm com a argola). Nomes de até 10 letras.",
+    "kit": [
+      [
+        2,
+        24.95
+      ],
+      [
+        3,
+        21.3
+      ],
+      [
+        4,
+        19.45
+      ],
+      [
+        5,
+        17.98
+      ],
+      [
+        6,
+        16.65
+      ]
+    ],
+    "kitGrupo": "Enfeites com nome"
   },
   {
     "id": "N-07",
@@ -157,7 +203,30 @@
       2,
       3
     ],
-    "medidas": "9 cm de diâmetro e 0,5 cm de espessura (cerca de 10 cm de altura com a argola). Nomes de até 10 letras."
+    "medidas": "9 cm de diâmetro e 0,5 cm de espessura (cerca de 10 cm de altura com a argola). Nomes de até 10 letras.",
+    "kit": [
+      [
+        2,
+        28.95
+      ],
+      [
+        3,
+        25.3
+      ],
+      [
+        4,
+        22.45
+      ],
+      [
+        5,
+        20.98
+      ],
+      [
+        6,
+        19.15
+      ]
+    ],
+    "kitGrupo": "Enfeites com nome"
   },
   {
     "id": "N-08",
@@ -201,7 +270,30 @@
         "nome": "Amarelo",
         "hex": "#F4C51C"
       }
-    ]
+    ],
+    "kit": [
+      [
+        2,
+        27.95
+      ],
+      [
+        3,
+        23.3
+      ],
+      [
+        4,
+        21.45
+      ],
+      [
+        5,
+        19.98
+      ],
+      [
+        6,
+        18.3
+      ]
+    ],
+    "kitGrupo": "Enfeites com nome"
   },
   {
     "id": "N-09",
@@ -220,7 +312,30 @@
       2,
       3
     ],
-    "medidas": "9 cm de largura e 0,5 cm de espessura (cerca de 10 cm de altura com a argola). Nomes de até 10 letras."
+    "medidas": "9 cm de largura e 0,5 cm de espessura (cerca de 10 cm de altura com a argola). Nomes de até 10 letras.",
+    "kit": [
+      [
+        2,
+        21.45
+      ],
+      [
+        3,
+        18.3
+      ],
+      [
+        4,
+        16.7
+      ],
+      [
+        5,
+        15.58
+      ],
+      [
+        6,
+        14.15
+      ]
+    ],
+    "kitGrupo": "Enfeites com nome"
   },
   {
     "id": "N-10",
@@ -300,7 +415,30 @@
       2,
       3
     ],
-    "medidas": "9 cm de diâmetro e 0,5 cm de espessura (cerca de 10 cm de altura com a argola). Nomes de até 10 letras."
+    "medidas": "9 cm de diâmetro e 0,5 cm de espessura (cerca de 10 cm de altura com a argola). Nomes de até 10 letras.",
+    "kit": [
+      [
+        2,
+        24.95
+      ],
+      [
+        3,
+        21.3
+      ],
+      [
+        4,
+        19.45
+      ],
+      [
+        5,
+        17.98
+      ],
+      [
+        6,
+        16.65
+      ]
+    ],
+    "kitGrupo": "Enfeites com nome"
   },
   {
     "id": "N-14",
