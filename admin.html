@@ -245,6 +245,11 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .quadro{scrollbar-width:thin}
 .pbase{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
 .pacts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn.cob{border-color:#009EE3;color:#00609A}.btn.cob:hover{background:#E6F6FD}
+.cob-v{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border-radius:12px;background:var(--paper)}
+.cob-v span{color:var(--muted);font-size:13px;display:block}.cob-v b{font-size:26px;font-weight:800;font-variation-settings:"wdth" 110;font-variant-numeric:tabular-nums}
+.cob-v .btn{margin-left:auto}
+.cob-passos{margin:0;padding-left:20px;display:grid;gap:6px;font-size:14px;color:#2B3038}
 .pacts .btn{padding:9px 14px}
 .phd .stmini{margin-left:auto;width:auto;min-width:170px;padding:7px 34px 7px 12px;font-size:14px;font-weight:600;border-radius:999px;background-position:right 12px center}
 .pcard{gap:10px}
@@ -295,7 +300,7 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 #dPed{width:min(960px,calc(100vw - 24px))}
 #dPed .body{gap:16px;padding:20px 24px}
 dialog .body{overscroll-behavior:contain}
-@media (max-width:640px){#dPed{width:100%;max-width:100%}#dPed footer .btn{flex:1 1 auto}.ig{grid-template-columns:1fr 1fr}.totais{grid-template-columns:repeat(2,minmax(0,1fr))}.totais .tot{grid-column:1/-1}.pcard{padding:14px 16px}.phd .stmini{margin-left:0;width:100%}.pbase{display:grid;gap:12px}.pacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.pacts .btn{justify-content:center;padding:10px 8px}.ajustes{grid-template-columns:1fr}.tools{display:grid;grid-template-columns:1fr 1fr}.tools .in{grid-column:1/-1}.tools .viewsw{grid-column:1/-1;display:flex}.tools .viewsw button{flex:1}.tools .btn{justify-content:center}.tabs{overflow-x:auto;overflow-y:hidden}.tabs button{white-space:nowrap;flex:none}.ptabs{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;margin-left:-16px;margin-right:-16px;padding:0 16px}#dPed .body{padding:14px}.fr{grid-template-columns:1fr 90px auto}}
+@media (max-width:640px){#dPed{width:100%;max-width:100%}#dPed footer .btn{flex:1 1 auto}.ig{grid-template-columns:1fr 1fr}.totais{grid-template-columns:repeat(2,minmax(0,1fr))}.totais .tot{grid-column:1/-1}.pcard{padding:14px 16px}.phd .stmini{margin-left:0;width:100%}.pbase{display:grid;gap:12px}.pacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr))}.pacts .btn{justify-content:center;padding:10px 8px}.ajustes{grid-template-columns:1fr}.tools{display:grid;grid-template-columns:1fr 1fr}.tools .in{grid-column:1/-1}.tools .viewsw{grid-column:1/-1;display:flex}.tools .viewsw button{flex:1}.tools .btn{justify-content:center}.tabs{overflow-x:auto;overflow-y:hidden}.tabs button{white-space:nowrap;flex:none}.ptabs{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;margin-left:-16px;margin-right:-16px;padding:0 16px}#dPed .body{padding:14px}.fr{grid-template-columns:1fr 90px auto}}
 #confTxt{white-space:pre-line;line-height:1.55}
 #dColar,#dVersoes{width:min(620px,calc(100% - 24px))}
 #dPlan{width:min(720px,calc(100% - 24px))}
@@ -1728,8 +1733,10 @@ function renderPedidos(){
         <span class="m${t.saldo > 0 ? " strong" : ""}"><i>${t.saldo > 0 ? "Falta" : "Pagamento"}</i>${t.saldo > 0 ? brl(t.saldo) : t.total > 0 ? "quitado" : "-"}</span>
         ${c.cidade ? `<span class="m"><i>Onde</i>${esc(c.cidade)}</span>` : ""}
         ${p.responsavel ? `<span class="m"><i>Atende</i>${esc(p.responsavel)}</span>` : ""}
+        ${ultimaCob(p) ? `<span class="m"><i>Link enviado</i>${COB_NOME[ultimaCob(p).tipo]} ${brl(ultimaCob(p).valor)}, ${dataCurta(ultimaCob(p).quando.slice(0,10))}</span>` : ""}
       </div>
       </div><div class="pacts">
+        ${c.whatsapp && cobrancaDe(p) ? `<button class="btn cob" type="button" data-pcob="${esc(p.id)}">${COB_TXT[cobrancaDe(p).tipo]}</button>` : ""}
         ${c.whatsapp ? `<a class="btn" href="${esc(msgCliente(p))}" target="_blank" rel="noopener">Mensagem</a>` : ""}
         <button class="btn" type="button" data-pdup="${esc(p.id)}">Repetir</button>
         <button class="btn primary" type="button" data-ped="${esc(p.id)}">Abrir</button>
@@ -2068,16 +2075,17 @@ $("#pedLista").addEventListener("change", async e => {
 });
 $("#pedLista").addEventListener("click", e => {
   const b = e.target.closest("[data-ped]"); if(b) return abrirPedido(b.dataset.ped);
-  const d = e.target.closest("[data-pdup]"); if(d) abrirPedido(null, d.dataset.pdup);
+  const d = e.target.closest("[data-pdup]"); if(d) return abrirPedido(null, d.dataset.pdup);
+  const cb = e.target.closest("[data-pcob]"); if(cb) cobrar(cb.dataset.pcob);
 });
 
 function foneWa(t){ const d = String(t||"").replace(/\D/g,""); return d ? (d.length <= 11 ? "55" + d : d) : ""; }
 function msgCliente(p){
   const t = totais(p), nome = (p.cliente && p.cliente.nome || "").split(" ")[0] || "tudo bem";
   const itens = resumoItens(p), prazo = p.prazo ? dataBR(p.prazo) : "a combinar";
-  const sinal = brl(Math.ceil(t.total / 2));
+  const pct = Number((site.pagamento || {}).sinal ?? 50), sinal = brl(cent(t.total * pct / 100));
   const M = {
-    novo: `Olá, ${nome}! Aqui é da StudioPrint. Anotamos o seu pedido ${p.id}: ${itens}. Total: ${brl(t.total)}. Para começar a produção, o sinal é de ${sinal} (50%). Previsão: ${prazo}.`,
+    novo: `Olá, ${nome}! Aqui é da StudioPrint. Anotamos o seu pedido ${p.id}: ${itens}. Total: ${brl(t.total)}. ${pct > 0 && pct < 100 ? `Para começar a produção, o sinal é de ${sinal} (${pct}%).` : pct >= 100 ? "O pagamento é feito antes de começar a produção." : ""} Previsão: ${prazo}.`,
     fila: `Olá, ${nome}! Recebemos o sinal do pedido ${p.id}. Ele já está na fila de produção, com previsão para ${prazo}.`,
     imprimindo: `Olá, ${nome}! O seu pedido ${p.id} já está em produção. Previsão: ${prazo}.`,
     pronto: `Olá, ${nome}! O seu pedido ${p.id} está pronto.${t.saldo > 0 ? " Falta pagar " + brl(t.saldo) + "." : ""} Vamos combinar a entrega?`,
@@ -2086,6 +2094,65 @@ function msgCliente(p){
     cancelado: `Olá, ${nome}! Sobre o pedido ${p.id}:`
   };
   return `https://wa.me/${foneWa(p.cliente.whatsapp)}?text=${encodeURIComponent(M[p.status] || M.novo)}`;
+}
+
+
+/* ---------- cobrança com link do Mercado Pago ---------- */
+const COB_TXT = {sinal:"Cobrar sinal", total:"Cobrar o total", restante:"Cobrar o restante"};
+const COB_NOME = {sinal:"sinal", total:"total", restante:"restante"};
+const ultimaCob = p => (p.cobrancas || []).slice(-1)[0] || null;
+function cobrancaDe(p){
+  if(!p || p.status === "cancelado") return null;
+  const t = totais(p); if(!(t.saldo > 0)) return null;
+  const pct = Number((site.pagamento || {}).sinal ?? 50);
+  if(t.pago <= 0 && p.status === "novo"){
+    if(pct >= 100) return {tipo:"total", valor:t.total, pct};
+    if(pct > 0) return {tipo:"sinal", valor:cent(t.total * pct / 100), pct};
+  }
+  return {tipo:"restante", valor:t.saldo, pct};
+}
+function textoCobranca(p, cb, link){
+  const nome = ((p.cliente && p.cliente.nome) || "").split(" ")[0] || "tudo bem", t = totais(p);
+  const pagar = `Pague por este link, com Pix ou cartão:\n${link}`;
+  if(cb.tipo === "sinal") return `Olá, ${nome}! Aqui é da StudioPrint. Seu pedido ${p.id} está anotado: ${resumoItens(p)}. Total: ${brl(t.total)}.\nPara começar a produção, o sinal é de ${brl(cb.valor)} (${cb.pct}%). ${pagar}\nAssim que o pagamento cair, avisamos por aqui.`;
+  if(cb.tipo === "total") return `Olá, ${nome}! Aqui é da StudioPrint. Seu pedido ${p.id} está anotado: ${resumoItens(p)}.\nPara começar a produção, o valor é de ${brl(cb.valor)}. ${pagar}\nAssim que o pagamento cair, avisamos por aqui.`;
+  return `Olá, ${nome}! ${p.status === "pronto" ? `Seu pedido ${p.id} está pronto!` : `Sobre o seu pedido ${p.id}:`} Falta pagar ${brl(cb.valor)}. ${pagar}\nObrigado pela compra!`;
+}
+async function copiarTexto(t){
+  try{ await navigator.clipboard.writeText(t); return true; }
+  catch(e){ const a = document.createElement("textarea"); a.value = t; a.style.position = "fixed"; a.style.opacity = "0"; document.body.appendChild(a); a.select(); let ok = false; try{ ok = document.execCommand("copy"); }catch(_){} a.remove(); return ok; }
+}
+async function cobrar(id){
+  const p = pedidos.find(x => x.id === id); if(!p) return;
+  const cb = cobrancaDe(p); if(!cb){ aviso("Esse pedido já está pago.", true); return; }
+  if(!(p.cliente && p.cliente.whatsapp)){ aviso("Cadastre o WhatsApp do cliente no pedido para mandar a cobrança.", true); return; }
+  const ant = (p.cobrancas || []).filter(x => x.tipo === cb.tipo && Math.abs(x.valor - cb.valor) < 0.01).slice(-1)[0];
+  const valorTxt = cb.valor.toFixed(2).replace(".", ",");
+  const nome = (p.cliente.nome || "").split(" ")[0] || "o cliente";
+  const pr = formulario(`${COB_TXT[cb.tipo]}: ${p.id}`, `
+    <div class="cob-v"><div><span>Valor a cobrar de ${esc(p.cliente.nome || "")}</span><b>${brl(cb.valor)}</b></div><button class="btn" type="button" id="cobCopiar">Copiar valor</button></div>
+    <ol class="cob-passos">
+      <li>No app do Mercado Pago, toque em <b>Cobrar</b> e em <b>Link de pagamento</b>.</li>
+      <li>Cole o valor (${esc(valorTxt)}) e, na descrição, escreva <b>Pedido ${esc(p.id)}</b>.</li>
+      <li>Copie o link criado e cole aqui embaixo.</li>
+    </ol>
+    <div><label class="f" for="cobLink">Link de pagamento</label><input class="in" id="cobLink" inputmode="url" placeholder="https://mpago.la/..." value="${esc(ant ? ant.link : "")}"></div>
+    <p class="hint">${ant ? `Você já mandou um link deste valor em ${dataBR(ant.quando.slice(0,10))}. Ele está preenchido acima, para mandar de novo.` : `O WhatsApp abre com a mensagem pronta para ${esc(nome)}. Quando o pagamento cair, marque no pedido.`}</p>`, "Abrir WhatsApp", () => {
+      const l = $("#cobLink").value.trim();
+      if(!l) return "Cole o link de pagamento que o Mercado Pago criou.";
+      if(!/^https?:\/\/\S+$/i.test(l)) return "Isso não parece um link. Ele começa com https://";
+      return {link: l};
+    });
+  $("#cobCopiar").onclick = async () => { const ok = await copiarTexto(valorTxt); $("#cobCopiar").textContent = ok ? "Copiado!" : "Copie: " + valorTxt; };
+  const r = await pr; if(!r) return; const link = r.link;
+  window.open(`https://wa.me/${foneWa(p.cliente.whatsapp)}?text=${encodeURIComponent(textoCobranca(p, cb, link))}`, "_blank", "noopener");
+  if(ant && ant.link === link) return;
+  const novo = JSON.parse(JSON.stringify(p));
+  novo.cobrancas = [...(novo.cobrancas || []), {tipo:cb.tipo, valor:cb.valor, link, quando:new Date().toISOString()}];
+  if(await gravarPedidos(upsert(novo), `Pedido ${p.id}: link de pagamento (${COB_NOME[cb.tipo]})`)){
+    if(edPed && edPed.id === p.id) edPed.cobrancas = novo.cobrancas;
+    aviso(`Cobrança do ${COB_NOME[cb.tipo]} registrada no pedido ${p.id}.`);
+  }
 }
 
 /* ---------- editor de pedido (preenchimento rápido) ---------- */
@@ -2762,10 +2829,12 @@ function desenharResumo(){
     bloco(2, "Itens", `<ul>${it.map(i => `<li>${esc(linhaItem(i))} <span>${brl((Number(i.qtd)||0) * (Number(i.preco)||0))}</span></li>`).join("")}</ul>` +
       (doEst.length ? `<p class="hint" style="margin:6px 0 0">Sai da pronta entrega ao salvar: ${doEst.map(r => `${r.qtd}x ${esc(r.id)}`).join(", ")}.</p>` : "")) +
     bloco(3, "Entrega", `<p>${ENTREGA[ent.tipo] || "A combinar"}${ent.local ? " | " + esc(ent.local) : ""} | ${brl(t.frete)}</p>`) +
-    bloco(4, "Pagamento", `<p>${esc($("#pdForma").value)} | pago ${brl(t.pago)} | ${t.saldo > 0 ? "falta " + brl(t.saldo) : "quitado"}</p>`) +
+    bloco(4, "Pagamento", `<p>${esc($("#pdForma").value)} | pago ${brl(t.pago)} | ${t.saldo > 0 ? "falta " + brl(t.saldo) : "quitado"}</p>` +
+      (() => { const salvo = !ehNovo && pedidos.find(x => x.id === edPed.id); const cb = salvo && cobrancaDe(salvo); return cb && salvo.cliente && salvo.cliente.whatsapp ? `<div style="margin-top:8px"><button class="btn cob" type="button" data-rcob="${esc(salvo.id)}">${COB_TXT[cb.tipo]} (${brl(cb.valor)})</button></div>` : ""; })()) +
     `<div class="rb"><div class="rt"><b>Para onde vai o dinheiro</b></div>${blocoDinheiro(it, $("#pdForma").value, t.frete)}</div>`;
 }
-$("#pdResumo").addEventListener("click", e => { const b = e.target.closest("[data-ir]"); if(b) mostrarPasso(+b.dataset.ir); });
+$("#pdResumo").addEventListener("click", e => { const b = e.target.closest("[data-ir]"); if(b) return mostrarPasso(+b.dataset.ir);
+  const c = e.target.closest("[data-rcob]"); if(c) cobrar(c.dataset.rcob); });
 /* cliente que já comprou */
 function preencherCliente(c, porQue){
   let mudou = false;
