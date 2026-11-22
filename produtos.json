@@ -27,32 +27,36 @@
     "id": "N-02",
     "nome": "Grinch sentado (Natal)",
     "categoria": "Natal",
-    "preco": 69,
+    "preco": 29.9,
     "status": "encomenda",
     "personalizado": false,
     "lancamento": false,
     "descricao": "Grinch de gorro e cachecol, sentado com as pernas para fora. Feito para a beira da estante, da lareira ou da mesa.",
-    "fotos": [
-      "40",
-      "34"
-    ],
-    "cores": [],
     "prazo": [
       2,
       3
     ],
-    "medidas": "Cerca de 7 cm de altura."
+    "medidas": "Cerca de 7 cm de altura.",
+    "fotos": [
+      "40",
+      "34"
+    ],
+    "cores": []
   },
   {
     "id": "N-03",
     "nome": "Rena geométrica",
     "categoria": "Natal",
-    "preco": 49,
-    "unidade": "cada",
+    "preco": 89.9,
+    "unidade": "kit",
     "status": "encomenda",
     "personalizado": false,
     "lancamento": false,
     "descricao": "Rena em estilo geométrico, de facetas retas. Monte a coleção em várias cores ou use na lareira para segurar a meia de Natal.",
+    "prazo": [
+      2,
+      3
+    ],
     "fotos": [
       "33",
       "38"
@@ -74,10 +78,6 @@
         "nome": "Dourado",
         "hex": "#D4A62A"
       }
-    ],
-    "prazo": [
-      2,
-      3
     ]
   },
   {
