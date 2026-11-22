@@ -288,6 +288,14 @@ dialog .body{overscroll-behavior:contain}
 .resumo p{margin:0;color:#2B3038}
 .resumo ul{margin:0;padding-left:18px;color:#2B3038;display:grid;gap:2px}
 .resumo li span{color:var(--muted);margin-left:6px}
+.dv-barra{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px;margin:6px 0 8px}
+.dv{list-style:none;padding:0!important;margin:0;display:grid;gap:3px!important}
+.dv li{display:flex;align-items:center;gap:8px}
+.dv li span{margin-left:auto!important;color:#2B3038!important;font-variant-numeric:tabular-nums}
+.dv li > i{width:10px;height:10px;border-radius:3px;flex:none}
+.dv li.dv-tot{border-top:1px solid var(--line);padding-top:4px;margin-top:2px;font-weight:700}
+.dv li.dv-tot.neg, .dv li.dv-tot.neg span{color:#B42318!important}
+.dv-filamento{background:#3B6FC4}.dv-luz{background:#E8B400}.dv-desgaste{background:#8A6D5B}.dv-embalagem{background:#9AA3AF}.dv-maoObra{background:#7C4DCC}.dv-outros{background:#C7CCD3}.dv-taxa{background:#E26D5A}.dv-lucro{background:#1F9D55}
 .ravisos{border:1px solid #E8A39C;background:#FFF5F4;border-radius:10px;padding:10px 12px;display:grid;gap:4px}
 .ravisos p{margin:0;color:var(--danger);font-weight:600;font-size:14px}
 .viewsw{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
@@ -1386,6 +1394,7 @@ function diasProducao(itens){
   (itens || []).forEach(i => { const p = produtos.find(x => x.id === i.produto); mx = Math.max(mx, prazoProduto(p || {})[1]); });
   return mx || 3;
 }
+const cent = v => Math.round(v * 100) / 100;
 const dataBR = iso => iso ? iso.slice(8,10) + "/" + iso.slice(5,7) + "/" + iso.slice(0,4) : "";
 const dataCurta = iso => iso ? iso.slice(8,10) + "/" + iso.slice(5,7) : "";
 const num = v => { const n = precoDe(v); return isNaN(n) ? 0 : n; };
@@ -1486,28 +1495,38 @@ async function importarCustos(arq){
   try{
     const abas = await lerXlsx(await arq.arrayBuffer());
     const aba = abas.find(w => semAcento(w.nome).startsWith("precifica")) || abas[0];
-    let cab = null, cols = {}, taxa = null;
+    let cab = null, cols = {}, taxa = null; const par = {};
     const num = v => typeof v === "number" ? v : (v != null && v !== "" && isFinite(Number(String(v).replace(",", "."))) ? Number(String(v).replace(",", ".")) : null);
-    const itens = {}, lidos = [];
+    const itens = {}, lidos = []; let nPartes = 0;
     [...aba.linhas.keys()].sort((a, b) => a - b).forEach(n => {
       const r = aba.linhas.get(n), cel = k => r.get(k), a = semAcento(cel(1));
       if(a.startsWith("taxas")) taxa = num(cel(3));
+      if(!cab) [["filamento","kg"],["energia","kwh"],["consumo","kw"],["desgaste","desg"],["sua mao de obra","mao"],["perda com falhas","perda"]].forEach(([t, k]) => { if(a.startsWith(t) && num(cel(3)) !== null) par[k] = num(cel(3)); });
       if(!cab && a === "codigo"){
-        cab = n; r.forEach((v, k) => { const h = semAcento(v); if(h.startsWith("custo total")) cols.total = k; if(h.startsWith("material")) cols.mat = k; if(h.startsWith("embalagem")) cols.emb = k; });
+        cab = n; r.forEach((v, k) => { const h = semAcento(v); if(h.startsWith("custo total")) cols.total = k; if(h.startsWith("material")) cols.mat = k; if(h.startsWith("embalagem")) cols.emb = k;
+          if(h.startsWith("peso")) cols.peso = k; if(h.startsWith("impressao")) cols.imp = k; if(h.startsWith("montagem")) cols.mont = k; if(h.startsWith("perda na troca")) cols.troca = k; });
         return;
       }
       if(cab && n > cab){
         const id = String(cel(1) ?? "").trim().toUpperCase(); if(!id) return;
         const total = num(cel(cols.total)), mat = num(cel(cols.mat)), emb = num(cel(cols.emb)) || 0;
         if(total === null || mat === null) return;
-        itens[id] = {total: Math.round(total * 100) / 100, material: Math.round((mat + emb) * 100) / 100}; lidos.push(id);
+        itens[id] = {total: cent(total), material: cent(mat + emb)}; lidos.push(id);
+        const temPar = ["kg","kwh","kw","desg","mao","perda"].every(k => par[k] !== undefined) && cols.peso && cols.imp && cols.mont;
+        if(temPar){
+          const peso = num(cel(cols.peso)) || 0, imp = num(cel(cols.imp)) || 0, mont = num(cel(cols.mont)) || 0, troca = num(cel(cols.troca)) || 0, f = 1 + par.perda;
+          const pt = {filamento: cent(peso * (1 + troca) / 1000 * par.kg * f), luz: cent(imp * par.kw * par.kwh * f), desgaste: cent(imp * par.desg * f), embalagem: cent(emb), maoObra: cent(mont * par.mao)};
+          const resto = cent(total - Object.values(pt).reduce((s, v) => s + v, 0));
+          if(Math.abs(resto) > 0.02) pt.outros = resto;
+          itens[id].partes = pt; nPartes++;
+        }
       }
     });
     if(!cab || !cols.total || !cols.mat) throw new Error('Não achei as colunas "Código", "Custo total" e "Material" na planilha. Use a planilha Precificação StudioPrint.xlsx.');
     if(!lidos.length) throw new Error("A planilha não tem custos calculados. Abra no Excel, salve e tente de novo.");
     const noSite = new Set(produtos.map(p => p.id)), fora = lidos.filter(id => !noSite.has(id)), sem = produtos.filter(p => !itens[p.id]).map(p => p.id);
     const novo = {itens, taxaCartao: taxa !== null ? taxa : (custos.taxaCartao ?? 0.05), atualizado: hojeISO()};
-    const det = `${lidos.length} produtos com custo. Taxa de cartão: ${Math.round(novo.taxaCartao * 1000) / 10}%.` + (sem.length ? `\nNo catálogo sem custo na planilha: ${sem.join(", ")}.` : "") + (fora.length ? `\nNa planilha mas não no catálogo: ${fora.join(", ")}.` : "") + "\nOs custos ficam só no repositório privado: os clientes não veem.";
+    const det = `${lidos.length} produtos com custo${nPartes ? ", separado em filamento, luz, desgaste da impressora, embalagem e mão de obra" : ""}. Taxa de cartão: ${Math.round(novo.taxaCartao * 1000) / 10}%.` + (sem.length ? `\nNo catálogo sem custo na planilha: ${sem.join(", ")}.` : "") + (fora.length ? `\nNa planilha mas não no catálogo: ${fora.join(", ")}.` : "") + "\nOs custos ficam só no repositório privado: os clientes não veem.";
     if(!(await confirmar("Atualizar os custos dos produtos?", det, "Atualizar custos"))) return;
     if(await gravarCustos(novo)) aviso("Custos atualizados.");
   }catch(e){ aviso(e.message || String(e), true); }
@@ -1921,7 +1940,6 @@ function dataEntrega(p){
   return p.prazo || p.criado || hojeISO();
 }
 const diaExcel = iso => new Date(Date.UTC(+iso.slice(0,4), +iso.slice(5,7) - 1, +iso.slice(8,10)));
-const cent = v => Math.round(v * 100) / 100;
 const MESES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
 const nomeMes = ym => MESES[+ym.slice(5,7) - 1] + "/" + ym.slice(0,4);
 function anosRelatorio(){
@@ -1940,7 +1958,7 @@ async function gerarRelatorio(){
     await carregarExcel();
     const taxa = Number(custos.taxaCartao) || 0, cartao = f => /cart/i.test(f || "");
     const wb = new ExcelJS.Workbook(); wb.creator = "Painel StudioPrint"; wb.calcProperties.fullCalcOnLoad = true;
-    ["Resumo por mês","Mais vendidos","Vendas","Pedidos","Limite do MEI"].forEach(n => wb.addWorksheet(n, {views:[{state:"frozen", ySplit:1}]}));
+    ["Resumo por mês","Quanto separar","Mais vendidos","Vendas","Pedidos","Limite do MEI"].forEach(n => wb.addWorksheet(n, {views:[{state:"frozen", ySplit:1}]}));
     const R$ = '"R$" #,##0.00', PCT = '0.0%';
     const estilo = (ws, n) => { const r = ws.getRow(n); r.font = {bold:true, color:{argb:"FFFFFFFF"}}; r.alignment = {vertical:"middle", wrapText:true}; r.height = 30; r.eachCell(c => c.fill = {type:"pattern", pattern:"solid", fgColor:{argb:"FF15181E"}}); };
     /* linhas de itens */
@@ -1951,24 +1969,25 @@ async function gerarRelatorio(){
         const qtd = Number(i.qtd) || 0, valor = qtd * (Number(i.preco) || 0);
         const cu = i.custo != null ? {total:i.custo, material:i.custoMaterial ?? i.custo} : custoDe(i.produto);
         if(!cu) semCusto.add(i.produto === "__outro" ? i.nome : i.produto);
-        const tx = cartao(forma) ? cent(valor * taxa) : 0;
+        const tx = cartao(forma) ? cent(valor * taxa) : 0, pt = partesDoItem(i);
         itens.push({d, mes:d.slice(0,7), ped:p.id, cli:(p.cliente && p.cliente.nome) || "", cid:(p.cliente && p.cliente.cidade) || "",
           cod:i.produto === "__outro" ? "" : i.produto, nome:i.nome, cor:i.cor || "", grav:i.nome_gravado || "", qtd, unit:Number(i.preco) || 0, valor,
-          cUnit: cu ? cu.total : null, mUnit: cu ? cu.material : null, tx, forma});
+          cUnit: cu ? cu.total : null, mUnit: cu ? cu.material : null, tx, forma, pt});
       });
     });
     /* aba Vendas (itens) */
     const wv = wb.getWorksheet("Vendas");
-    wv.columns = [["Data",12],["Mês",9],["Pedido",11],["Cliente",22],["Cidade",18],["Código",9],["Produto",32],["Cor",14],["Nome personalizado",16],["Qtd",6],["Preço unit.",12],["Valor",12],["Custo unit.",12],["Custo",12],["Taxa do cartão",12],["Lucro",12],["Sobra antes da mão de obra",14],["Forma de pagamento",16]].map(([h,w]) => ({header:h, width:w}));
+    wv.columns = [["Data",12],["Mês",9],["Pedido",11],["Cliente",22],["Cidade",18],["Código",9],["Produto",32],["Cor",14],["Nome personalizado",16],["Qtd",6],["Preço unit.",12],["Valor",12],["Custo unit.",12],["Custo",12],["Taxa do cartão",12],["Lucro",12],["Sobra antes da mão de obra",14],["Forma de pagamento",16],["Filamento",11],["Conta de luz",11],["Desgaste da impressora",12],["Embalagem",11],["Mão de obra",11],["Outros custos",11]].map(([h,w]) => ({header:h, width:w}));
     estilo(wv, 1);
     itens.forEach((x, k) => {
       const r = k + 2;
       wv.addRow([diaExcel(x.d), x.mes, x.ped, x.cli, x.cid, x.cod, x.nome, x.cor, x.grav, x.qtd, x.unit,
         {formula:`J${r}*K${r}`, result:x.valor}, x.cUnit, x.cUnit != null ? {formula:`J${r}*M${r}`, result:x.qtd * x.cUnit} : null, x.tx,
         x.cUnit != null ? {formula:`L${r}-N${r}-O${r}`, result:x.valor - x.qtd * x.cUnit - x.tx} : null,
-        x.mUnit != null ? cent(x.valor - x.qtd * x.mUnit - x.tx) : null, x.forma]);
+        x.mUnit != null ? cent(x.valor - x.qtd * x.mUnit - x.tx) : null, x.forma,
+        ...PARTES.map(([k]) => x.pt ? cent(x.qtd * (x.pt[k] || 0)) : null)]);
     });
-    wv.getColumn(1).numFmt = "dd/mm/yyyy"; [11,12,13,14,15,16,17].forEach(c => wv.getColumn(c).numFmt = R$);
+    wv.getColumn(1).numFmt = "dd/mm/yyyy"; [11,12,13,14,15,16,17,19,20,21,22,23,24].forEach(c => wv.getColumn(c).numFmt = R$);
     /* aba Pedidos */
     const wp = wb.getWorksheet("Pedidos");
     wp.columns = [["Data",12],["Mês",9],["Pedido",11],["Cliente",22],["Cidade",18],["Itens",44],["Produtos",12],["Frete",11],["Total",12],["Forma de pagamento",16],["Entrega",16]].map(([h,w]) => ({header:h, width:w}));
@@ -2002,6 +2021,31 @@ async function gerarRelatorio(){
       "O frete não entra no lucro: ele paga a entrega. Os custos vêm da planilha de precificação, importada em Ajustes > Custos dos produtos.",
       "Relatório gerado em " + dataBR(hojeISO()) + " com os pedidos de situação Entregue" + (escolha === "todos" ? "." : " em " + escolha + ".") ].forEach(t => { const r = ws.addRow([t]); r.font = {italic:true, color:{argb:"FF5B6270"}}; });
     if(semCusto.size){ const r = ws.addRow(["Atenção: sem custo cadastrado (lucro não calculado): " + [...semCusto].join(", ") + "."]); r.font = {bold:true, color:{argb:"FFB42318"}}; }
+    /* aba Quanto separar */
+    const wq = wb.getWorksheet("Quanto separar");
+    wq.columns = [["Mês",12],["Vendas em produtos",14],["Filamento",12],["Conta de luz",12],["Desgaste da impressora",13],["Embalagem",12],["Sua mão de obra",13],["Outros custos",12],["Taxas de cartão",12],["Lucro",12]].map(([h,w]) => ({header:h, width:w}));
+    estilo(wq, 1);
+    const colV = {filamento:"S", luz:"T", desgaste:"U", embalagem:"V", maoObra:"W", outros:"X"};
+    meses.forEach((m, k) => {
+      const r = k + 2, it = itens.filter(x => x.mes === m), sp = key => cent(it.reduce((s, x) => s + (x.pt ? x.qtd * (x.pt[key] || 0) : 0), 0));
+      const vend = it.reduce((s,x) => s + x.valor, 0), tx = it.reduce((s,x) => s + x.tx, 0), cus = PARTES.reduce((s, [key]) => s + sp(key), 0);
+      wq.addRow([nomeMes(m), {formula:`SUMIF(Vendas!B:B,"${m}",Vendas!L:L)`, result:vend},
+        ...PARTES.map(([key]) => ({formula:`SUMIF(Vendas!B:B,"${m}",Vendas!${colV[key]}:${colV[key]})`, result:sp(key)})),
+        {formula:`SUMIF(Vendas!B:B,"${m}",Vendas!O:O)`, result:tx}, {formula:`B${r}-SUM(C${r}:I${r})`, result:cent(vend - cus - tx)}]);
+    });
+    const qt = meses.length + 2;
+    wq.addRow(["Total", ...["B","C","D","E","F","G","H","I","J"].map(c => ({formula:`SUM(${c}2:${c}${qt - 1})`}))]);
+    wq.getRow(qt).font = {bold:true}; wq.getRow(qt).eachCell(c => c.border = {top:{style:"thin"}});
+    for(let c = 2; c <= 10; c++) wq.getColumn(c).numFmt = R$;
+    wq.addRow([]);
+    [ "Como usar: a cada mês, separe o dinheiro de cada coluna numa \"caixinha\" (conta ou envelope) antes de gastar o lucro.",
+      "Filamento: guarde para comprar os próximos rolos. Já inclui a perda com falhas e com a troca de cor.",
+      "Conta de luz: a parte da conta que a impressora gastou nessas peças.",
+      "Desgaste da impressora: guarde para bico, mesa, correias e outras peças de reposição.",
+      "Embalagem: para repor caixas, sacos e etiquetas.",
+      "Sua mão de obra: o pagamento das horas de montagem e acabamento, pelo valor por hora da planilha de precificação.",
+      "Taxas de cartão: já ficam com a maquininha, não precisa separar. Lucro: o que sobra depois de tudo.",
+      "Os valores vêm da planilha de precificação (importada em Ajustes > Custos dos produtos). Itens sem custo cadastrado entram inteiros no lucro." ].forEach(t => { const r = wq.addRow([t]); r.font = {italic:true, color:{argb:"FF5B6270"}}; });
     /* aba Mais vendidos */
     const wm = wb.getWorksheet("Mais vendidos");
     wm.columns = [["Código",9],["Produto",36],["Peças",9],["Vendas",13],["Lucro",13],["Pedidos",9]].map(([h,w]) => ({header:h, width:w}));
@@ -2236,6 +2280,38 @@ $("#pdPassos").addEventListener("click", e => { const b = e.target.closest("[dat
 $("#pdProx").addEventListener("click", () => irPasso(passo + 1));
 $("#pdVoltar").addEventListener("click", () => mostrarPasso(passo - 1));
 $("#pdSalvar").addEventListener("click", () => salvarPedido());
+const PARTES = [["filamento","Filamento"],["luz","Conta de luz"],["desgaste","Desgaste da impressora"],["embalagem","Embalagem"],["maoObra","Sua mão de obra"],["outros","Outros custos"]];
+function partesDoItem(i){
+  if(i.custoPartes) return i.custoPartes;
+  const cu = i.produto && i.produto !== "__outro" ? custoDe(i.produto) : null;
+  if(i.custo != null){
+    if(!(cu && cu.partes && cu.total)) return {outros: i.custo};
+    const k = i.custo / cu.total; return Object.fromEntries(Object.entries(cu.partes).map(([n, v]) => [n, v * k]));
+  }
+  return cu ? (cu.partes || {outros: cu.total}) : null;
+}
+function divisao(itens, forma){
+  const d = {vendas:0, taxa:0, partes:{}, semCusto:[]}, cartao = /cart/i.test(forma || ""), tx = Number(custos.taxaCartao) || 0;
+  itens.forEach(i => {
+    const q = Number(i.qtd) || 0, v = q * (Number(i.preco) || 0); d.vendas += v; if(cartao) d.taxa += v * tx;
+    const pt = partesDoItem(i);
+    if(!pt){ if(v > 0) d.semCusto.push(i.nome || "item"); return; }
+    Object.entries(pt).forEach(([k, x]) => d.partes[k] = (d.partes[k] || 0) + q * x);
+  });
+  d.taxa = cent(d.taxa); d.custo = cent(Object.values(d.partes).reduce((s, x) => s + x, 0)); d.lucro = cent(d.vendas - d.custo - d.taxa);
+  return d;
+}
+function blocoDinheiro(itens, forma, frete){
+  if(!Object.keys(custos.itens || {}).length) return `<p class="hint" style="margin:0">Importe a planilha de precificação em Ajustes > Custos dos produtos para ver a divisão.</p>`;
+  const d = divisao(itens, forma);
+  if(!d.vendas) return `<p class="hint" style="margin:0">Adicione itens com preço para ver a divisão.</p>`;
+  const linhas = PARTES.filter(([k]) => d.partes[k]).map(([k, t]) => [t, d.partes[k], k]);
+  if(d.taxa) linhas.push(["Taxa do cartão", d.taxa, "taxa"]);
+  linhas.push([d.lucro < 0 ? "Prejuízo" : "Lucro", d.lucro, "lucro"]);
+  const barra = linhas.filter(l => l[1] > 0).map(([t, v, k]) => `<i class="dv-${k}" style="flex:${v}" title="${esc(t)}"></i>`).join("");
+  return `<div class="dv-barra" aria-hidden="true">${barra}</div><ul class="dv">${linhas.map(([t, v, k]) => `<li class="${k === "lucro" ? "dv-tot" + (v < 0 ? " neg" : "") : ""}"><i class="dv-${k}"></i>${t}<span>${brl(v)}</span></li>`).join("")}</ul>`
+    + `<p class="hint" style="margin:6px 0 0">De ${brl(d.vendas)} em produtos.${frete ? ` O frete (${brl(frete)}) fica fora: ele paga a entrega.` : ""}${d.semCusto.length ? ` Sem custo cadastrado: ${esc(d.semCusto.join(", "))}.` : ""}</p>`;
+}
 function desenharResumo(){
   const nome = $("#pdNome").value.trim(), fone = $("#pdFone").value.replace(/\D/g,""), cid = $("#pdCidade").value.trim();
   const it = edPed.itens.filter(i => (i.nome||"").trim());
@@ -2253,7 +2329,8 @@ function desenharResumo(){
     bloco(2, "Itens", `<ul>${it.map(i => `<li>${esc(linhaItem(i))} <span>${brl((Number(i.qtd)||0) * (Number(i.preco)||0))}</span></li>`).join("")}</ul>` +
       (doEst.length ? `<p class="hint" style="margin:6px 0 0">Sai da pronta entrega ao salvar: ${doEst.map(r => `${r.qtd}x ${esc(r.id)}`).join(", ")}.</p>` : "")) +
     bloco(3, "Entrega", `<p>${ENTREGA[ent.tipo] || "A combinar"}${ent.local ? " | " + esc(ent.local) : ""} | ${brl(t.frete)}</p>`) +
-    bloco(4, "Pagamento", `<p>${esc($("#pdForma").value)} | pago ${brl(t.pago)} | ${t.saldo > 0 ? "falta " + brl(t.saldo) : "quitado"}</p>`);
+    bloco(4, "Pagamento", `<p>${esc($("#pdForma").value)} | pago ${brl(t.pago)} | ${t.saldo > 0 ? "falta " + brl(t.saldo) : "quitado"}</p>`) +
+    `<div class="rb"><div class="rt"><b>Para onde vai o dinheiro</b></div>${blocoDinheiro(it, $("#pdForma").value, t.frete)}</div>`;
 }
 $("#pdResumo").addEventListener("click", e => { const b = e.target.closest("[data-ir]"); if(b) mostrarPasso(+b.dataset.ir); });
 /* cliente que já comprou */
@@ -2455,7 +2532,7 @@ async function salvarPedido(){
     if(!(await confirmar(`Salvar as alterações no pedido ${edPed.id}?`, difs.join("\n"), "Salvar alterações"))) return;
   }
   if(novo && !edPed.historico.length) edPed.historico = [{quando:new Date().toISOString(), status:edPed.status}];
-  if(novo) edPed.itens.forEach(i => { const cu = custoDe(i.produto); if(cu){ i.custo = cu.total; i.custoMaterial = cu.material; } });
+  if(novo) edPed.itens.forEach(i => { const cu = custoDe(i.produto); if(cu){ i.custo = cu.total; i.custoMaterial = cu.material; if(cu.partes) i.custoPartes = cu.partes; } });
   if(novo && edPed.status !== "cancelado"){
     const res = reservaDoPedido(edPed);
     if(res.length){ edPed.estoqueReservado = res; estoqueAposSalvar.push({mov: res.map(r => ({id:r.id, qtd:-r.qtd})), motivo:`pedido ${edPed.id}`}); }
