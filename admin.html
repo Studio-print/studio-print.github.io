@@ -181,11 +181,16 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .pmeta .m i{font-style:normal;font-size:12px;font-weight:500;color:var(--muted)}
 .pmeta .m.bad{border-color:#E8A39C;color:var(--danger)}
 .pmeta .m.strong{border-color:var(--ink)}
+#pedCsv{display:none}
+.tabs,.ptabs,.passos{scrollbar-width:none}
+.tabs::-webkit-scrollbar,.ptabs::-webkit-scrollbar,.passos::-webkit-scrollbar{display:none}
+.quadro{scrollbar-width:thin}
 .pbase{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
 .pacts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .pacts .btn{padding:9px 14px}
 .phd .stmini{margin-left:auto;width:auto;min-width:170px;padding:7px 34px 7px 12px;font-size:14px;font-weight:600;border-radius:999px;background-position:right 12px center}
 .pcard{gap:10px}
+.pgformas{display:flex;flex-wrap:wrap;gap:6px 18px;margin-bottom:12px}
 .ajustes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .aj{display:grid;gap:10px;align-content:start}
 .aj h3{margin:0;font-size:17px}
@@ -203,7 +208,8 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 .chips .chip.sel span{color:#C9CED8}
 .chips.mini{margin-top:6px}.chips.mini .chip{padding:4px 10px;font-size:13px}
 .buscap{display:flex;gap:8px}
-.catalogo{display:grid;grid-auto-flow:column;grid-auto-columns:118px;gap:10px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity}
+.catalogo{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.catalogo .mais{grid-column:1/-1;margin:0}
 .pick{display:grid;gap:4px;text-align:left;border:1px solid var(--line);background:#fff;border-radius:12px;padding:6px;cursor:pointer;scroll-snap-align:start;transition:transform .15s}
 .pick:hover{border-color:var(--ink)}
 .pick.ok{transform:scale(.94);border-color:var(--wa)}
@@ -229,7 +235,7 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 #dPed{width:min(960px,calc(100vw - 24px))}
 #dPed .body{gap:16px;padding:20px 24px}
 dialog .body{overscroll-behavior:contain}
-@media (max-width:640px){#dPed{width:100%;max-width:100%}#dPed footer .btn{flex:1 1 auto}.ig{grid-template-columns:1fr 1fr}.totais{grid-template-columns:repeat(2,minmax(0,1fr))}.totais .tot{grid-column:1/-1}.pcard{padding:14px 16px}.phd .stmini{margin-left:0;width:100%}.pbase{display:grid;gap:12px}.pacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.pacts .btn{justify-content:center;padding:10px 8px}.ajustes{grid-template-columns:1fr}.tools{display:grid;grid-template-columns:1fr 1fr}.tools .in{grid-column:1/-1}.tools .viewsw{grid-column:1/-1;display:flex}.tools .viewsw button{flex:1}.tools .btn{justify-content:center}#pedCsv{display:none}.tabs{overflow-x:auto;scrollbar-width:none}.tabs button{white-space:nowrap;flex:none}#dPed .body{padding:14px}.fr{grid-template-columns:1fr 90px auto}}
+@media (max-width:640px){#dPed{width:100%;max-width:100%}#dPed footer .btn{flex:1 1 auto}.ig{grid-template-columns:1fr 1fr}.totais{grid-template-columns:repeat(2,minmax(0,1fr))}.totais .tot{grid-column:1/-1}.pcard{padding:14px 16px}.phd .stmini{margin-left:0;width:100%}.pbase{display:grid;gap:12px}.pacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.pacts .btn{justify-content:center;padding:10px 8px}.ajustes{grid-template-columns:1fr}.tools{display:grid;grid-template-columns:1fr 1fr}.tools .in{grid-column:1/-1}.tools .viewsw{grid-column:1/-1;display:flex}.tools .viewsw button{flex:1}.tools .btn{justify-content:center}.tabs{overflow-x:auto;overflow-y:hidden}.tabs button{white-space:nowrap;flex:none}.ptabs{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;margin-left:-16px;margin-right:-16px;padding:0 16px}#dPed .body{padding:14px}.fr{grid-template-columns:1fr 90px auto}}
 #confTxt{white-space:pre-line;line-height:1.55}
 #dColar,#dVersoes{width:min(620px,calc(100% - 24px))}
 .versoes{list-style:none;margin:0;padding:0;display:grid;gap:8px}
@@ -271,8 +277,8 @@ dialog .body{overscroll-behavior:contain}
 .viewsw{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
 .viewsw button{border:0;background:none;padding:10px 14px;font-weight:600;cursor:pointer;color:var(--muted)}
 .viewsw button[aria-pressed="true"]{background:var(--ink);color:#fff}
-.ptabs{display:flex;gap:2px;overflow-x:auto;border-bottom:1px solid var(--line);margin-bottom:14px;scrollbar-width:thin}
-.ptab{flex:none;border:0;background:none;padding:10px 14px;font-weight:650;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px;cursor:pointer;display:flex;gap:6px;align-items:center}
+.ptabs{display:flex;flex-wrap:wrap;gap:2px 4px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.ptab{flex:none;border:0;background:none;padding:10px 12px;white-space:nowrap;font-weight:650;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px;cursor:pointer;display:flex;gap:6px;align-items:center}
 .ptab span{font-weight:600;font-size:12px;background:#E6E8EC;color:var(--muted);border-radius:999px;padding:1px 7px;font-variant-numeric:tabular-nums}
 .ptab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
 .ptab[aria-selected="true"] span{background:var(--ink);color:#fff}
@@ -422,6 +428,7 @@ dialog .body{overscroll-behavior:contain}
       <button type="button" role="tab" aria-selected="false" data-sub="cores">Cores de filamento</button>
       <button type="button" role="tab" aria-selected="false" data-sub="avisos">Avisos</button>
       <button type="button" role="tab" aria-selected="false" data-sub="fretes">Fretes</button>
+      <button type="button" role="tab" aria-selected="false" data-sub="pagamento">Pagamento</button>
       <button type="button" role="tab" aria-selected="false" data-sub="contatos">Contatos e rodapé</button>
     </div>
     <div class="card" data-painel="inicio">
@@ -456,11 +463,23 @@ dialog .body{overscroll-behavior:contain}
       <div id="sFr" style="display:grid;gap:8px"></div>
       <div><button class="btn" type="button" id="sFrAdd">Adicionar destino</button></div>
     </div>
+    <div class="card" data-painel="pagamento" hidden>
+      <h3>Formas de pagamento</h3>
+      <p class="hint">Aparecem na ficha de cada produto, no "Como encomendar" e no pedido do cliente.</p>
+      <div class="pgformas" id="sPgFormas"></div>
+      <div class="g2">
+        <div><label class="f" for="sPgSinal">Encomendas</label>
+          <select class="in" id="sPgSinal"><option value="50">50% de sinal para começar, o restante na entrega</option><option value="100">Pagamento total antes de produzir</option><option value="0">Tudo na entrega ou retirada</option></select></div>
+        <div><label class="f" for="sPgObs">Observação (opcional)</label><input class="in" id="sPgObs" placeholder="Ex.: crédito em até 3x com acréscimo da maquininha"></div>
+      </div>
+    </div>
     <div class="card" data-painel="contatos" hidden>
       <h3>Contatos do WhatsApp</h3>
       <p class="hint">Telefone com DDD, só números. Ex.: 11953650406.</p>
       <div id="sCt" style="display:grid;gap:8px"></div>
       <div><button class="btn" type="button" id="sCtAdd">Adicionar contato</button></div>
+      <p class="hint">Com um contato só, o site mostra apenas "Chamar no WhatsApp", sem o nome.</p>
+      <div><label class="f" for="sEquipe">Quem atende os pedidos (para o campo "Quem atende" do pedido)</label><input class="in" id="sEquipe" placeholder="Karina, Arthur"></div>
     </div>
     <div class="card" data-painel="contatos" hidden>
       <h3>Rodapé</h3>
@@ -728,7 +747,8 @@ const foto = (n, mini) => (mini ? "miniaturas/" : "fotos/") + (n.includes(".") ?
 
 let token = "", produtos = [], original = "[]", origMap = {}, shaJson = null;
 let site = {}, siteOriginal = "{}", shaSite = null;
-const SITE_PADRAO = {inicio:{titulo:"", texto:"", fotos:[]}, faixa:{ativa:false, titulo:"", texto:"", categoria:""}, contatos:[], rodape:"", filamentos:[], avisos:[], fretes:[["São Caetano do Sul",15],["Santo André",20],["São Paulo: Ipiranga e Sacomã",25],["São Bernardo do Campo",30],["São Paulo: Mooca e Vila Prudente",30],["Diadema",40],["Mauá",45],["Ribeirão Pires",65],["Rio Grande da Serra",80]].map(([nome,valor]) => ({nome, valor}))};
+const FORMAS_PG = ["Pix","Cartão de crédito","Cartão de débito","Dinheiro","Transferência"];
+const SITE_PADRAO = {pagamento:{formas:["Pix"], sinal:50, obs:""}, equipe:[], inicio:{titulo:"", texto:"", fotos:[]}, faixa:{ativa:false, titulo:"", texto:"", categoria:""}, contatos:[], rodape:"", filamentos:[], avisos:[], fretes:[["São Caetano do Sul",15],["Santo André",20],["São Paulo: Ipiranga e Sacomã",25],["São Bernardo do Campo",30],["São Paulo: Mooca e Vila Prudente",30],["Diadema",40],["Mauá",45],["Ribeirão Pires",65],["Rio Grande da Serra",80]].map(([nome,valor]) => ({nome, valor}))};
 const pendentes = new Map(); // nome -> {grande, mini, url}
 
 /* ---------- utilidades ---------- */
@@ -1140,12 +1160,20 @@ document.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click",
 const pegar = (o, c) => c.split(".").reduce((a,k) => (a||{})[k], o);
 function por(o, c, v){ const ks = c.split("."); const ult = ks.pop(); const alvo = ks.reduce((a,k) => (a[k] = a[k] || {}), o); alvo[ult] = v; }
 document.querySelectorAll("[data-bind]").forEach(el => el.addEventListener("input", () => { por(site, el.dataset.bind, el.value); barra(); }));
+$("#sPgFormas").addEventListener("change", () => { site.pagamento.formas = FORMAS_PG.filter(f => document.querySelector(`[data-pgf="${f}"]`).checked); barra(); });
+$("#sPgSinal").addEventListener("change", e => { site.pagamento.sinal = Number(e.target.value); barra(); });
+$("#sPgObs").addEventListener("input", e => { site.pagamento.obs = e.target.value.trim(); barra(); });
+$("#sEquipe").addEventListener("input", e => { site.equipe = e.target.value.split(",").map(x => x.trim()).filter(Boolean); barra(); });
 $("#sFaixaAtiva").addEventListener("change", e => { site.faixa = site.faixa || {}; site.faixa.ativa = e.target.checked; barra(); });
 $("#sFaixaCat").addEventListener("change", e => { site.faixa = site.faixa || {}; site.faixa.categoria = e.target.value; barra(); });
 const ALVOS = () => [["todos","Todos os produtos"], ...categorias().map(c => [c,c]), ["personalizados","Só os personalizados"]];
 
 function renderSite(){
   document.querySelectorAll("[data-bind]").forEach(el => { el.value = pegar(site, el.dataset.bind) || ""; });
+  site.pagamento = Object.assign({formas:["Pix"], sinal:50, obs:""}, site.pagamento || {});
+  $("#sPgFormas").innerHTML = FORMAS_PG.map(f => `<label class="check"><input type="checkbox" data-pgf="${esc(f)}" ${site.pagamento.formas.includes(f) ? "checked" : ""}> ${esc(f)}</label>`).join("");
+  $("#sPgSinal").value = String(site.pagamento.sinal ?? 50); $("#sPgObs").value = site.pagamento.obs || "";
+  $("#sEquipe").value = (site.equipe || []).join(", ");
   $("#sFaixaAtiva").checked = !!(site.faixa && site.faixa.ativa);
   $("#sFaixaCat").innerHTML = categorias().map(c => `<option ${site.faixa && site.faixa.categoria===c ? "selected" : ""}>${esc(c)}</option>`).join("");
   site.inicio = site.inicio || {}; site.inicio.fotos = site.inicio.fotos || [];
@@ -1535,6 +1563,7 @@ function lerMensagem(txt){
     if((m = l.match(/^Total dos produtos:\s*R\$\s*([\d.]+(?:,\d{1,2})?)/i))){ r.totalMsg = val(m[1]); continue; }
     if((m = l.match(/^Como quero receber:\s*(.+)$/i))){ r.receber = m[1].trim(); continue; }
     if((m = l.match(/^(?:CEP ou bairro|Bairro ou CEP|CEP):\s*(.+)$/i))){ r.cep = m[1].trim(); continue; }
+    if((m = l.match(/^Como quero pagar:\s*(.+)$/i))){ r.forma = m[1].trim(); continue; }
     if((m = l.match(/^Entrega:\s*R\$\s*([\d.]+(?:,\d{1,2})?)/i))){ r.frete = val(m[1]); continue; }
     if(/^Total( com a entrega)?:/i.test(l)) continue;
     if((m = l.match(/^Nome para personalizar:\s*(.+)$/i))){ r.gravar = m[1].trim(); continue; }
@@ -1596,13 +1625,15 @@ function abrirPedido(id, repetirDe, deMensagem){
       if(m.frete !== null && m.frete !== undefined) edPed.entrega.valor = m.frete;
     }
     edPed.obs = ["Pedido colado do WhatsApp.", ...m.sobras].join("\n");
+    if(m.forma){ const f = FORMAS_PG.find(x => x.toLowerCase() === m.forma.toLowerCase()); if(f) edPed.pagamento.forma = f; }
   }
   edPed.cliente = Object.assign({nome:"", whatsapp:"", cidade:"", endereco:""}, edPed.cliente);
   edPed.entrega = Object.assign({tipo:"retirada", valor:0, rastreio:""}, edPed.entrega);
   edPed.pagamento = Object.assign({forma:"Pix", pago:0}, edPed.pagamento);
   $("#pdTit").textContent = base ? `Pedido ${edPed.id}` : deMensagem ? `Novo pedido ${edPed.id} (do WhatsApp)` : (repetirDe ? `Novo pedido ${edPed.id} (cópia do ${repetirDe})` : `Novo pedido ${edPed.id}`);
   $("#pdExcluir").hidden = !base; $("#pdRepetir").hidden = !base;
-  $("#pdResp").innerHTML = `<option value="">(ninguém)</option>` + (site.contatos||[]).map(c => `<option ${edPed.responsavel===c.nome?"selected":""}>${esc(c.nome)}</option>`).join("");
+  const equipe = [...new Set([...(site.equipe||[]), ...(site.contatos||[]).map(c => c.nome), edPed.responsavel].filter(Boolean))];
+  $("#pdResp").innerHTML = `<option value="">(ninguém)</option>` + equipe.map(n => `<option ${edPed.responsavel===n?"selected":""}>${esc(n)}</option>`).join("");
   $("#pdStatus").innerHTML = ST_PED.map(([k,l]) => `<option value="${k}" ${edPed.status===k?"selected":""}>${l}</option>`).join("");
   $("#pdClientes").innerHTML = [...clientesAnteriores().values()].map(c => `<option value="${esc(c.nome)}">${esc([c.whatsapp, c.cidade].filter(Boolean).join(" | "))}</option>`).join("");
   const set = (sel, v) => $(sel).value = v ?? "";
@@ -1699,9 +1730,12 @@ $("#pdFone").addEventListener("change", () => {
 /* catálogo de toque */
 function desenharCatalogo(){
   const q = $("#pdBuscaProd").value.trim().toLowerCase();
-  const lista = produtos.filter(p => !q || (p.nome + " " + p.id + " " + p.categoria).toLowerCase().includes(q));
+  const todos = produtos.filter(p => !q || (p.nome + " " + p.id + " " + p.categoria).toLowerCase().includes(q));
+  const LIM = matchMedia("(max-width:640px)").matches ? 6 : 12;
+  const lista = todos.slice(0, LIM);
   $("#pdCatalogo").innerHTML = lista.map(p => `<button type="button" class="pick" data-add="${esc(p.id)}">
       <img src="${esc(thumb(p.fotos[0]))}" alt="" loading="lazy"><span class="pn">${esc(p.nome)}</span><span class="pp">${brl(p.preco)}${p.unidade ? " " + esc(p.unidade) : ""}</span></button>`).join("")
+    + (todos.length > LIM ? `<p class="hint mais">Mostrando ${LIM} de ${todos.length}. Digite o nome ou o código para achar os outros.</p>` : "")
     || `<p class="hint">Nenhum produto encontrado. Use "Item avulso".</p>`;
 }
 $("#pdBuscaProd").addEventListener("input", desenharCatalogo);

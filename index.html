@@ -162,7 +162,9 @@ html.travado,html.travado body{overflow:hidden}
 .ficha{display:grid;gap:6px;margin:0 0 4px;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
 .ficha:empty{display:none}
 .ficha div{display:flex;gap:10px;font-size:14px;line-height:1.4}
-.ficha dt{flex:none;width:72px;color:var(--muted);font-weight:600}
+.ficha dt{flex:none;width:82px;color:var(--muted);font-weight:600}
+.pagto{margin:18px 0 0;font-size:15px;line-height:1.5;color:#D8DCE3}
+.pagto b{color:#fff}
 .ficha dd{margin:0}
 .avisos{border-top:1px solid var(--line);padding-top:14px;margin-top:4px}
 .avisos:empty{display:none}
@@ -217,7 +219,8 @@ body.tem-lista{padding-bottom:84px}
 .l-campos legend{font-size:14px;color:var(--muted);font-weight:600;padding:0 4px}
 .l-campos label,.l-rot{font-size:14px;font-weight:600}
 .l-campos input,.l-campos select{font:inherit;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--card);color:var(--ink)}
-#lCidadeBox{display:grid;gap:6px}
+#lCidadeBox,#lPagarBox{display:grid;gap:6px}
+#lPagarBox[hidden]{display:none}
 #lCidadeBox[hidden]{display:none}
 .l-info{margin:0;font-size:14px;color:var(--muted)}
 .l-total{flex-wrap:wrap;row-gap:4px}
@@ -318,6 +321,7 @@ body.tem-lista{padding-bottom:84px}
       <li><b>Chame no WhatsApp</b><span id="passoWa">Toque em Adicionar ao pedido em cada produto e envie tudo de uma vez pelo WhatsApp. A mensagem já vai pronta com os códigos, as cores e o total.</span></li>
       <li><b>Combine os detalhes</b>Nome para personalizar, cor, pagamento e entrega. O prazo de produção aparece em cada produto.</li>
     </ol>
+    <p class="pagto" id="pagto"></p>
     <div class="contacts" id="bottomContacts"></div>
   </div>
 </section>
@@ -336,6 +340,7 @@ body.tem-lista{padding-bottom:84px}
         <label for="lNome">Seu nome</label><input id="lNome" autocomplete="name" placeholder="Como podemos te chamar">
         <span class="l-rot">Como quer receber?</span>
         <div class="l-chips" id="lReceber"><button type="button" data-rec="retirada">Retirar</button><button type="button" data-rec="abc">Entrega no ABC</button><button type="button" data-rec="correios">Correios</button></div>
+        <div id="lPagarBox" hidden><span class="l-rot">Como quer pagar?</span><div class="l-chips" id="lPagar"></div></div>
         <div id="lCidadeBox" hidden><label for="lCidade">Cidade ou região da entrega</label><select id="lCidade"></select></div>
         <p class="l-info" id="lInfoEntrega" hidden></p>
         <label for="lCep" id="lCepRot">Bairro ou CEP</label><input id="lCep" inputmode="text" placeholder="Ex.: Vila Assunção ou 09580-560">
@@ -410,6 +415,10 @@ function aplicarSite(cfg){
   if(typeof SITE.rodape === "string") $("#rodape").textContent = SITE.rodape;
   $("#topContacts").innerHTML = contactsHTML("pill");
   $("#bottomContacts").innerHTML = contactsHTML("card");
+  const pg = textoPagamento(); $("#pagto").hidden = !pg; $("#pagto").innerHTML = pg ? `<b>Pagamento:</b> ${esc(pg)}` : "";
+  const fs = PAG().formas;
+  $("#lPagar").innerHTML = fs.map(f => `<button type="button" data-pag="${esc(f)}">${esc(f)}</button>`).join("");
+  $("#lPagarBox").hidden = !fs.length;
 }
 function coresDisponiveis(p){
   const falta = new Set((SITE.filamentos||[]).filter(f=>f.disponivel===false).map(f=>f.nome.toLowerCase()));
@@ -436,12 +445,20 @@ const guardar = () => { try{ localStorage.setItem("sp_pedido", JSON.stringify(LI
 let sel = {cor:"", qtd:1, gravar:""};
 const linhaPedido = i => `${i.qtd}x ${i.id} ${i.nome}${i.cor ? ` (${i.cor})` : ""}${i.gravar ? `, nome "${i.gravar}"` : ""}: ${brl(i.preco * i.qtd)}`;
 /* entrega escolhida na lista */
-let entregaSel = null;   /* {tipo:"retirada"|"abc"|"correios", cidade, valor} */
+let entregaSel = null, pagSel = "";   /* {tipo:"retirada"|"abc"|"correios", cidade, valor} */
 const freteLista = () => entregaSel && entregaSel.tipo === "abc" && entregaSel.valor >= 0 && entregaSel.cidade ? entregaSel.valor : 0;
 const totalLista = () => LISTA.reduce((s,i) => s + i.preco * i.qtd, 0);
 const qtdLista = () => LISTA.reduce((s,i) => s + i.qtd, 0);
 const UNICO = () => CONTACTS.length === 1;
-const rotulo = c => UNICO() ? "WhatsApp" : c.name;
+const PAG = () => Object.assign({formas:["Pix"], sinal:50, obs:""}, SITE.pagamento || {});
+function listaBR(a){ a = a.map(x => x.toLowerCase()).map((x,i) => i === 0 ? x[0].toUpperCase() + x.slice(1) : x); return a.length < 2 ? (a[0]||"") : a.slice(0,-1).join(", ") + " ou " + a[a.length-1]; }
+const PIX_BR = s => s.replace(/\bpix\b/i, "Pix");
+function textoPagamento(){
+  const p = PAG(); if(!p.formas.length) return "";
+  const sinal = p.sinal === 50 ? " Encomendas: 50% de sinal para começar e o restante na entrega ou retirada." : p.sinal === 100 ? " Encomendas: pagamento total antes de começar a produção." : "";
+  return PIX_BR(listaBR(p.formas)) + "." + sinal + (p.obs ? " " + p.obs : "");
+}
+const rotulo = c => UNICO() ? "Chamar no WhatsApp" : c.name;
 function waLink(c, p){
   const oi = UNICO() ? "Olá!" : `Olá, ${c.name}!`;
   let msg = `${oi} Vi o catálogo da StudioPrint e quero fazer um pedido.`;
@@ -459,8 +476,8 @@ function waLink(c, p){
     msg = `${oi}${nome ? ` Sou ${nome}.` : ""} Vi o catálogo da StudioPrint e quero fazer este pedido:\n` +
       LISTA.map(i => "• " + linhaPedido(i)).join("\n") +
       `\nTotal dos produtos: ${brl(totalLista())}` +
-      (tipo === "abc" && entregaSel.cidade ? `\nEntrega: ${brl(fr)}\nTotal com a entrega: ${brl(totalLista() + fr)}` : tipo === "retirada" ? `\nTotal: ${brl(totalLista())} (retirada, sem custo de entrega)` : " (sem a entrega)") +
-      (receber ? `\nComo quero receber: ${receber}` : "") + (cep ? `\n${tipo === "correios" ? "CEP" : "Bairro ou CEP"}: ${cep}` : "") +
+      (tipo === "abc" && entregaSel.cidade ? `\nEntrega: ${brl(fr)}\nTotal com a entrega: ${brl(totalLista() + fr)}` : tipo === "retirada" ? " (retirada, sem custo de entrega)" : " (sem a entrega)") +
+      (receber ? `\nComo quero receber: ${receber}` : "") + (pagSel ? `\nComo quero pagar: ${pagSel}` : "") + (cep ? `\n${tipo === "correios" ? "CEP" : "Bairro ou CEP"}: ${cep}` : "") +
       (LISTA.some(i => i.custom && !i.gravar) ? `\nNome para personalizar: ` : "") + (LISTA.some(i => !i.cor && i.temCores) ? `\nCores: ` : "");
   }
   return `https://wa.me/${c.phone}?text=${encodeURIComponent(msg)}`;
@@ -530,7 +547,8 @@ function openProduct(id, setHash){
   $("#dLaunch").hidden = !p.launch;
   $("#dDesc").textContent = p.desc;
   const pz = prazoTexto(p);
-  $("#dFicha").innerHTML = (pz ? `<div><dt>Produção</dt><dd>${pz}</dd></div>` : "") + (p.medidas ? `<div><dt>Medidas</dt><dd>${esc(p.medidas)}</dd></div>` : "");
+  const pg = textoPagamento();
+  $("#dFicha").innerHTML = (pz ? `<div><dt>Produção</dt><dd>${pz}</dd></div>` : "") + (p.medidas ? `<div><dt>Medidas</dt><dd>${esc(p.medidas)}</dd></div>` : "") + (pg ? `<div><dt>Pagamento</dt><dd>${esc(pg)}</dd></div>` : "");
   const cs = coresDisponiveis(p);
   $("#dAvisos").innerHTML = avisosDe(p).length ? `<h4>Antes de comprar</h4><ul>${avisosDe(p).map(a=>`<li>${esc(a.texto)}</li>`).join("")}</ul>` : "";
   sel = {cor: cs.length === 1 ? cs[0].nome : "", qtd:1, gravar:""};
@@ -661,6 +679,12 @@ $("#lReceber").addEventListener("click", e => {
     const fs = (SITE.fretes||[]).filter(f => f.nome);
     $("#lCidade").innerHTML = `<option value="">Escolha a cidade</option>` + fs.map((f,k) => `<option value="${k}">${esc(f.nome)}: ${brl(Number(f.valor)||0)}</option>`).join("") + `<option value="outra">Outra cidade (consultar)</option>`;
   }
+  desenharLista();
+});
+$("#lPagar").addEventListener("click", e => {
+  const b = e.target.closest("[data-pag]"); if(!b) return;
+  pagSel = pagSel === b.dataset.pag ? "" : b.dataset.pag;
+  $("#lPagar").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.pag === pagSel));
   desenharLista();
 });
 $("#lCidade").addEventListener("change", e => {

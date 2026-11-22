@@ -19,11 +19,6 @@
       "nome": "Karina",
       "artigo": "a",
       "telefone": "11953650406"
-    },
-    {
-      "nome": "Arthur",
-      "artigo": "o",
-      "telefone": "11972006390"
     }
   ],
   "rodape": "Preços em reais, válidos para pagamento à vista. Cada peça é feita sob encomenda, então cores e tamanhos podem variar um pouco de uma peça para outra.",
@@ -198,5 +193,19 @@
       "nome": "Rio Grande da Serra",
       "valor": 80
     }
-  ]
+  ],
+  "equipe": [
+    "Karina",
+    "Arthur"
+  ],
+  "pagamento": {
+    "formas": [
+      "Pix",
+      "Cartão de crédito",
+      "Cartão de débito",
+      "Dinheiro"
+    ],
+    "sinal": 50,
+    "obs": ""
+  }
 }
