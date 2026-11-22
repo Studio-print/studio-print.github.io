@@ -186,26 +186,6 @@
     {
       "nome": "São Bernardo do Campo",
       "valor": 30
-    },
-    {
-      "nome": "São Paulo: Mooca e Vila Prudente",
-      "valor": 30
-    },
-    {
-      "nome": "Diadema",
-      "valor": 40
-    },
-    {
-      "nome": "Mauá",
-      "valor": 45
-    },
-    {
-      "nome": "Ribeirão Pires",
-      "valor": 65
-    },
-    {
-      "nome": "Rio Grande da Serra",
-      "valor": 80
     }
   ]
 }
