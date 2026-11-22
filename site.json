@@ -1,4 +1,18 @@
 {
+  "pagamento": {
+    "formas": [
+      "Pix",
+      "Cartão de crédito",
+      "Cartão de débito",
+      "Dinheiro"
+    ],
+    "sinal": 50,
+    "obs": "Crédito à vista sem acréscimo. No parcelado, os juros das parcelas ficam com quem compra."
+  },
+  "equipe": [
+    "Karina",
+    "Arthur"
+  ],
   "inicio": {
     "titulo": "Do seu jeito, peça por peça.",
     "texto": "Bonecos articulados, personagens e enfeites de Natal com cores vivas e acabamento caprichado. Cada peça é feita sob encomenda, na cor que você escolher. Toque em uma foto para ver mais imagens, o preço e pedir pelo WhatsApp.",
@@ -66,7 +80,7 @@
     {
       "nome": "Roxo",
       "hex": "#6B5BD6",
-      "disponivel": true
+      "disponivel": false
     },
     {
       "nome": "Branco",
@@ -193,19 +207,5 @@
       "nome": "Rio Grande da Serra",
       "valor": 80
     }
-  ],
-  "equipe": [
-    "Karina",
-    "Arthur"
-  ],
-  "pagamento": {
-    "formas": [
-      "Pix",
-      "Cartão de crédito",
-      "Cartão de débito",
-      "Dinheiro"
-    ],
-    "sinal": 50,
-    "obs": "Crédito à vista sem acréscimo. No parcelado, os juros das parcelas ficam com quem compra."
-  }
+  ]
 }
