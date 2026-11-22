@@ -111,6 +111,18 @@
   ],
   "avisos": [
     {
+      "texto": "Prazo de produção em dias úteis (segunda a sexta, sem feriados), contado a partir do dia útil seguinte à confirmação do pagamento. Se o pedido ficar pronto no fim de semana ou em feriado, a postagem ou entrega é feita no próximo dia útil. O prazo dos Correios começa a contar depois da postagem.",
+      "para": [
+        "todos"
+      ]
+    },
+    {
+      "texto": "Para o Natal: pedidos com envio pelos Correios até 10/12; retirada ou entrega no ABC até 17/12. Depois dessas datas, consulte antes.",
+      "para": [
+        "todos"
+      ]
+    },
+    {
       "texto": "Cada peça é impressa em 3D, camada por camada. Linhas finas de impressão e pequenas diferenças de acabamento são normais e fazem parte do processo.",
       "para": [
         "todos"

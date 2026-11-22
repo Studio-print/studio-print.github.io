@@ -151,6 +151,11 @@ html.travado,html.travado body{overflow:hidden}
 .colors ul{list-style:none;margin:0;padding:0;display:flex;gap:10px;flex-wrap:wrap}
 .colors li{display:flex;align-items:center;gap:6px;font-size:14px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 6px}
 .colors .sw{width:16px;height:16px}
+.ficha{display:grid;gap:6px;margin:0 0 4px;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.ficha:empty{display:none}
+.ficha div{display:flex;gap:10px;font-size:14px;line-height:1.4}
+.ficha dt{flex:none;width:72px;color:var(--muted);font-weight:600}
+.ficha dd{margin:0}
 .avisos{border-top:1px solid var(--line);padding-top:14px;margin-top:4px}
 .avisos:empty{display:none}
 .avisos h4{margin:0 0 6px;font-size:14px;color:var(--muted);font-weight:600}
@@ -271,6 +276,7 @@ html.travado,html.travado body{overflow:hidden}
       <h2 id="dTitle"></h2>
       <div class="facts"><span class="price" id="dPrice"></span><span class="status" id="dStatus"></span><span class="tag launch" id="dLaunch" hidden>Preço de lançamento</span></div>
       <p id="dDesc"></p>
+      <dl class="ficha" id="dFicha"></dl>
       <div class="colors" id="dColors"></div>
       <div class="note" id="dNote"></div>
       <div class="actions">
@@ -294,6 +300,10 @@ function telefone(t){
   const shown = d.length===11 ? `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}` : d.length===10 ? `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}` : d;
   return {phone:"55"+d, shown};
 }
+
+const PRAZO_CAT = {"Personagens":[3,4], "Bonecos de pose":[3,4]};
+function prazoDe(p){ return Array.isArray(p.prazo) && p.prazo[0] ? p.prazo : (PRAZO_CAT[p.cat] || [2,3]); }
+function prazoTexto(p){ const [a,b] = prazoDe(p); return (b && b !== a ? `${a} a ${b}` : `${a}`) + ` dias úteis após o pagamento`; }
 function aplicarSite(cfg){
   SITE = Object.assign({filamentos:[], avisos:[]}, cfg||{});
   const i = SITE.inicio || {};
@@ -398,6 +408,8 @@ function openProduct(id, setHash){
   const st = $("#dStatus"); st.className = "status " + p.status; st.textContent = STATUS[p.status];
   $("#dLaunch").hidden = !p.launch;
   $("#dDesc").textContent = p.desc;
+  const pz = prazoTexto(p);
+  $("#dFicha").innerHTML = (pz ? `<div><dt>Produção</dt><dd>${pz}</dd></div>` : "") + (p.medidas ? `<div><dt>Medidas</dt><dd>${esc(p.medidas)}</dd></div>` : "");
   const cs = coresDisponiveis(p);
   $("#dAvisos").innerHTML = avisosDe(p).length ? `<h4>Antes de comprar</h4><ul>${avisosDe(p).map(a=>`<li>${esc(a.texto)}</li>`).join("")}</ul>` : "";
   $("#dColors").innerHTML = cs.length ? `<h4>Cores</h4><ul>${cs.map(k=>`<li><span class="sw" style="background:${esc(k.hex)}"></span>${esc(k.nome)}</li>`).join("")}</ul>` : "";
@@ -464,7 +476,7 @@ async function carregar(){
     if(!r.ok) throw new Error(r.status);
     const dados = await r.json();
     P = dados.map(o => ({id:o.id, name:o.nome, cat:o.categoria, price:o.preco, unit:o.unidade||"", status:o.status||"encomenda",
-      custom:!!o.personalizado, launch:!!o.lancamento, desc:o.descricao||"", imgs:(o.fotos&&o.fotos.length?o.fotos:["45"]),
+      custom:!!o.personalizado, launch:!!o.lancamento, desc:o.descricao||"", prazo:o.prazo||null, medidas:o.medidas||"", imgs:(o.fotos&&o.fotos.length?o.fotos:["45"]),
       fit:o.fotoInteira?"contain":"", colors:o.cores||[]}));
     const cats = [...new Set(P.map(p=>p.cat))];
     cats.sort((a,b)=>{const ia=ORDEM_CATS.indexOf(a), ib=ORDEM_CATS.indexOf(b); return (ia<0?99:ia)-(ib<0?99:ib);});

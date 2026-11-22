@@ -219,6 +219,7 @@ legend{font-weight:650;font-size:14px;padding:0 6px}
 #dPed .body{gap:16px;padding:20px 24px}
 dialog .body{overscroll-behavior:contain}
 @media (max-width:640px){#dPed{width:100%;max-width:100%}#dPed footer .btn{flex:1 1 auto}.ig{grid-template-columns:1fr 1fr}.totais{grid-template-columns:repeat(2,minmax(0,1fr))}.totais .tot{grid-column:1/-1}.pcard{padding:14px 16px}.pst{margin-left:0}.stsel{margin-right:0;width:100%}.stsel .in{width:100%}#dPed .body{padding:14px}.fr{grid-template-columns:1fr 90px auto}}
+.pzin{display:flex;align-items:center;gap:8px}.pzin .in{width:70px;text-align:center}.pzin span{color:var(--muted);font-weight:600}
 .passos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:12px 20px;border-bottom:1px solid var(--line);background:#FAFBFC}
 .passos button{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;cursor:pointer;text-align:left;font-weight:600;font-size:14px;color:var(--muted);min-width:0}
 .passos .n{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;border:1.5px solid currentColor;font-size:13px}
@@ -472,6 +473,11 @@ dialog .body{overscroll-behavior:contain}
         <label class="check"><input type="checkbox" id="eLanc"> Mostrar "Preço de lançamento"</label>
         <label class="check"><input type="checkbox" id="ePers"> Personalizado com nome</label>
       </div>
+      <div class="g2">
+        <div><label class="f" for="ePzMin">Produção em dias úteis, depois do pagamento</label>
+          <div class="pzin"><input class="in" id="ePzMin" inputmode="numeric" aria-label="Mínimo de dias úteis"><span>a</span><input class="in" id="ePzMax" inputmode="numeric" aria-label="Máximo de dias úteis"><span>dias</span></div></div>
+        <div><label class="f" for="eMed">Medidas (opcional)</label><input class="in" id="eMed" placeholder="7 cm de diâmetro"></div>
+      </div>
       <div><label class="f" for="eDesc">Descrição</label><textarea class="in" id="eDesc" placeholder="O que é, cores, detalhes, para quem é um bom presente."></textarea></div>
       <fieldset>
         <legend>Fotos</legend>
@@ -548,8 +554,9 @@ dialog .body{overscroll-behavior:contain}
           <div><label class="f" for="pdStatus">Situação</label><select class="in" id="pdStatus"></select></div>
           <div><label class="f" for="pdResp">Quem atende</label><select class="in" id="pdResp"></select></div>
           <div><label class="f" for="pdData">Data do pedido</label><input class="in" id="pdData" type="date"></div>
-          <div><label class="f" for="pdPrazo">Prazo de entrega</label><input class="in" id="pdPrazo" type="date">
-            <div class="chips mini" id="pdPrazos"><button type="button" class="chip" data-dias="3">+3 dias</button><button type="button" class="chip" data-dias="7">+7 dias</button><button type="button" class="chip" data-dias="15">+15 dias</button></div></div>
+          <div><label class="f" for="pdPrazo">Pronto até</label><input class="in" id="pdPrazo" type="date">
+            <div class="chips mini" id="pdPrazos"><button type="button" class="chip" data-dias="auto">Pelo prazo dos produtos</button><button type="button" class="chip" data-dias="5">+5 dias úteis</button><button type="button" class="chip" data-dias="10">+10 dias úteis</button></div>
+            <p class="hint" id="pdPrazoDica" aria-live="polite"></p></div>
         </div>
         <div style="margin-top:12px"><label class="f" for="pdObs">Observações</label><textarea class="in" id="pdObs" placeholder="Detalhes combinados, fonte do nome, embrulho para presente…"></textarea></div>
       </section>
@@ -867,6 +874,8 @@ function proximoCodigo(cat){
   const usados = produtos.map(p => p.id).filter(id => id.startsWith(pre + "-")).map(id => parseInt(id.slice(pre.length+1), 10)).filter(n => !isNaN(n));
   return pre + "-" + String((usados.length ? Math.max(...usados) : 0) + 1).padStart(2, "0");
 }
+const PRAZO_CAT = {"Personagens":[3,4], "Bonecos de pose":[3,4]};
+const prazoProduto = p => Array.isArray(p && p.prazo) && p.prazo[0] ? p.prazo : (PRAZO_CAT[p && p.categoria] || [2,3]);
 function abrirEditor(i, modelo, posInsert){
   edIdx = i; edInsert = posInsert ?? null;
   const novo = i < 0;
@@ -877,6 +886,7 @@ function abrirEditor(i, modelo, posInsert){
   $("#eUn").value = p.unidade || ""; $("#eStatus").value = p.status || "encomenda";
   $("#eLanc").checked = !!p.lancamento; $("#ePers").checked = !!p.personalizado; $("#eInteira").checked = !!p.fotoInteira;
   $("#eDesc").value = p.descricao || "";
+  const pz = prazoProduto(p); $("#ePzMin").value = pz[0]; $("#ePzMax").value = pz[1]; $("#eMed").value = p.medidas || "";
   edFotos = [...(p.fotos || [])]; edCores = (p.cores || []).map(c => ({...c}));
   $("#cats").innerHTML = categorias().map(c => `<option value="${esc(c)}">`).join("");
   $("#edErr").textContent = "";
@@ -962,11 +972,15 @@ $("#fEd").addEventListener("submit", e => {
     : produtos.some((p,k) => p.id === id && k !== edIdx) ? `Já existe um produto com o código ${id}.`
     : !nome ? "Preencha o nome do produto." : !cat ? "Escolha ou digite a categoria."
     : isNaN(preco) ? "Digite o preço só com números, por exemplo 39 ou 39,90." : !edFotos.length ? "Adicione pelo menos uma foto." : "";
-  if(erro){ $("#edErr").textContent = erro; return; }
+  const pzA = parseInt($("#ePzMin").value, 10), pzB = parseInt($("#ePzMax").value || $("#ePzMin").value, 10);
+  const erroPz = !(pzA > 0 && pzB >= pzA && pzB <= 60) ? "Preencha a produção em dias úteis, por exemplo 2 a 3." : "";
+  if(erro || erroPz){ $("#edErr").textContent = erro || erroPz; return; }
   const p = {id, nome, categoria:cat, preco};
   const un = $("#eUn").value.trim(); if(un) p.unidade = un;
   p.status = $("#eStatus").value; p.personalizado = $("#ePers").checked; p.lancamento = $("#eLanc").checked;
-  p.descricao = $("#eDesc").value.trim(); p.fotos = [...edFotos];
+  p.descricao = $("#eDesc").value.trim(); p.prazo = [pzA, pzB];
+  const med = $("#eMed").value.trim(); if(med) p.medidas = med;
+  p.fotos = [...edFotos];
   if($("#eInteira").checked) p.fotoInteira = true;
   p.cores = edCores;
   if(edIdx >= 0) produtos[edIdx] = p;
@@ -1098,6 +1112,29 @@ const PRAZO_PADRAO = 7;
 let pedidos = [], shaPed = null, pedFiltro = "abertos", pedPronto = false, edPed = null;
 
 const hojeISO = (mais = 0) => { const d = new Date(); d.setDate(d.getDate() + mais); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+/* dias úteis: sem sábado, domingo e feriados (nacionais, Carnaval e 9 de julho em SP) */
+const _fer = {};
+function feriados(ano){
+  if(_fer[ano]) return _fer[ano];
+  const a = ano % 19, b = Math.floor(ano/100), c = ano % 100, d = Math.floor(b/4), e = b % 4, f = Math.floor((b+8)/25), g = Math.floor((b-f+1)/3),
+    h = (19*a + b - d - g + 15) % 30, i = Math.floor(c/4), k = c % 4, l = (32 + 2*e + 2*i - h - k) % 7, m = Math.floor((a + 11*h + 22*l)/451),
+    mes = Math.floor((h + l - 7*m + 114)/31), dia = ((h + l - 7*m + 114) % 31) + 1;
+  const pascoa = Date.UTC(ano, mes-1, dia), iso = t => new Date(t).toISOString().slice(0,10), D = 864e5;
+  const fixos = ["01-01","04-21","05-01","07-09","09-07","10-12","11-02","11-15","11-20","12-25"].map(x => `${ano}-${x}`);
+  return _fer[ano] = new Set([...fixos, iso(pascoa-48*D), iso(pascoa-47*D), iso(pascoa-2*D), iso(pascoa+60*D)]);
+}
+const diaUtil = iso => { const d = new Date(iso + "T12:00:00Z"), w = d.getUTCDay(); return w !== 0 && w !== 6 && !feriados(d.getUTCFullYear()).has(iso); };
+function somarUteis(iso, n){
+  let d = new Date(iso + "T12:00:00Z");
+  while(n > 0){ d.setUTCDate(d.getUTCDate() + 1); if(diaUtil(d.toISOString().slice(0,10))) n--; }
+  return d.toISOString().slice(0,10);
+}
+function proximoUtil(iso){ let d = new Date(iso + "T12:00:00Z"); while(!diaUtil(d.toISOString().slice(0,10))) d.setUTCDate(d.getUTCDate() + 1); return d.toISOString().slice(0,10); }
+function diasProducao(itens){
+  let mx = 0;
+  (itens || []).forEach(i => { const p = produtos.find(x => x.id === i.produto); mx = Math.max(mx, prazoProduto(p || {})[1]); });
+  return mx || 3;
+}
 const dataBR = iso => iso ? iso.slice(8,10) + "/" + iso.slice(5,7) + "/" + iso.slice(0,4) : "";
 const dataCurta = iso => iso ? iso.slice(8,10) + "/" + iso.slice(5,7) : "";
 const num = v => { const n = precoDe(v); return isNaN(n) ? 0 : n; };
@@ -1225,7 +1262,7 @@ $("#pedQuadro").addEventListener("click", async e => {
   const b = e.target.closest("[data-avancar]");
   if(b){
     const p = JSON.parse(JSON.stringify(pedidos.find(x => x.id === b.dataset.avancar)));
-    p.status = PROXIMO[p.status]; p.historico = [...(p.historico||[]), {quando:new Date().toISOString(), status:p.status}];
+    mudarStatus(p, PROXIMO[p.status]);
     b.disabled = true;
     if(await gravarPedidos(upsert(p), `Pedido ${p.id}: ${ST_LABEL[p.status]}`)) aviso(`Pedido ${p.id}: ${ST_LABEL[p.status]}.`);
     return;
@@ -1239,7 +1276,7 @@ $("#pedBusca").addEventListener("input", renderPedidos);
 $("#pedLista").addEventListener("change", async e => {
   const s = e.target.closest("[data-pst]"); if(!s) return;
   const p = JSON.parse(JSON.stringify(pedidos.find(x => x.id === s.dataset.pst)));
-  p.status = s.value; p.historico = [...(p.historico||[]), {quando:new Date().toISOString(), status:s.value}];
+  mudarStatus(p, s.value);
   if(await gravarPedidos(upsert(p), `Pedido ${p.id}: ${ST_LABEL[p.status]}`)) aviso(`Pedido ${p.id}: ${ST_LABEL[p.status]}.`);
 });
 $("#pedLista").addEventListener("click", e => {
@@ -1278,7 +1315,7 @@ function clientesAnteriores(){
 function novoPedidoBase(){
   return {id: proximoPedido(), criado: hojeISO(), status:"novo", responsavel: lembrar("sp_resp") || "",
     cliente:{nome:"", whatsapp:"", cidade:"", endereco:""}, itens:[], entrega:{tipo:"retirada", valor:0, rastreio:""},
-    pagamento:{forma:"Pix", pago:0}, prazo: hojeISO(PRAZO_PADRAO), obs:"", historico:[]};
+    pagamento:{forma:"Pix", pago:0}, prazo: somarUteis(hojeISO(), 3), prazoAuto:true, obs:"", historico:[]};
 }
 function abrirPedido(id, repetirDe){
   const base = id ? pedidos.find(p => p.id === id) : null;
@@ -1462,13 +1499,39 @@ $("#pdPagos").addEventListener("click", e => {
   $("#pdPago").value = valorBR(b.dataset.pg === "0" ? 0 : b.dataset.pg === "50" ? Math.ceil(t.total/2) : t.total);
   atualizarTotais();
 });
-$("#pdPrazos").addEventListener("click", e => { const b = e.target.closest("[data-dias]"); if(b){ $("#pdPrazo").value = hojeISO(+b.dataset.dias); } });
+function basePrazo(){ return (edPed && edPed.status !== "novo" && edPed.pagoEm) || hojeISO(); }
+function sugerirPrazo(forcar){
+  if(!edPed) return;
+  const n = diasProducao(edPed.itens.filter(i => (i.nome||"").trim()));
+  const sug = somarUteis(basePrazo(), n);
+  if(forcar || edPed.prazoAuto){ $("#pdPrazo").value = sug; edPed.prazoAuto = true; }
+  const quando = edPed.status === "novo" ? "se o pagamento entrar hoje" : "contando do pagamento";
+  const tipo = edPed.entrega && edPed.entrega.tipo;
+  const envio = tipo === "correios" ? " Pelos Correios, a postagem é no mesmo dia ou no dia útil seguinte." : "";
+  $("#pdPrazoDica").textContent = `Produção de até ${n} dia${n>1?"s":""} úte${n>1?"is":"l"}: pronto em ${dataCurta(sug)} ${quando}. Sábado, domingo e feriado não contam.${envio}`;
+}
+$("#pdPrazos").addEventListener("click", e => {
+  const b = e.target.closest("[data-dias]"); if(!b) return;
+  if(b.dataset.dias === "auto") sugerirPrazo(true);
+  else { $("#pdPrazo").value = somarUteis(basePrazo(), +b.dataset.dias); edPed.prazoAuto = false; }
+});
+$("#pdPrazo").addEventListener("input", () => { if(edPed) edPed.prazoAuto = false; });
 ["#pdFrete","#pdPago"].forEach(s => $(s).addEventListener("input", atualizarTotais));
 function totaisForm(){ const tmp = JSON.parse(JSON.stringify(edPed)); tmp.entrega = {valor:num($("#pdFrete").value)}; tmp.pagamento = {pago:num($("#pdPago").value)}; return totais(tmp); }
 function atualizarTotais(){
   if(!edPed) return;
+  sugerirPrazo(false);
   const t = totaisForm();
   $("#pdTotais").innerHTML = `<div><i>Itens</i>${brl(t.itens)}</div><div><i>Entrega</i>${brl(t.frete)}</div><div class="tot"><i>Total</i>${brl(t.total)}</div><div><i>Pago</i>${brl(t.pago)}</div><div class="${t.saldo > 0 ? "falta" : ""}"><i>${t.saldo > 0 ? "Falta" : t.saldo < 0 ? "Crédito" : "Situação"}</i>${t.saldo > 0 ? brl(t.saldo) : t.saldo < 0 ? brl(-t.saldo) : t.total > 0 ? "Quitado" : "-"}</div>`;
+}
+/* ao sair de "Aguardando sinal" o prazo passa a contar do pagamento */
+function mudarStatus(p, st){
+  if(p.status === "novo" && st !== "novo" && st !== "cancelado" && !p.pagoEm){
+    p.pagoEm = hojeISO();
+    if(p.prazoAuto) p.prazo = somarUteis(p.pagoEm, diasProducao(p.itens));
+  }
+  p.historico = [...(p.historico||[]), {quando:new Date().toISOString(), status:st}];
+  p.status = st;
 }
 function lerFormPedido(){
   edPed.cliente = {nome:$("#pdNome").value.trim(), whatsapp:$("#pdFone").value.replace(/\D/g,""), cidade:$("#pdCidade").value.trim(), endereco:$("#pdEnd").value.trim()};
@@ -1477,7 +1540,7 @@ function lerFormPedido(){
   edPed.pagamento = {forma:$("#pdForma").value, pago:num($("#pdPago").value)};
   edPed.obs = $("#pdObs").value.trim(); edPed.responsavel = $("#pdResp").value;
   const st = $("#pdStatus").value;
-  if(st !== edPed.status){ edPed.historico = [...(edPed.historico||[]), {quando:new Date().toISOString(), status:st}]; edPed.status = st; }
+  if(st !== edPed.status) mudarStatus(edPed, st);
 }
 async function salvarPedido(){
   lerFormPedido();

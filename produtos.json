@@ -16,7 +16,11 @@
       "30",
       "31"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      2,
+      3
+    ]
   },
   {
     "id": "N-02",
@@ -31,7 +35,11 @@
       "40",
       "34"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      2,
+      3
+    ]
   },
   {
     "id": "N-03",
@@ -64,6 +72,10 @@
         "nome": "Dourado",
         "hex": "#D4A62A"
       }
+    ],
+    "prazo": [
+      2,
+      3
     ]
   },
   {
@@ -79,7 +91,11 @@
       "39"
     ],
     "fotoInteira": true,
-    "cores": []
+    "cores": [],
+    "prazo": [
+      3,
+      4
+    ]
   },
   {
     "id": "N-05",
@@ -94,7 +110,12 @@
       "42",
       "24"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      2,
+      3
+    ],
+    "medidas": "7 cm de diâmetro (cerca de 8 cm com a argola). Nomes de até 10 letras."
   },
   {
     "id": "N-06",
@@ -108,7 +129,12 @@
     "fotos": [
       "32"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      2,
+      3
+    ],
+    "medidas": "7 cm de altura (cerca de 8 cm com a argola). Nomes de até 10 letras."
   },
   {
     "id": "N-07",
@@ -123,7 +149,12 @@
       "41",
       "36"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      2,
+      3
+    ],
+    "medidas": "7 cm de diâmetro (cerca de 8 cm com a argola). Nomes de até 10 letras."
   },
   {
     "id": "N-08",
@@ -137,7 +168,12 @@
     "fotos": [
       "37"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      2,
+      3
+    ],
+    "medidas": "7 cm de diâmetro (cerca de 8 cm com a argola). Nomes de até 10 letras."
   },
   {
     "id": "N-09",
@@ -151,7 +187,12 @@
     "fotos": [
       "26"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      2,
+      3
+    ],
+    "medidas": "7 cm de largura (cerca de 8 cm com a argola). Nomes de até 10 letras."
   },
   {
     "id": "N-10",
@@ -166,7 +207,11 @@
       "23"
     ],
     "fotoInteira": true,
-    "cores": []
+    "cores": [],
+    "prazo": [
+      2,
+      3
+    ]
   },
   {
     "id": "N-11",
@@ -181,7 +226,12 @@
     "fotos": [
       "25"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      2,
+      3
+    ],
+    "medidas": "Cada bola com 7 cm de diâmetro (cerca de 8 cm com a argola)."
   },
   {
     "id": "N-12",
@@ -197,7 +247,11 @@
       "56",
       "57"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      3,
+      4
+    ]
   },
   {
     "id": "N-13",
@@ -212,7 +266,12 @@
     "fotos": [
       "58"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      2,
+      3
+    ],
+    "medidas": "7 cm de diâmetro (cerca de 8 cm com a argola). Nomes de até 10 letras."
   },
   {
     "id": "N-14",
@@ -228,7 +287,12 @@
       "59",
       "60"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      2,
+      3
+    ],
+    "medidas": "Cada bola com 7 cm de diâmetro (cerca de 8 cm com a argola)."
   },
   {
     "id": "P-01",
@@ -244,7 +308,11 @@
       "05",
       "04"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      3,
+      4
+    ]
   },
   {
     "id": "P-02",
@@ -259,7 +327,11 @@
       "02",
       "03"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      3,
+      4
+    ]
   },
   {
     "id": "P-03",
@@ -275,7 +347,11 @@
       "19",
       "17"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      3,
+      4
+    ]
   },
   {
     "id": "P-04",
@@ -290,7 +366,11 @@
       "16",
       "15"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      3,
+      4
+    ]
   },
   {
     "id": "P-05",
@@ -306,7 +386,11 @@
       "48",
       "50"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      3,
+      4
+    ]
   },
   {
     "id": "P-06",
@@ -322,7 +406,11 @@
       "21",
       "22"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      3,
+      4
+    ]
   },
   {
     "id": "P-07",
@@ -361,6 +449,10 @@
         "nome": "Dourado",
         "hex": "#D4A62A"
       }
+    ],
+    "prazo": [
+      3,
+      4
     ]
   },
   {
@@ -387,6 +479,10 @@
         "nome": "Azul",
         "hex": "#3B6FC4"
       }
+    ],
+    "prazo": [
+      3,
+      4
     ]
   },
   {
@@ -412,6 +508,10 @@
         "nome": "Azul",
         "hex": "#3B6FC4"
       }
+    ],
+    "prazo": [
+      3,
+      4
     ]
   },
   {
@@ -451,6 +551,10 @@
         "nome": "Cinza",
         "hex": "#8C9196"
       }
+    ],
+    "prazo": [
+      3,
+      4
     ]
   },
   {
@@ -475,6 +579,10 @@
         "nome": "Branco",
         "hex": "#F4F4F4"
       }
+    ],
+    "prazo": [
+      3,
+      4
     ]
   },
   {
@@ -490,13 +598,17 @@
       "14",
       "13"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      3,
+      4
+    ]
   },
   {
     "id": "D-02",
     "nome": "Suporte de controle GTA VI",
     "categoria": "Decoração",
-    "preco": 49,
+    "preco": 119,
     "unidade": "cada",
     "status": "encomenda",
     "personalizado": false,
@@ -505,6 +617,10 @@
     "fotos": [
       "55"
     ],
-    "cores": []
+    "cores": [],
+    "prazo": [
+      4,
+      5
+    ]
   }
 ]
