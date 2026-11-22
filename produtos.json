@@ -465,153 +465,149 @@
     "id": "P-01",
     "nome": "Deadpool articulado",
     "categoria": "Personagens",
-    "preco": 39,
+    "preco": 45.9,
     "status": "encomenda",
     "personalizado": false,
     "lancamento": true,
+    "montagem": {},
     "descricao": "Boneco com todas as juntas articuladas, katanas nas costas e pistolas. Faz poses de ação e fica em pé sozinho.",
+    "prazo": [
+      3,
+      4
+    ],
+    "medidas": "Cerca de 19 cm de altura.",
     "fotos": [
       "06",
       "05",
       "04"
     ],
-    "cores": [],
-    "prazo": [
-      3,
-      4
-    ],
-    "montagem": {
-      "extra": 5
-    },
-    "medidas": "Cerca de 19 cm de altura."
+    "cores": []
   },
   {
     "id": "P-02",
     "nome": "Capitão América articulado",
     "categoria": "Personagens",
-    "preco": 39,
+    "preco": 45.9,
     "status": "encomenda",
     "personalizado": false,
     "lancamento": true,
+    "montagem": {},
     "descricao": "Boneco articulado com escudo e martelo, pronto para a pose de batalha.",
-    "fotos": [
-      "02",
-      "03"
-    ],
-    "cores": [],
     "prazo": [
       3,
       4
     ],
-    "montagem": {
-      "extra": 5
-    },
-    "medidas": "Cerca de 19 cm de altura."
+    "medidas": "Cerca de 19 cm de altura.",
+    "fotos": [
+      "02",
+      "03"
+    ],
+    "cores": []
   },
   {
     "id": "P-03",
     "nome": "Homem de Ferro articulado",
     "categoria": "Personagens",
-    "preco": 39,
+    "preco": 45.9,
     "status": "encomenda",
     "personalizado": false,
     "lancamento": true,
+    "montagem": {},
     "descricao": "Armadura em vermelho e dourado, com todas as juntas móveis.",
+    "prazo": [
+      3,
+      4
+    ],
+    "medidas": "Cerca de 19 cm de altura.",
     "fotos": [
       "18",
       "19",
       "17"
     ],
-    "cores": [],
-    "prazo": [
-      3,
-      4
-    ],
-    "montagem": {
-      "extra": 5
-    },
-    "medidas": "Cerca de 19 cm de altura."
+    "cores": []
   },
   {
     "id": "P-04",
     "nome": "Hulk articulado",
     "categoria": "Personagens",
-    "preco": 39,
+    "preco": 45.9,
     "status": "encomenda",
     "personalizado": false,
     "lancamento": true,
+    "montagem": {},
     "descricao": "Hulk de punhos grandes e calção roxo, com braços, pernas e cabeça articulados.",
-    "fotos": [
-      "16",
-      "15"
-    ],
-    "cores": [],
     "prazo": [
       3,
       4
     ],
-    "montagem": {
-      "extra": 5
-    },
-    "medidas": "Cerca de 19 cm de altura."
+    "medidas": "Cerca de 19 cm de altura.",
+    "fotos": [
+      "16",
+      "15"
+    ],
+    "cores": []
   },
   {
     "id": "P-05",
     "nome": "Superman articulado",
     "categoria": "Personagens",
-    "preco": 39,
+    "preco": 45.9,
     "status": "encomenda",
     "personalizado": false,
     "lancamento": true,
+    "montagem": {},
     "descricao": "Boneco articulado com o uniforme clássico e capa vermelha.",
+    "prazo": [
+      3,
+      4
+    ],
+    "medidas": "Cerca de 19 cm de altura.",
     "fotos": [
       "49",
       "48",
       "50"
     ],
-    "cores": [],
-    "prazo": [
-      3,
-      4
-    ],
-    "montagem": {
-      "extra": 5
-    },
-    "medidas": "Cerca de 19 cm de altura."
+    "cores": []
   },
   {
     "id": "P-06",
     "nome": "Mandaloriano articulado",
     "categoria": "Personagens",
-    "preco": 39,
+    "preco": 45.9,
     "status": "encomenda",
     "personalizado": false,
     "lancamento": true,
+    "montagem": {},
     "descricao": "Armadura cinza com detalhes em vermelho e juntas móveis para montar poses.",
+    "prazo": [
+      3,
+      4
+    ],
+    "medidas": "Cerca de 19 cm de altura.",
     "fotos": [
       "20",
       "21",
       "22"
     ],
-    "cores": [],
-    "prazo": [
-      3,
-      4
-    ],
-    "montagem": {
-      "extra": 5
-    },
-    "medidas": "Cerca de 19 cm de altura."
+    "cores": []
   },
   {
     "id": "P-07",
     "nome": "Stormtrooper articulado",
     "categoria": "Personagens",
-    "preco": 39,
+    "preco": 45.9,
     "status": "encomenda",
     "personalizado": false,
     "lancamento": true,
+    "montagem": {
+      "extra": 5
+    },
     "descricao": "Soldado articulado com blaster. Escolha a cor da armadura ou monte o esquadrão completo.",
+    "prazo": [
+      3,
+      4
+    ],
+    "medidas": "Cerca de 19 cm de altura.",
     "fotos": [
       "45",
       "43",
@@ -640,25 +636,23 @@
         "nome": "Dourado",
         "hex": "#D4A62A"
       }
-    ],
-    "prazo": [
-      3,
-      4
-    ],
-    "montagem": {
-      "extra": 5
-    },
-    "medidas": "Cerca de 19 cm de altura."
+    ]
   },
   {
     "id": "P-09",
     "nome": "Homem-Aranha articulado",
     "categoria": "Personagens",
-    "preco": 39,
+    "preco": 39.9,
     "status": "encomenda",
     "personalizado": false,
     "lancamento": true,
+    "montagem": {},
     "descricao": "Homem-Aranha com textura de teia em relevo, aranha branca no peito e mãos na pose de soltar teia. Todas as juntas são móveis, então ele agacha, se estica e faz as poses clássicas.",
+    "prazo": [
+      3,
+      4
+    ],
+    "medidas": "Cerca de 19 cm de altura.",
     "fotos": [
       "51",
       "52",
@@ -674,15 +668,7 @@
         "nome": "Azul",
         "hex": "#3B6FC4"
       }
-    ],
-    "prazo": [
-      3,
-      4
-    ],
-    "montagem": {
-      "extra": 5
-    },
-    "medidas": "Cerca de 19 cm de altura."
+    ]
   },
   {
     "id": "P-08",
@@ -693,7 +679,13 @@
     "status": "encomenda",
     "personalizado": false,
     "lancamento": true,
+    "montagem": {},
     "descricao": "Uma banana amarela e uma azul, articuladas, para fazer passos de dança na estante.",
+    "prazo": [
+      3,
+      4
+    ],
+    "medidas": "Cada banana com cerca de 19 cm de altura.",
     "fotos": [
       "01",
       "00"
@@ -707,15 +699,7 @@
         "nome": "Azul",
         "hex": "#3B6FC4"
       }
-    ],
-    "prazo": [
-      3,
-      4
-    ],
-    "montagem": {
-      "extra": 10
-    },
-    "medidas": "Cada banana com cerca de 19 cm de altura."
+    ]
   },
   {
     "id": "A-01",
@@ -725,7 +709,13 @@
     "status": "encomenda",
     "personalizado": false,
     "lancamento": true,
+    "montagem": {},
     "descricao": "O boneco de 13 juntas que faz qualquer pose. Bom para desenhar, fotografar, decorar a mesa ou brincar. Escolha a cor.",
+    "prazo": [
+      3,
+      4
+    ],
+    "medidas": "Cerca de 19 cm de altura.",
     "fotos": [
       "11",
       "07",
@@ -754,15 +744,7 @@
         "nome": "Cinza",
         "hex": "#8C9196"
       }
-    ],
-    "prazo": [
-      3,
-      4
-    ],
-    "montagem": {
-      "extra": 5
-    },
-    "medidas": "Cerca de 19 cm de altura."
+    ]
   },
   {
     "id": "A-02",
