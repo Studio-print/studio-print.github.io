@@ -76,12 +76,21 @@ details.help li{margin-bottom:6px}
 .row{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px}
 .row img{width:64px;height:64px;object-fit:cover;border-radius:8px;background:#E4E7EC}
 .row .t{min-width:0}
-.row .t b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .t span{display:block;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .t span b{display:inline;font-size:inherit}
-.row .t span .badge-m{display:inline-block;font-size:12px;vertical-align:1px}
+.row .t{display:grid;gap:3px}
+.row .t .tn{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .t .ts{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px;font-size:13px;color:var(--muted)}
+.row .t .ts .cod{font-weight:650;letter-spacing:.02em}
+.row .t .ts .pr{color:var(--ink);font-weight:650;font-variant-numeric:tabular-nums}.row .t .ts .pr small{font-weight:500;color:var(--muted);font-size:12px}
+.row .t .ts .st::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:#9AA3AF;margin-right:5px;vertical-align:1px}
+.row .t .ts .st-disponivel::before{background:#1F9D55}.row .t .ts .st-esgotado::before{background:var(--danger)}
+.row .t .tg{display:flex;flex-wrap:wrap;gap:4px;margin-top:2px}
+.row .t .tg-i,.row .t .tg .badge-m{display:inline-block;font-size:12px;font-weight:600;line-height:18px;padding:1px 8px;border-radius:999px;background:var(--paper);color:#3A414C;white-space:nowrap}
+.row .t .tg-i.fora{background:#FDE7E5;color:#B42318}.row .t .tg-i.mud{background:var(--ink);color:#fff}.row .t .tg-i.dest{background:#E7EEFF;color:#2338B8}
+.row .t .tg .badge-m.ruim{background:#FDE7E5;color:#B42318}.row .t .tg .badge-m.baixo{background:#FFF1D6;color:#8A5300}
 .row .t .changed{color:var(--ink);font-weight:600}
-.row .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.row .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.row .acts [data-vis]{min-width:98px;justify-content:center}
+.row .acts .del .ico{display:none;width:18px;height:18px}
 .cat-head{margin:18px 0 6px;font-size:14px;color:var(--muted);font-weight:650}
 
 /* Barra de publicação */
@@ -392,8 +401,10 @@ dialog .body{overscroll-behavior:contain}
 @media (max-width:640px){
   .row{grid-template-columns:56px minmax(0,1fr)}
   .row img{width:56px;height:56px}
-  .row .acts{grid-column:1/-1;justify-content:flex-start;flex-wrap:wrap;gap:6px}
-  .row .acts .btn:not(.icon){flex:1 1 auto;justify-content:center}
+  .row .acts{grid-column:1/-1;display:grid;grid-template-columns:34px 34px repeat(3,minmax(0,1fr)) 40px;gap:6px}
+  .row .acts .btn:not(.icon){justify-content:center;padding:8px 4px;font-size:13.5px;min-width:0}
+  .row .acts [data-vis]{min-width:0}
+  .row .acts .del{padding:0;height:34px}.row .acts .del .ico{display:block;margin:auto}.row .acts .del .lbl{display:none}
   .tools{grid-template-columns:repeat(2,minmax(0,1fr))}
   .tools > *{min-width:0}
   .tools .btn{white-space:normal;text-align:center;line-height:1.2}
@@ -422,6 +433,7 @@ dialog .body{overscroll-behavior:contain}
   <symbol id="i-down" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m6 10 6 6 6-6"/></symbol>
   <symbol id="i-l" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m15 5-7 7 7 7"/></symbol>
   <symbol id="i-r" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7"/></symbol>
+  <symbol id="i-lixo" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-ext" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
 </svg>
@@ -1131,15 +1143,26 @@ function render(){
       const alterado = origMap[p.id] !== JSON.stringify(p);
       html += `<li class="row${p.oculto ? " is-oculto" : ""}">
         <img src="${esc(thumb(p.fotos[0]))}" alt="">
-        <div class="t" data-edit="${i}" style="cursor:pointer"><b>${esc(p.nome)}</b>
-          <span>${esc(p.id)} | ${brl(p.preco)}${p.unidade ? " " + esc(p.unidade) : ""}${badgeMargem(p)} | ${p.oculto ? '<b class="oculto">Oculto do site</b> | ' : ""}${STATUS[p.status] || p.status}${p.estoque > 0 ? ` (${p.estoque} un.)` : ""}${p.destaque ? " | <b>" + DESTAQUE[p.destaque] + "</b>" : ""}${p.lancamento ? " | Lançamento" : ""}${alterado ? ' | <span class="changed">' + (origMap[p.id] ? "Editado" : "Novo") + "</span>" : ""}</span></div>
+        <div class="t" data-edit="${i}" style="cursor:pointer">
+          <b class="tn">${esc(p.nome)}</b>
+          <div class="ts"><span class="cod">${esc(p.id)}</span><span class="pr">${brl(p.preco)}${p.unidade ? ` <small>${esc(p.unidade)}</small>` : ""}</span><span class="st st-${esc(p.status)}">${STATUS[p.status] || p.status}${p.estoque > 0 ? ` (${p.estoque} un.)` : ""}</span></div>
+          ${(() => { const tg = [
+            alterado ? `<span class="tg-i mud">${origMap[p.id] ? "Editado" : "Novo"}, falta publicar</span>` : "",
+            p.oculto ? `<span class="tg-i fora">Fora do site</span>` : "",
+            badgeMargem(p).trim(),
+            p.destaque ? `<span class="tg-i dest">${DESTAQUE[p.destaque]}</span>` : "",
+            p.lancamento ? `<span class="tg-i">Preço de lançamento</span>` : "",
+            p.montagem ? `<span class="tg-i">${p.montagem.extra ? `Para montar ou montado (+${brl(p.montagem.extra)})` : "Para montar"}</span>` : "",
+            p.personalizado ? `<span class="tg-i">Personalizado</span>` : ""].filter(Boolean);
+            return tg.length ? `<div class="tg">${tg.join("")}</div>` : ""; })()}
+        </div>
         <div class="acts">
           <button class="btn icon" type="button" data-up="${i}" aria-label="Subir ${esc(p.nome)}" ${k===0||q?"disabled":""}><svg><use href="#i-up"/></svg></button>
           <button class="btn icon" type="button" data-down="${i}" aria-label="Descer ${esc(p.nome)}" ${k===pos.length-1||q?"disabled":""}><svg><use href="#i-down"/></svg></button>
           <button class="btn" type="button" data-edit="${i}">Editar</button>
           <button class="btn" type="button" data-vis="${i}" title="${p.oculto ? "Voltar a mostrar no site" : "Tirar do site sem apagar"}">${p.oculto ? "Mostrar" : "Ocultar"}</button>
           <button class="btn" type="button" data-dup="${i}">Duplicar</button>
-          <button class="btn danger" type="button" data-del="${i}">Excluir</button>
+          <button class="btn danger del" type="button" data-del="${i}" aria-label="Excluir ${esc(p.nome)}"><svg class="ico" aria-hidden="true"><use href="#i-lixo"/></svg><span class="lbl">Excluir</span></button>
         </div></li>`;
     });
     html += "</ul>";
@@ -2693,7 +2716,17 @@ function abrirPedido(id, repetirDe, deMensagem){
   else{
     edPed = novoPedidoBase();
     const fonte = repetirDe && pedidos.find(p => p.id === repetirDe);
-    if(fonte){ edPed.cliente = JSON.parse(JSON.stringify(fonte.cliente||{})); edPed.itens = JSON.parse(JSON.stringify(fonte.itens||[])); edPed.entrega = Object.assign(JSON.parse(JSON.stringify(fonte.entrega||{})), {rastreio:""}); }
+    if(fonte){
+      edPed.cliente = JSON.parse(JSON.stringify(fonte.cliente||{})); edPed.entrega = Object.assign(JSON.parse(JSON.stringify(fonte.entrega||{})), {rastreio:""});
+      /* repete com os preços de hoje e sem os custos antigos */
+      let mudou = 0;
+      edPed.itens = JSON.parse(JSON.stringify(fonte.itens||[])).map(({custo, custoMaterial, custoPartes, ...i}) => {
+        const prod = produtos.find(p => p.id === i.produto);
+        if(prod){ const novoP = cent((Number(prod.preco)||0) + (i.montado === true && prod.montagem && prod.montagem.extra ? prod.montagem.extra : 0)); if(Math.abs(novoP - (Number(i.preco)||0)) > 0.001){ i.preco = novoP; mudou++; } i.nome = prod.nome; }
+        return i;
+      });
+      if(mudou) setTimeout(() => aviso(`Preços atualizados para os valores de hoje (${mudou} ${mudou > 1 ? "itens" : "item"}).`), 300);
+    }
   }
   if(deMensagem){
     const m = deMensagem, telefone = m.foneDigitado || m.fone || "";
@@ -2960,10 +2993,14 @@ function atualizarTotais(){
 /* estoque de pronta entrega: grava direto no catálogo, sem mexer em outras edições */
 const estoqueAposSalvar = [];
 function reservaDoPedido(p){
-  return (p.itens||[]).map(i => {
-    const prod = produtos.find(x => x.id === i.produto);
-    return prod && prod.estoque > 0 ? {id:prod.id, qtd:Math.min(Number(i.qtd)||0, prod.estoque)} : null;
-  }).filter(x => x && x.qtd > 0);
+  /* soma as linhas do mesmo produto (ex.: cores ou nomes diferentes) sem passar do estoque */
+  const resta = {}, tot = {};
+  (p.itens||[]).forEach(i => {
+    const prod = produtos.find(x => x.id === i.produto); if(!prod || !(prod.estoque > 0)) return;
+    if(resta[prod.id] === undefined) resta[prod.id] = prod.estoque;
+    const q = Math.min(Number(i.qtd)||0, resta[prod.id]); resta[prod.id] -= q; tot[prod.id] = (tot[prod.id] || 0) + q;
+  });
+  return Object.entries(tot).map(([id, qtd]) => ({id, qtd})).filter(x => x.qtd > 0);
 }
 async function ajustarEstoque(mov, motivo){
   /* mov: [{id, qtd}] com qtd negativa para baixar e positiva para devolver */

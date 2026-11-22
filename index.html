@@ -183,6 +183,7 @@ html.travado,html.travado body{overflow:hidden}
 .facts{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .panel p{margin:0;color:#353B46}
 .colors h4{margin:0 0 8px;font-size:14px;color:var(--muted);font-weight:600}
+.colors.erro h4 .opc{color:#B42318;font-weight:700}
 .colors ul{list-style:none;margin:0;padding:0;display:flex;gap:10px;flex-wrap:wrap}
 .colors li{display:flex;align-items:center;gap:6px;font-size:14px;border:1px solid var(--line);border-radius:999px;padding:4px 10px 4px 6px}
 .colors .sw{width:16px;height:16px}
@@ -221,6 +222,8 @@ html.travado,html.travado body{overflow:hidden}
 .escolha label{font-size:14px;color:var(--muted);font-weight:600}
 .escolha input{font:inherit;font-size:16px;border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%;box-sizing:border-box}
 .escolha input.erro{border-color:#B42318;box-shadow:0 0 0 1px #B42318}
+.nomes{display:grid;gap:10px}.nomes > div{display:grid;gap:4px}
+.nomes-dica{margin:-2px 0 0;font-size:13px;color:var(--muted)}
 .esc-linha{display:flex;gap:10px;align-items:stretch}
 .qtd{display:flex;align-items:center;border:1px solid var(--line);border-radius:12px;overflow:hidden;flex:none}
 .qtd button{border:0;background:var(--card);width:42px;height:100%;min-height:46px;font-size:20px;cursor:pointer;color:var(--ink)}
@@ -497,7 +500,9 @@ let cat = "Todos", q = "";
 let LISTA = [];
 try{ LISTA = JSON.parse(localStorage.getItem("sp_pedido") || "[]").filter(i => i && i.id && i.qtd > 0); }catch(_){ LISTA = []; }
 const guardar = () => { try{ localStorage.setItem("sp_pedido", JSON.stringify(LISTA)); }catch(_){} };
-let sel = {cor:"", qtd:1, gravar:"", montado:false};
+let sel = {cor:"", qtd:1, gravar:"", nomes:[""], montado:false};
+/* nomes digitados, agrupados: [["Ana",2],["Bia",1]] (nome vazio = falta escrever) */
+const nomesAgrupados = () => { const m = new Map(); sel.nomes.slice(0, sel.qtd).forEach(n => { const k = (n || "").trim(); m.set(k, (m.get(k) || 0) + 1); }); return [...m.entries()]; };
 const montTxt = i => i.montado === true ? ", montado" : i.montado === false ? ", para montar" : "";
 const linhaPedido = i => `${i.qtd}x ${i.id} ${i.nome}${i.cor ? ` (${i.cor})` : ""}${i.gravar ? `, nome "${i.gravar}"` : ""}${montTxt(i)}: ${brl(i.preco * i.qtd)}`;
 const precoSel = p => (Number(p.price) || 0) + (p.mont && sel.montado ? p.mont.extra : 0);
@@ -534,8 +539,10 @@ function waLink(c, p){
     const item = `${p.id}, ${p.name} (${brl(p.price)}${p.unit?" "+p.unit:""})`;
     msg = p.status==="disponivel" ? `${oi} Vi no catálogo da StudioPrint o ${item}. Ainda tem para pronta entrega?`
         : p.status==="esgotado" ? `${oi} Vi no catálogo da StudioPrint o ${item}. Quero entrar na lista de espera.`
-        : `${oi} Vi no catálogo da StudioPrint e quero encomendar:\n${linhaPedido({id:p.id, nome:p.name, cor:sel.cor, gravar:sel.gravar, qtd:sel.qtd, preco:precoSel(p), ...(p.mont ? {montado:sel.montado} : {})})}` +
-          (p.custom && !sel.gravar ? `\nNome para personalizar: ` : "") + (!sel.cor ? `\nCor: ` : "");
+        : `${oi} Vi no catálogo da StudioPrint e quero encomendar:\n` +
+          (p.custom ? nomesAgrupados().map(([n, q]) => linhaPedido({id:p.id, nome:p.name, cor:sel.cor, gravar:n, qtd:q, preco:precoSel(p), ...(p.mont ? {montado:sel.montado} : {})})).join("\n")
+                    : linhaPedido({id:p.id, nome:p.name, cor:sel.cor, gravar:"", qtd:sel.qtd, preco:precoSel(p), ...(p.mont ? {montado:sel.montado} : {})})) +
+          (p.custom && nomesAgrupados().some(([n]) => !n) ? `\nNome para personalizar: ` : "") + (!sel.cor && coresDisponiveis(p).length ? `\nCor: ` : "");
   }
   if(p === "lista"){
     const nome = $("#lNome").value.trim(), cep = $("#lCep").value.trim(), fr = freteLista();
@@ -544,7 +551,7 @@ function waLink(c, p){
     msg = `${oi}${nome ? ` Sou ${nome}.` : ""} Vi o catálogo da StudioPrint e quero fazer este pedido:\n` +
       LISTA.map(i => "• " + linhaPedido(i)).join("\n") +
       `\nTotal dos produtos: ${brl(totalLista())}` +
-      (tipo === "abc" && entregaSel.cidade ? `\nEntrega: ${brl(fr)}\nTotal com a entrega: ${brl(totalLista() + fr)}` : tipo === "retirada" ? " (retirada, sem custo de entrega)" : " (sem a entrega)") +
+      (tipo === "abc" && entregaSel.cidade && entregaSel.valor >= 0 ? `\nEntrega: ${brl(fr)}\nTotal com a entrega: ${brl(totalLista() + fr)}` : tipo === "abc" && entregaSel.valor < 0 ? " (entrega a combinar)" : tipo === "retirada" ? " (retirada, sem custo de entrega)" : " (sem a entrega)") +
       (receber ? `\nComo quero receber: ${receber}` : "") + (pagSel ? `\nComo quero pagar: ${pagSel}` : "") + (cep ? `\n${tipo === "correios" ? "CEP" : "Bairro ou CEP"}: ${cep}` : "") +
       (LISTA.some(i => i.custom && !i.gravar) ? `\nNome para personalizar: ` : "") + (LISTA.some(i => !i.cor && i.temCores) ? `\nCores: ` : "");
   }
@@ -621,7 +628,8 @@ function openProduct(id, setHash){
     + (fc ? `<div><dt>Pagamento</dt><dd>${esc(fc)}${p.status === "encomenda" && sn ? `<small>${esc(textoSinal()[0].toUpperCase() + textoSinal().slice(1))}</small>` : ""}${PAG().obs ? `<small>${esc(PAG().obs)}</small>` : ""}</dd></div>` : "");
   const cs = coresDisponiveis(p);
   $("#dAvisos").innerHTML = avisosDe(p).length ? `<h4>Antes de comprar</h4><ul>${avisosDe(p).map(a=>`<li>${esc(a.texto)}</li>`).join("")}</ul>` : "";
-  sel = {cor: cs.length === 1 ? cs[0].nome : "", qtd:1, gravar:"", montado:false};
+  sel = {cor: cs.length === 1 ? cs[0].nome : "", qtd:1, gravar:"", nomes:[""], montado:false};
+  $("#dColors").classList.remove("erro");
   $("#dColors").innerHTML = cs.length ? `<h4>Cores <span class="opc">${cs.length > 1 ? "toque para escolher" : ""}</span></h4><ul>${cs.map(k=>`<li style="border:0;padding:0"><button type="button" data-cor="${esc(k.nome)}" aria-pressed="${sel.cor===k.nome}"><span class="sw" style="background:${esc(k.hex)}"></span>${esc(k.nome)}</button></li>`).join("")}</ul>` : "";
   desenharEscolha(p);
   $("#dNote").textContent = p.status==="encomenda"
@@ -670,35 +678,46 @@ function desenharEscolha(p, ok){
     (p.mont && p.mont.extra ? `<div class="mont"><span class="mont-t">Montagem</span><div class="mont-op" role="radiogroup" aria-label="Montagem">
       <button type="button" role="radio" data-mont="0" aria-checked="${!sel.montado}"><b>Para montar</b><span>${brl(p.price)}</span></button>
       <button type="button" role="radio" data-mont="1" aria-checked="${sel.montado}"><b>Montado</b><span>${brl(p.price + p.mont.extra)}</span></button></div></div>` : "") +
-    (p.custom ? `<div><label for="dGravar">Nome para personalizar</label><input id="dGravar" maxlength="20" placeholder="Ex.: Ana" value="${esc(sel.gravar)}"></div>` : "") +
+    (p.custom ? `<div class="nomes">${Array.from({length: sel.qtd}, (_, k) => `<div><label for="${k ? "dGravar" + k : "dGravar"}">${sel.qtd > 1 ? `Nome da peça ${k + 1}` : "Nome para personalizar"}</label><input id="${k ? "dGravar" + k : "dGravar"}" class="nome-g" data-k="${k}" maxlength="20" placeholder="${k ? "Outro nome, ou repita o mesmo" : "Ex.: Ana"}" value="${esc(sel.nomes[k] || "")}"></div>`).join("")}<p class="nomes-dica">${sel.qtd > 1 ? "Uma peça para cada nome. Pode repetir o mesmo nome." : "Quer mais de um nome? Aumente a quantidade: aparece um campo para cada peça."}</p></div>` : "") +
     `<div class="esc-linha"><div class="qtd" role="group" aria-label="Quantidade"><button type="button" data-q="-1" aria-label="Menos um">−</button><output id="dQtd">${sel.qtd}</output><button type="button" data-q="1" aria-label="Mais um">+</button></div>
       <button class="btn add" type="button" id="dAdd">Adicionar ao pedido</button></div>` +
     (ok ? `<p class="esc-ok" role="status">${ok} <button type="button" data-ver>Ver pedido (${qtdLista()})</button></p>` : "");
 }
 $("#dColors").addEventListener("click", e => {
   const b = e.target.closest("[data-cor]"); if(!b || !cur) return;
-  sel.cor = sel.cor === b.dataset.cor ? "" : b.dataset.cor;
+  sel.cor = sel.cor === b.dataset.cor ? "" : b.dataset.cor; $("#dColors").classList.remove("erro");
   $("#dColors").querySelectorAll("[data-cor]").forEach(x => x.setAttribute("aria-pressed", x.dataset.cor === sel.cor));
   botoesWa(cur);
 });
-$("#dEscolha").addEventListener("input", e => { if(e.target.id === "dGravar"){ sel.gravar = e.target.value.trim(); e.target.classList.remove("erro"); botoesWa(cur); } });
+$("#dEscolha").addEventListener("input", e => { if(e.target.classList.contains("nome-g")){ if(/"/.test(e.target.value)) e.target.value = e.target.value.replace(/"/g, "'"); sel.nomes[+e.target.dataset.k] = e.target.value.trim(); sel.gravar = sel.nomes[0] || ""; e.target.classList.remove("erro"); botoesWa(cur); } });
 $("#dEscolha").addEventListener("click", e => {
   const q = e.target.closest("[data-q]");
-  if(q){ sel.qtd = Math.min(99, Math.max(1, sel.qtd + Number(q.dataset.q))); $("#dQtd").textContent = sel.qtd; botoesWa(cur); return; }
+  if(q){ sel.qtd = Math.min(99, Math.max(1, sel.qtd + Number(q.dataset.q))); $("#dQtd").textContent = sel.qtd;
+    if(cur && cur.custom){ while(sel.nomes.length < sel.qtd) sel.nomes.push(""); desenharEscolha(cur); if(Number(q.dataset.q) > 0){ const ult = document.getElementById("dGravar" + (sel.qtd - 1)); if(ult) ult.focus(); } }
+    botoesWa(cur); return; }
   if(e.target.closest("[data-ver]")){ abrirLista(); return; }
   const mb = e.target.closest("[data-mont]");
   if(mb){ sel.montado = mb.dataset.mont === "1"; $("#dEscolha").querySelectorAll("[data-mont]").forEach(x => x.setAttribute("aria-checked", (x.dataset.mont === "1") === sel.montado));
     $("#dPrice").innerHTML = `${brl(precoSel(cur))}${cur.unit?`<small>${esc(cur.unit)}</small>`:""}`; botoesWa(cur); return; }
   if(e.target.closest("#dAdd")){
     const p = cur;
-    if(p.custom && !sel.gravar){ const i = $("#dGravar"); i.classList.add("erro"); i.focus(); i.placeholder = "Digite o nome antes de adicionar"; return; }
+    const csel = coresDisponiveis(p);
+    if(csel.length > 1 && !sel.cor){ const h = $("#dColors h4"); $("#dColors").classList.add("erro"); if(h){ h.querySelector(".opc").textContent = "escolha uma cor antes de adicionar"; } $("#dColors").scrollIntoView({block:"center", behavior:"smooth"}); return; }
+    if(p.custom){
+      const vazio = sel.nomes.slice(0, sel.qtd).findIndex(n => !(n || "").trim());
+      if(vazio >= 0){ const i = document.getElementById(vazio ? "dGravar" + vazio : "dGravar"); i.classList.add("erro"); i.focus(); i.placeholder = "Digite o nome antes de adicionar"; return; }
+    }
     const mont = p.mont ? {montado: !!sel.montado} : {};
-    const igual = LISTA.find(i => i.id === p.id && i.cor === sel.cor && i.gravar === sel.gravar && i.montado === mont.montado);
-    if(igual) igual.qtd = Math.min(99, igual.qtd + sel.qtd);
-    else LISTA.push({id:p.id, nome:p.name, preco:precoSel(p), cor:sel.cor, gravar:sel.gravar, qtd:sel.qtd, custom:p.custom, temCores:coresDisponiveis(p).length > 0, img:p.imgs[0], ...mont});
+    const grupos = p.custom ? nomesAgrupados() : [["", sel.qtd]];
+    grupos.forEach(([nome, q]) => {
+      const igual = LISTA.find(i => i.id === p.id && i.cor === sel.cor && i.gravar === nome && i.montado === mont.montado);
+      if(igual) igual.qtd = Math.min(99, igual.qtd + q);
+      else LISTA.push({id:p.id, nome:p.name, preco:precoSel(p), cor:sel.cor, gravar:nome, qtd:q, custom:p.custom, temCores:coresDisponiveis(p).length > 0, img:p.imgs[0], ...mont});
+    });
     guardar(); atualizarBarra();
-    const txt = `Adicionado: ${sel.qtd}x ${p.name}${sel.cor ? " (" + sel.cor + ")" : ""}${p.mont ? (sel.montado ? ", montado" : ", para montar") : ""}.`;
-    sel.gravar = ""; sel.qtd = 1;
+    const nomesTxt = p.custom ? (grupos.length === 1 ? `, nome "${grupos[0][0]}"` : `, nomes ${grupos.map(([n]) => `"${n}"`).join(", ")}`) : "";
+    const txt = `Adicionado: ${sel.qtd}x ${p.name}${sel.cor ? " (" + sel.cor + ")" : ""}${nomesTxt}${p.mont ? (sel.montado ? ", montado" : ", para montar") : ""}.`;
+    sel.gravar = ""; sel.nomes = [""]; sel.qtd = 1;
     desenharEscolha(p, txt); botoesWa(p);
   }
 });
@@ -713,7 +732,9 @@ function desenharLista(){
     <div><b>${esc(i.nome)}</b><small>${esc(i.id)}${i.cor ? " | " + esc(i.cor) : ""}${i.gravar ? ` | nome "${esc(i.gravar)}"` : ""}${i.montado === true ? " | montado" : i.montado === false ? " | para montar" : ""} | ${brl(i.preco)} cada</small><button class="l-rm" type="button" data-rm="${k}">Remover</button></div>
     <div class="qtd" role="group" aria-label="Quantidade de ${esc(i.nome)}"><button type="button" data-lq="${k}" data-d="-1" aria-label="Menos um">−</button><output>${i.qtd}</output><button type="button" data-lq="${k}" data-d="1" aria-label="Mais um">+</button></div></li>`).join("");
   const fr = freteLista(), tipo = entregaSel && entregaSel.tipo;
-  $("#lTotal").innerHTML = tipo === "abc" && entregaSel.cidade
+  $("#lTotal").innerHTML = tipo === "abc" && entregaSel.cidade && entregaSel.valor < 0
+    ? `<span class="l-sub">Produtos <span>${brl(totalLista())}</span></span><span class="l-sub">Entrega em outra cidade <span>a combinar</span></span>Total dos produtos <b>${brl(totalLista())}</b>`
+    : tipo === "abc" && entregaSel.cidade
     ? `<span class="l-sub">Produtos <span>${brl(totalLista())}</span></span><span class="l-sub">Entrega em ${esc(entregaSel.cidade)} <span>${brl(fr)}</span></span>Total com a entrega <b>${brl(totalLista() + fr)}</b>`
     : `Total dos produtos <b>${brl(totalLista())}</b>`;
   $("#lCidadeBox").hidden = tipo !== "abc";
@@ -766,7 +787,7 @@ $("#lPagar").addEventListener("click", e => {
 $("#lCidade").addEventListener("change", e => {
   const v = e.target.value, fs = (SITE.fretes||[]).filter(f => f.nome);
   if(v === "" ){ entregaSel = {tipo:"abc", cidade:"", valor:0}; }
-  else if(v === "outra"){ entregaSel = {tipo:"abc", cidade:"outra cidade (valor a combinar)", valor:-1}; }
+  else if(v === "outra"){ entregaSel = {tipo:"abc", cidade:"outra cidade", valor:-1}; }
   else entregaSel = {tipo:"abc", cidade:fs[+v].nome, valor:Number(fs[+v].valor)||0};
   desenharLista();
 });
