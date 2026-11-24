@@ -183,7 +183,8 @@
         16.65
       ]
     ],
-    "kitGrupo": "Enfeites com nome"
+    "kitGrupo": "Enfeites com nome",
+    "oculto": true
   },
   {
     "id": "N-07",
