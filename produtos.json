@@ -355,7 +355,8 @@
     "prazo": [
       2,
       3
-    ]
+    ],
+    "oculto": true
   },
   {
     "id": "N-11",
@@ -396,7 +397,8 @@
       3,
       4
     ],
-    "medidas": "Cerca de 7 cm de altura."
+    "medidas": "Cerca de 7 cm de altura.",
+    "oculto": true
   },
   {
     "id": "N-13",
